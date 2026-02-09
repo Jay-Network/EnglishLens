@@ -1,0 +1,799 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.jworks.kanjilens"
+4    android:versionCode="2"
+5    android:versionName="1.0.1" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-feature
+11-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:4:5-6:35
+12        android:name="android.hardware.camera"
+12-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:5:9-47
+13        android:required="true" />
+13-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:6:9-32
+14
+15    <uses-permission android:name="android.permission.CAMERA" />
+15-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:8:5-65
+15-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:8:22-62
+16    <uses-permission android:name="android.permission.INTERNET" />
+16-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:9:5-67
+16-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:9:22-64
+17    <!-- See https://developer.android.com/training/package-visibility/declaring for more details. -->
+18    <queries>
+18-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:8:5-12:15
+19
+20        <!-- Added to check if Chrome is installed for browser-based payment authentication (e.g. 3DS1). -->
+21        <package android:name="com.android.chrome" />
+21-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:11:9-54
+21-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:11:18-51
+22        <!-- Needs to be explicitly declared on Android R+ -->
+23        <package android:name="com.google.android.apps.maps" />
+23-->[com.google.android.gms:play-services-maps:18.0.2] /home/takuma/.gradle/caches/transforms-3/eab6606c10d70915e965ba3bdbd21ca4/transformed/play-services-maps-18.0.2/AndroidManifest.xml:33:9-64
+23-->[com.google.android.gms:play-services-maps:18.0.2] /home/takuma/.gradle/caches/transforms-3/eab6606c10d70915e965ba3bdbd21ca4/transformed/play-services-maps-18.0.2/AndroidManifest.xml:33:18-61
+24    </queries>
+25
+26    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+26-->[com.stripe:stripe-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/c6daf21ca697877cc547755d51c9d3d0/transformed/stripe-core-20.35.0/AndroidManifest.xml:7:5-79
+26-->[com.stripe:stripe-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/c6daf21ca697877cc547755d51c9d3d0/transformed/stripe-core-20.35.0/AndroidManifest.xml:7:22-76
+27
+28    <uses-feature
+28-->[com.google.android.gms:play-services-maps:18.0.2] /home/takuma/.gradle/caches/transforms-3/eab6606c10d70915e965ba3bdbd21ca4/transformed/play-services-maps-18.0.2/AndroidManifest.xml:26:5-28:35
+29        android:glEsVersion="0x00020000"
+29-->[com.google.android.gms:play-services-maps:18.0.2] /home/takuma/.gradle/caches/transforms-3/eab6606c10d70915e965ba3bdbd21ca4/transformed/play-services-maps-18.0.2/AndroidManifest.xml:27:9-41
+30        android:required="true" />
+30-->[com.google.android.gms:play-services-maps:18.0.2] /home/takuma/.gradle/caches/transforms-3/eab6606c10d70915e965ba3bdbd21ca4/transformed/play-services-maps-18.0.2/AndroidManifest.xml:28:9-32
+31
+32    <uses-permission android:name="android.permission.WAKE_LOCK" />
+32-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:23:5-68
+32-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:23:22-65
+33    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+33-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:25:5-81
+33-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:25:22-78
+34    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+34-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:26:5-77
+34-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:26:22-74
+35
+36    <permission
+36-->[androidx.core:core:1.12.0] /home/takuma/.gradle/caches/transforms-3/ae005141d4b7a46ffd6623df79dcd879/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+37        android:name="com.jworks.kanjilens.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+37-->[androidx.core:core:1.12.0] /home/takuma/.gradle/caches/transforms-3/ae005141d4b7a46ffd6623df79dcd879/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+38        android:protectionLevel="signature" />
+38-->[androidx.core:core:1.12.0] /home/takuma/.gradle/caches/transforms-3/ae005141d4b7a46ffd6623df79dcd879/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+39
+40    <uses-permission android:name="com.jworks.kanjilens.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+40-->[androidx.core:core:1.12.0] /home/takuma/.gradle/caches/transforms-3/ae005141d4b7a46ffd6623df79dcd879/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+40-->[androidx.core:core:1.12.0] /home/takuma/.gradle/caches/transforms-3/ae005141d4b7a46ffd6623df79dcd879/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+41
+42    <application
+42-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:11:5-35:19
+43        android:name="com.jworks.kanjilens.KanjiLensApplication"
+43-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:12:9-45
+44        android:allowBackup="true"
+44-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:13:9-35
+45        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+45-->[androidx.core:core:1.12.0] /home/takuma/.gradle/caches/transforms-3/ae005141d4b7a46ffd6623df79dcd879/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
+46        android:debuggable="true"
+47        android:extractNativeLibs="false"
+48        android:icon="@mipmap/ic_launcher"
+48-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:14:9-43
+49        android:label="@string/app_name"
+49-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:15:9-41
+50        android:roundIcon="@mipmap/ic_launcher_round"
+50-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:16:9-54
+51        android:supportsRtl="true"
+51-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:17:9-35
+52        android:theme="@style/Theme.KanjiLens" >
+52-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:18:9-47
+53        <activity
+53-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:20:9-29:20
+54            android:name="com.jworks.kanjilens.MainActivity"
+54-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:21:13-41
+55            android:exported="true"
+55-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:22:13-36
+56            android:screenOrientation="portrait"
+56-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:23:13-49
+57            android:theme="@style/Theme.KanjiLens" >
+57-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:24:13-51
+58            <intent-filter>
+58-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:25:13-28:29
+59                <action android:name="android.intent.action.MAIN" />
+59-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:26:17-69
+59-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:26:25-66
+60
+61                <category android:name="android.intent.category.LAUNCHER" />
+61-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:27:17-77
+61-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:27:27-74
+62            </intent-filter>
+63        </activity>
+64
+65        <!-- ML Kit auto-download for Japanese text recognition -->
+66        <meta-data
+66-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:32:9-34:44
+67            android:name="com.google.mlkit.vision.DEPENDENCIES"
+67-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:33:13-64
+68            android:value="ocr_japanese" />
+68-->/media/takuma/Data_ubuntu/GitHub/Jay-Network/apps/KanjiLens/app/src/main/AndroidManifest.xml:34:13-41
+69
+70        <service
+70-->[androidx.camera:camera-camera2:1.3.1] /home/takuma/.gradle/caches/transforms-3/7c2f46063663a428666b33e7da7aa44b/transformed/camera-camera2-1.3.1/AndroidManifest.xml:24:9-33:19
+71            android:name="androidx.camera.core.impl.MetadataHolderService"
+71-->[androidx.camera:camera-camera2:1.3.1] /home/takuma/.gradle/caches/transforms-3/7c2f46063663a428666b33e7da7aa44b/transformed/camera-camera2-1.3.1/AndroidManifest.xml:25:13-75
+72            android:enabled="false"
+72-->[androidx.camera:camera-camera2:1.3.1] /home/takuma/.gradle/caches/transforms-3/7c2f46063663a428666b33e7da7aa44b/transformed/camera-camera2-1.3.1/AndroidManifest.xml:26:13-36
+73            android:exported="false" >
+73-->[androidx.camera:camera-camera2:1.3.1] /home/takuma/.gradle/caches/transforms-3/7c2f46063663a428666b33e7da7aa44b/transformed/camera-camera2-1.3.1/AndroidManifest.xml:27:13-37
+74            <meta-data
+74-->[androidx.camera:camera-camera2:1.3.1] /home/takuma/.gradle/caches/transforms-3/7c2f46063663a428666b33e7da7aa44b/transformed/camera-camera2-1.3.1/AndroidManifest.xml:30:13-32:89
+75                android:name="androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
+75-->[androidx.camera:camera-camera2:1.3.1] /home/takuma/.gradle/caches/transforms-3/7c2f46063663a428666b33e7da7aa44b/transformed/camera-camera2-1.3.1/AndroidManifest.xml:31:17-103
+76                android:value="androidx.camera.camera2.Camera2Config$DefaultProvider" />
+76-->[androidx.camera:camera-camera2:1.3.1] /home/takuma/.gradle/caches/transforms-3/7c2f46063663a428666b33e7da7aa44b/transformed/camera-camera2-1.3.1/AndroidManifest.xml:32:17-86
+77        </service>
+78
+79        <provider
+79-->[io.github.jan-tennert.supabase:gotrue-kt-android-debug:2.1.5] /home/takuma/.gradle/caches/transforms-3/f475780fa2541354be0ae29fb7d0e07d/transformed/gotrue-kt-debug/AndroidManifest.xml:9:9-17:20
+80            android:name="androidx.startup.InitializationProvider"
+80-->[io.github.jan-tennert.supabase:gotrue-kt-android-debug:2.1.5] /home/takuma/.gradle/caches/transforms-3/f475780fa2541354be0ae29fb7d0e07d/transformed/gotrue-kt-debug/AndroidManifest.xml:10:13-67
+81            android:authorities="com.jworks.kanjilens.androidx-startup"
+81-->[io.github.jan-tennert.supabase:gotrue-kt-android-debug:2.1.5] /home/takuma/.gradle/caches/transforms-3/f475780fa2541354be0ae29fb7d0e07d/transformed/gotrue-kt-debug/AndroidManifest.xml:11:13-68
+82            android:exported="false" >
+82-->[io.github.jan-tennert.supabase:gotrue-kt-android-debug:2.1.5] /home/takuma/.gradle/caches/transforms-3/f475780fa2541354be0ae29fb7d0e07d/transformed/gotrue-kt-debug/AndroidManifest.xml:12:13-37
+83            <meta-data
+83-->[io.github.jan-tennert.supabase:gotrue-kt-android-debug:2.1.5] /home/takuma/.gradle/caches/transforms-3/f475780fa2541354be0ae29fb7d0e07d/transformed/gotrue-kt-debug/AndroidManifest.xml:14:13-16:52
+84                android:name="io.github.jan.supabase.gotrue.SupabaseInitializer"
+84-->[io.github.jan-tennert.supabase:gotrue-kt-android-debug:2.1.5] /home/takuma/.gradle/caches/transforms-3/f475780fa2541354be0ae29fb7d0e07d/transformed/gotrue-kt-debug/AndroidManifest.xml:15:17-81
+85                android:value="androidx.startup" />
+85-->[io.github.jan-tennert.supabase:gotrue-kt-android-debug:2.1.5] /home/takuma/.gradle/caches/transforms-3/f475780fa2541354be0ae29fb7d0e07d/transformed/gotrue-kt-debug/AndroidManifest.xml:16:17-49
+86            <meta-data
+86-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:34:13-36:52
+87                android:name="androidx.work.WorkManagerInitializer"
+87-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:35:17-68
+88                android:value="androidx.startup" />
+88-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:36:17-49
+89            <meta-data
+89-->[androidx.emoji2:emoji2:1.3.0] /home/takuma/.gradle/caches/transforms-3/71564c579c417c9ed1fa1fe2f9bc5ef6/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+90                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+90-->[androidx.emoji2:emoji2:1.3.0] /home/takuma/.gradle/caches/transforms-3/71564c579c417c9ed1fa1fe2f9bc5ef6/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+91                android:value="androidx.startup" />
+91-->[androidx.emoji2:emoji2:1.3.0] /home/takuma/.gradle/caches/transforms-3/71564c579c417c9ed1fa1fe2f9bc5ef6/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+92            <meta-data
+92-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/takuma/.gradle/caches/transforms-3/f95faf2b34bdc08e88a3992a9e26ce72/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+93                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+93-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/takuma/.gradle/caches/transforms-3/f95faf2b34bdc08e88a3992a9e26ce72/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+94                android:value="androidx.startup" />
+94-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/takuma/.gradle/caches/transforms-3/f95faf2b34bdc08e88a3992a9e26ce72/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+95            <meta-data
+95-->[com.russhwolf:multiplatform-settings-no-arg-android-debug:1.1.1] /home/takuma/.gradle/caches/transforms-3/510b64a5e3f6ed5931a1c10dc915feec/transformed/multiplatform-settings-no-arg-debug/AndroidManifest.xml:29:13-31:52
+96                android:name="com.russhwolf.settings.SettingsInitializer"
+96-->[com.russhwolf:multiplatform-settings-no-arg-android-debug:1.1.1] /home/takuma/.gradle/caches/transforms-3/510b64a5e3f6ed5931a1c10dc915feec/transformed/multiplatform-settings-no-arg-debug/AndroidManifest.xml:30:17-74
+97                android:value="androidx.startup" />
+97-->[com.russhwolf:multiplatform-settings-no-arg-android-debug:1.1.1] /home/takuma/.gradle/caches/transforms-3/510b64a5e3f6ed5931a1c10dc915feec/transformed/multiplatform-settings-no-arg-debug/AndroidManifest.xml:31:17-49
+98            <meta-data
+98-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+99                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+99-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+100                android:value="androidx.startup" />
+100-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+101        </provider>
+102
+103        <activity
+103-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:8:9-12:58
+104            android:name="com.stripe.android.paymentsheet.PaymentSheetActivity"
+104-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:9:13-80
+105            android:exported="false"
+105-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:10:13-37
+106            android:theme="@style/StripePaymentSheetDefaultTheme"
+106-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:11:13-66
+107            android:windowSoftInputMode="adjustResize" />
+107-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:12:13-55
+108        <activity
+108-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:13:9-17:58
+109            android:name="com.stripe.android.paymentsheet.PaymentOptionsActivity"
+109-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:14:13-82
+110            android:exported="false"
+110-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:15:13-37
+111            android:theme="@style/StripePaymentSheetDefaultTheme"
+111-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:16:13-66
+112            android:windowSoftInputMode="adjustResize" />
+112-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:17:13-55
+113        <activity
+113-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:18:9-22:58
+114            android:name="com.stripe.android.customersheet.CustomerSheetActivity"
+114-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:19:13-82
+115            android:exported="false"
+115-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:20:13-37
+116            android:theme="@style/StripePaymentSheetDefaultTheme"
+116-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:21:13-66
+117            android:windowSoftInputMode="adjustResize" />
+117-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:22:13-55
+118        <activity
+118-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:23:9-26:69
+119            android:name="com.stripe.android.paymentsheet.addresselement.AddressElementActivity"
+119-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:24:13-97
+120            android:exported="false"
+120-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:25:13-37
+121            android:theme="@style/StripePaymentSheetDefaultTheme" />
+121-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:26:13-66
+122        <activity
+122-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:27:9-30:69
+123            android:name="com.stripe.android.paymentsheet.paymentdatacollection.bacs.BacsMandateConfirmationActivity"
+123-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:28:13-118
+124            android:exported="false"
+124-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:29:13-37
+125            android:theme="@style/StripePaymentSheetDefaultTheme" />
+125-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:30:13-66
+126        <activity
+126-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:31:9-34:69
+127            android:name="com.stripe.android.paymentsheet.paymentdatacollection.polling.PollingActivity"
+127-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:32:13-105
+128            android:exported="false"
+128-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:33:13-37
+129            android:theme="@style/StripePaymentSheetDefaultTheme" />
+129-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:34:13-66
+130        <activity
+130-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:35:9-38:69
+131            android:name="com.stripe.android.paymentsheet.ui.SepaMandateActivity"
+131-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:36:13-82
+132            android:exported="false"
+132-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:37:13-37
+133            android:theme="@style/StripePaymentSheetDefaultTheme" />
+133-->[com.stripe:paymentsheet:20.35.0] /home/takuma/.gradle/caches/transforms-3/95585f065ee91833ba7d4cc0807cec5f/transformed/paymentsheet-20.35.0/AndroidManifest.xml:38:13-66
+134        <activity
+134-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:8:9-13:61
+135            android:name="com.stripe.android.link.LinkForegroundActivity"
+135-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:9:13-74
+136            android:autoRemoveFromRecents="true"
+136-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:10:13-49
+137            android:configChanges="orientation|keyboard|keyboardHidden|screenLayout|screenSize|smallestScreenSize"
+137-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:11:13-115
+138            android:launchMode="singleTop"
+138-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:12:13-43
+139            android:theme="@style/StripeTransparentTheme" />
+139-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:13:13-58
+140        <activity
+140-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:14:9-31:20
+141            android:name="com.stripe.android.link.LinkRedirectHandlerActivity"
+141-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:15:13-79
+142            android:autoRemoveFromRecents="true"
+142-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:16:13-49
+143            android:exported="true"
+143-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:17:13-36
+144            android:launchMode="singleInstance"
+144-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:18:13-48
+145            android:theme="@style/StripeTransparentTheme" >
+145-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:19:13-58
+146            <intent-filter>
+146-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:20:13-30:29
+147                <action android:name="android.intent.action.VIEW" />
+147-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:21:17-69
+147-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:21:25-66
+148
+149                <category android:name="android.intent.category.DEFAULT" />
+149-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:23:17-76
+149-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:23:27-73
+150                <category android:name="android.intent.category.BROWSABLE" />
+150-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:24:17-78
+150-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:24:27-75
+151
+152                <data
+152-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:26:17-29:51
+153                    android:host="complete"
+153-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:27:21-44
+154                    android:path="/com.jworks.kanjilens"
+154-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:28:21-53
+155                    android:scheme="link-popup" />
+155-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:29:21-48
+156            </intent-filter>
+157        </activity>
+158        <activity
+158-->[com.stripe:payments-ui-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/fa706981121f46e756142b06d0d76b83/transformed/payments-ui-core-20.35.0/AndroidManifest.xml:8:9-11:69
+159            android:name="com.stripe.android.ui.core.cardscan.CardScanActivity"
+159-->[com.stripe:payments-ui-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/fa706981121f46e756142b06d0d76b83/transformed/payments-ui-core-20.35.0/AndroidManifest.xml:9:13-80
+160            android:exported="false"
+160-->[com.stripe:payments-ui-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/fa706981121f46e756142b06d0d76b83/transformed/payments-ui-core-20.35.0/AndroidManifest.xml:10:13-37
+161            android:theme="@style/StripePaymentSheetDefaultTheme" />
+161-->[com.stripe:payments-ui-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/fa706981121f46e756142b06d0d76b83/transformed/payments-ui-core-20.35.0/AndroidManifest.xml:11:13-66
+162        <activity
+162-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:15:9-18:57
+163            android:name="com.stripe.android.view.AddPaymentMethodActivity"
+163-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:16:13-76
+164            android:exported="false"
+164-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:17:13-37
+165            android:theme="@style/StripeDefaultTheme" />
+165-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:18:13-54
+166        <activity
+166-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:19:9-22:57
+167            android:name="com.stripe.android.view.PaymentMethodsActivity"
+167-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:20:13-74
+168            android:exported="false"
+168-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:21:13-37
+169            android:theme="@style/StripeDefaultTheme" />
+169-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:22:13-54
+170        <activity
+170-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:23:9-26:57
+171            android:name="com.stripe.android.view.PaymentFlowActivity"
+171-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:24:13-71
+172            android:exported="false"
+172-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:25:13-37
+173            android:theme="@style/StripeDefaultTheme" />
+173-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:26:13-54
+174        <activity
+174-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:27:9-31:58
+175            android:name="com.stripe.android.view.PaymentAuthWebViewActivity"
+175-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:28:13-78
+176            android:exported="false"
+176-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:29:13-37
+177            android:theme="@style/StripeDefaultTheme"
+177-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:30:13-54
+178            android:windowSoftInputMode="adjustResize" />
+178-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:31:13-55
+179        <activity
+179-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:32:9-35:61
+180            android:name="com.stripe.android.view.PaymentRelayActivity"
+180-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:33:13-72
+181            android:exported="false"
+181-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:34:13-37
+182            android:theme="@style/StripeTransparentTheme" />
+182-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:35:13-58
+183        <!--
+184        Set android:launchMode="singleTop" so that the StripeBrowserLauncherActivity instance that
+185        launched the browser Activity will also handle the return URL deep link.
+186        -->
+187        <activity
+187-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:41:9-45:61
+188            android:name="com.stripe.android.payments.StripeBrowserLauncherActivity"
+188-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:42:13-85
+189            android:exported="false"
+189-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:43:13-37
+190            android:launchMode="singleTask"
+190-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:44:13-44
+191            android:theme="@style/StripeTransparentTheme" />
+191-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:45:13-58
+192        <activity
+192-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:46:9-63:20
+193            android:name="com.stripe.android.payments.StripeBrowserProxyReturnActivity"
+193-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:47:13-88
+194            android:exported="true"
+194-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:48:13-36
+195            android:launchMode="singleTask"
+195-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:49:13-44
+196            android:theme="@style/StripeTransparentTheme" >
+196-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:50:13-58
+197            <intent-filter>
+197-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:51:13-62:29
+198                <action android:name="android.intent.action.VIEW" />
+198-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:21:17-69
+198-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:21:25-66
+199
+200                <category android:name="android.intent.category.DEFAULT" />
+200-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:23:17-76
+200-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:23:27-73
+201                <category android:name="android.intent.category.BROWSABLE" />
+201-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:24:17-78
+201-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:24:27-75
+202
+203                <!-- Must match `DefaultReturnUrl#value`. -->
+204                <data
+204-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:26:17-29:51
+205                    android:host="payment_return_url"
+205-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:27:21-44
+206                    android:path="/com.jworks.kanjilens"
+206-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:28:21-53
+207                    android:scheme="stripesdk" />
+207-->[com.stripe:link:20.35.0] /home/takuma/.gradle/caches/transforms-3/9108b0501a6f4c1fb81e4fc8e1ae3ec9/transformed/link-20.35.0/AndroidManifest.xml:29:21-48
+208            </intent-filter>
+209        </activity>
+210        <activity
+210-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:64:9-67:57
+211            android:name="com.stripe.android.payments.core.authentication.threeds2.Stripe3ds2TransactionActivity"
+211-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:65:13-114
+212            android:exported="false"
+212-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:66:13-37
+213            android:theme="@style/StripeDefaultTheme" />
+213-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:67:13-54
+214        <activity
+214-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:68:9-71:66
+215            android:name="com.stripe.android.googlepaylauncher.GooglePayLauncherActivity"
+215-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:69:13-90
+216            android:exported="false"
+216-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:70:13-37
+217            android:theme="@style/StripeGooglePayDefaultTheme" />
+217-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:71:13-63
+218        <activity
+218-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:72:9-75:66
+219            android:name="com.stripe.android.googlepaylauncher.GooglePayPaymentMethodLauncherActivity"
+219-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:73:13-103
+220            android:exported="false"
+220-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:74:13-37
+221            android:theme="@style/StripeGooglePayDefaultTheme" />
+221-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:75:13-63
+222        <activity
+222-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:76:9-79:68
+223            android:name="com.stripe.android.payments.paymentlauncher.PaymentLauncherConfirmationActivity"
+223-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:77:13-107
+224            android:exported="false"
+224-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:78:13-37
+225            android:theme="@style/StripePayLauncherDefaultTheme" />
+225-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:79:13-65
+226        <activity
+226-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:80:9-83:61
+227            android:name="com.stripe.android.payments.bankaccount.ui.CollectBankAccountActivity"
+227-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:81:13-97
+228            android:exported="false"
+228-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:82:13-37
+229            android:theme="@style/StripeTransparentTheme" />
+229-->[com.stripe:payments-core:20.35.0] /home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/AndroidManifest.xml:83:13-58
+230        <activity
+230-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:23:9-27:75
+231            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+231-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:24:13-93
+232            android:excludeFromRecents="true"
+232-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:25:13-46
+233            android:exported="false"
+233-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:26:13-37
+234            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+234-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:27:13-72
+235        <!--
+236            Service handling Google Sign-In user revocation. For apps that do not integrate with
+237            Google Sign-In, this service will never be started.
+238        -->
+239        <service
+239-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:33:9-37:51
+240            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
+240-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:34:13-89
+241            android:exported="true"
+241-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:35:13-36
+242            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION"
+242-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:36:13-107
+243            android:visibleToInstantApps="true" />
+243-->[com.google.android.gms:play-services-auth:20.7.0] /home/takuma/.gradle/caches/transforms-3/918fb1aaa54fc4801b16fb99cffbd427/transformed/play-services-auth-20.7.0/AndroidManifest.xml:37:13-48
+244        <service
+244-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] /home/takuma/.gradle/caches/transforms-3/8ddf745449e5a1ea12586a0420bd217e/transformed/play-services-mlkit-text-recognition-common-19.0.0/AndroidManifest.xml:9:9-15:19
+245            android:name="com.google.mlkit.common.internal.MlKitComponentDiscoveryService"
+245-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] /home/takuma/.gradle/caches/transforms-3/8ddf745449e5a1ea12586a0420bd217e/transformed/play-services-mlkit-text-recognition-common-19.0.0/AndroidManifest.xml:10:13-91
+246            android:directBootAware="true"
+246-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:17:13-43
+247            android:exported="false" >
+247-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] /home/takuma/.gradle/caches/transforms-3/8ddf745449e5a1ea12586a0420bd217e/transformed/play-services-mlkit-text-recognition-common-19.0.0/AndroidManifest.xml:11:13-37
+248            <meta-data
+248-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] /home/takuma/.gradle/caches/transforms-3/8ddf745449e5a1ea12586a0420bd217e/transformed/play-services-mlkit-text-recognition-common-19.0.0/AndroidManifest.xml:12:13-14:85
+249                android:name="com.google.firebase.components:com.google.mlkit.vision.text.internal.TextRegistrar"
+249-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] /home/takuma/.gradle/caches/transforms-3/8ddf745449e5a1ea12586a0420bd217e/transformed/play-services-mlkit-text-recognition-common-19.0.0/AndroidManifest.xml:13:17-114
+250                android:value="com.google.firebase.components.ComponentRegistrar" />
+250-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] /home/takuma/.gradle/caches/transforms-3/8ddf745449e5a1ea12586a0420bd217e/transformed/play-services-mlkit-text-recognition-common-19.0.0/AndroidManifest.xml:14:17-82
+251            <meta-data
+251-->[com.google.mlkit:vision-common:17.3.0] /home/takuma/.gradle/caches/transforms-3/08704ebc48a0e273103ccf734066876e/transformed/vision-common-17.3.0/AndroidManifest.xml:12:13-14:85
+252                android:name="com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar"
+252-->[com.google.mlkit:vision-common:17.3.0] /home/takuma/.gradle/caches/transforms-3/08704ebc48a0e273103ccf734066876e/transformed/vision-common-17.3.0/AndroidManifest.xml:13:17-124
+253                android:value="com.google.firebase.components.ComponentRegistrar" />
+253-->[com.google.mlkit:vision-common:17.3.0] /home/takuma/.gradle/caches/transforms-3/08704ebc48a0e273103ccf734066876e/transformed/vision-common-17.3.0/AndroidManifest.xml:14:17-82
+254            <meta-data
+254-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:20:13-22:85
+255                android:name="com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar"
+255-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:21:17-120
+256                android:value="com.google.firebase.components.ComponentRegistrar" />
+256-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:22:17-82
+257        </service>
+258
+259        <provider
+259-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:9:9-13:38
+260            android:name="com.google.mlkit.common.internal.MlKitInitProvider"
+260-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:10:13-78
+261            android:authorities="com.jworks.kanjilens.mlkitinitprovider"
+261-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:11:13-69
+262            android:exported="false"
+262-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:12:13-37
+263            android:initOrder="99" /> <!-- Needs to be explicitly declared on P+ -->
+263-->[com.google.mlkit:common:18.8.0] /home/takuma/.gradle/caches/transforms-3/27a12b6e9d6010938b9fe7b934b2c3ce/transformed/common-18.8.0/AndroidManifest.xml:13:13-35
+264        <uses-library
+264-->[com.google.android.gms:play-services-maps:18.0.2] /home/takuma/.gradle/caches/transforms-3/eab6606c10d70915e965ba3bdbd21ca4/transformed/play-services-maps-18.0.2/AndroidManifest.xml:39:9-41:40
+265            android:name="org.apache.http.legacy"
+265-->[com.google.android.gms:play-services-maps:18.0.2] /home/takuma/.gradle/caches/transforms-3/eab6606c10d70915e965ba3bdbd21ca4/transformed/play-services-maps-18.0.2/AndroidManifest.xml:40:13-50
+266            android:required="false" />
+266-->[com.google.android.gms:play-services-maps:18.0.2] /home/takuma/.gradle/caches/transforms-3/eab6606c10d70915e965ba3bdbd21ca4/transformed/play-services-maps-18.0.2/AndroidManifest.xml:41:13-37
+267
+268        <activity
+268-->[com.google.android.gms:play-services-base:18.1.0] /home/takuma/.gradle/caches/transforms-3/3379f2f02d5e73c581a94f2866bec024/transformed/play-services-base-18.1.0/AndroidManifest.xml:20:9-22:45
+269            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+269-->[com.google.android.gms:play-services-base:18.1.0] /home/takuma/.gradle/caches/transforms-3/3379f2f02d5e73c581a94f2866bec024/transformed/play-services-base-18.1.0/AndroidManifest.xml:20:19-85
+270            android:exported="false"
+270-->[com.google.android.gms:play-services-base:18.1.0] /home/takuma/.gradle/caches/transforms-3/3379f2f02d5e73c581a94f2866bec024/transformed/play-services-base-18.1.0/AndroidManifest.xml:22:19-43
+271            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+271-->[com.google.android.gms:play-services-base:18.1.0] /home/takuma/.gradle/caches/transforms-3/3379f2f02d5e73c581a94f2866bec024/transformed/play-services-base-18.1.0/AndroidManifest.xml:21:19-78
+272        <activity
+272-->[androidx.compose.ui:ui-tooling-android:1.6.3] /home/takuma/.gradle/caches/transforms-3/6fc5e61099e2f7792e23ec9aa0e21c7a/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+273            android:name="androidx.compose.ui.tooling.PreviewActivity"
+273-->[androidx.compose.ui:ui-tooling-android:1.6.3] /home/takuma/.gradle/caches/transforms-3/6fc5e61099e2f7792e23ec9aa0e21c7a/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+274            android:exported="true" />
+274-->[androidx.compose.ui:ui-tooling-android:1.6.3] /home/takuma/.gradle/caches/transforms-3/6fc5e61099e2f7792e23ec9aa0e21c7a/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+275        <activity
+275-->[androidx.compose.ui:ui-test-manifest:1.6.3] /home/takuma/.gradle/caches/transforms-3/c3ee406b6d47faa6c64ae623f3d7c7b0/transformed/ui-test-manifest-1.6.3/AndroidManifest.xml:23:9-25:39
+276            android:name="androidx.activity.ComponentActivity"
+276-->[androidx.compose.ui:ui-test-manifest:1.6.3] /home/takuma/.gradle/caches/transforms-3/c3ee406b6d47faa6c64ae623f3d7c7b0/transformed/ui-test-manifest-1.6.3/AndroidManifest.xml:24:13-63
+277            android:exported="true" />
+277-->[androidx.compose.ui:ui-test-manifest:1.6.3] /home/takuma/.gradle/caches/transforms-3/c3ee406b6d47faa6c64ae623f3d7c7b0/transformed/ui-test-manifest-1.6.3/AndroidManifest.xml:25:13-36
+278        <activity
+278-->[com.stripe:stripe-3ds2-android:6.1.7] /home/takuma/.gradle/caches/transforms-3/72a8353bbf342cd6bb04d10f75f0a919/transformed/stripe-3ds2-android-6.1.7/AndroidManifest.xml:8:9-11:54
+279            android:name="com.stripe.android.stripe3ds2.views.ChallengeActivity"
+279-->[com.stripe:stripe-3ds2-android:6.1.7] /home/takuma/.gradle/caches/transforms-3/72a8353bbf342cd6bb04d10f75f0a919/transformed/stripe-3ds2-android-6.1.7/AndroidManifest.xml:9:13-81
+280            android:exported="false"
+280-->[com.stripe:stripe-3ds2-android:6.1.7] /home/takuma/.gradle/caches/transforms-3/72a8353bbf342cd6bb04d10f75f0a919/transformed/stripe-3ds2-android-6.1.7/AndroidManifest.xml:10:13-37
+281            android:theme="@style/Stripe3DS2Theme" />
+281-->[com.stripe:stripe-3ds2-android:6.1.7] /home/takuma/.gradle/caches/transforms-3/72a8353bbf342cd6bb04d10f75f0a919/transformed/stripe-3ds2-android-6.1.7/AndroidManifest.xml:11:13-51
+282
+283        <service
+283-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:39:9-45:35
+284            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+284-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:40:13-88
+285            android:directBootAware="false"
+285-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:41:13-44
+286            android:enabled="@bool/enable_system_alarm_service_default"
+286-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:42:13-72
+287            android:exported="false" />
+287-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:43:13-37
+288        <service
+288-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:46:9-52:35
+289            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+289-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:47:13-84
+290            android:directBootAware="false"
+290-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:48:13-44
+291            android:enabled="@bool/enable_system_job_service_default"
+291-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:49:13-70
+292            android:exported="true"
+292-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:50:13-36
+293            android:permission="android.permission.BIND_JOB_SERVICE" />
+293-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:51:13-69
+294        <service
+294-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:53:9-59:35
+295            android:name="androidx.work.impl.foreground.SystemForegroundService"
+295-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:54:13-81
+296            android:directBootAware="false"
+296-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:55:13-44
+297            android:enabled="@bool/enable_system_foreground_service_default"
+297-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:56:13-77
+298            android:exported="false" />
+298-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:57:13-37
+299
+300        <receiver
+300-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:61:9-66:35
+301            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+301-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:62:13-88
+302            android:directBootAware="false"
+302-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:63:13-44
+303            android:enabled="true"
+303-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:64:13-35
+304            android:exported="false" />
+304-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:65:13-37
+305        <receiver
+305-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:67:9-77:20
+306            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+306-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:68:13-106
+307            android:directBootAware="false"
+307-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:69:13-44
+308            android:enabled="false"
+308-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:70:13-36
+309            android:exported="false" >
+309-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:71:13-37
+310            <intent-filter>
+310-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:73:13-76:29
+311                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+311-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:74:17-87
+311-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:74:25-84
+312                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+312-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:75:17-90
+312-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:75:25-87
+313            </intent-filter>
+314        </receiver>
+315        <receiver
+315-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:78:9-88:20
+316            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+316-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:79:13-104
+317            android:directBootAware="false"
+317-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:80:13-44
+318            android:enabled="false"
+318-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:81:13-36
+319            android:exported="false" >
+319-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:82:13-37
+320            <intent-filter>
+320-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:84:13-87:29
+321                <action android:name="android.intent.action.BATTERY_OKAY" />
+321-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:85:17-77
+321-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:85:25-74
+322                <action android:name="android.intent.action.BATTERY_LOW" />
+322-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:86:17-76
+322-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:86:25-73
+323            </intent-filter>
+324        </receiver>
+325        <receiver
+325-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:89:9-99:20
+326            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy"
+326-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:90:13-104
+327            android:directBootAware="false"
+327-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:91:13-44
+328            android:enabled="false"
+328-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:92:13-36
+329            android:exported="false" >
+329-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:93:13-37
+330            <intent-filter>
+330-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:95:13-98:29
+331                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+331-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:96:17-83
+331-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:96:25-80
+332                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+332-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:97:17-82
+332-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:97:25-79
+333            </intent-filter>
+334        </receiver>
+335        <receiver
+335-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:100:9-109:20
+336            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy"
+336-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:101:13-103
+337            android:directBootAware="false"
+337-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:102:13-44
+338            android:enabled="false"
+338-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:103:13-36
+339            android:exported="false" >
+339-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:104:13-37
+340            <intent-filter>
+340-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:106:13-108:29
+341                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+341-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:107:17-79
+341-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:107:25-76
+342            </intent-filter>
+343        </receiver>
+344        <receiver
+344-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:110:9-121:20
+345            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+345-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:111:13-88
+346            android:directBootAware="false"
+346-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:112:13-44
+347            android:enabled="false"
+347-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:113:13-36
+348            android:exported="false" >
+348-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:114:13-37
+349            <intent-filter>
+349-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:116:13-120:29
+350                <action android:name="android.intent.action.BOOT_COMPLETED" />
+350-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:117:17-79
+350-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:117:25-76
+351                <action android:name="android.intent.action.TIME_SET" />
+351-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:118:17-73
+351-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:118:25-70
+352                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+352-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:119:17-81
+352-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:119:25-78
+353            </intent-filter>
+354        </receiver>
+355        <receiver
+355-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:122:9-131:20
+356            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+356-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:123:13-99
+357            android:directBootAware="false"
+357-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:124:13-44
+358            android:enabled="@bool/enable_system_alarm_service_default"
+358-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:125:13-72
+359            android:exported="false" >
+359-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:126:13-37
+360            <intent-filter>
+360-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:128:13-130:29
+361                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+361-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:129:17-98
+361-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:129:25-95
+362            </intent-filter>
+363        </receiver>
+364        <receiver
+364-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:132:9-142:20
+365            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+365-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:133:13-78
+366            android:directBootAware="false"
+366-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:134:13-44
+367            android:enabled="true"
+367-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:135:13-35
+368            android:exported="true"
+368-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:136:13-36
+369            android:permission="android.permission.DUMP" >
+369-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:137:13-57
+370            <intent-filter>
+370-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:139:13-141:29
+371                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
+371-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:140:17-88
+371-->[androidx.work:work-runtime:2.9.0] /home/takuma/.gradle/caches/transforms-3/cb375d801d9c7b6fee1879d4e05c1381/transformed/work-runtime-2.9.0/AndroidManifest.xml:140:25-85
+372            </intent-filter>
+373        </receiver>
+374
+375        <service
+375-->[androidx.room:room-runtime:2.6.1] /home/takuma/.gradle/caches/transforms-3/5958a05db6ddb42d884845f055b0db91/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
+376            android:name="androidx.room.MultiInstanceInvalidationService"
+376-->[androidx.room:room-runtime:2.6.1] /home/takuma/.gradle/caches/transforms-3/5958a05db6ddb42d884845f055b0db91/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
+377            android:directBootAware="true"
+377-->[androidx.room:room-runtime:2.6.1] /home/takuma/.gradle/caches/transforms-3/5958a05db6ddb42d884845f055b0db91/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
+378            android:exported="false" />
+378-->[androidx.room:room-runtime:2.6.1] /home/takuma/.gradle/caches/transforms-3/5958a05db6ddb42d884845f055b0db91/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+379
+380        <meta-data
+380-->[com.google.android.gms:play-services-basement:18.2.0] /home/takuma/.gradle/caches/transforms-3/347bde976d8b93a7aa1c4415bb42a9ac/transformed/play-services-basement-18.2.0/AndroidManifest.xml:21:9-23:69
+381            android:name="com.google.android.gms.version"
+381-->[com.google.android.gms:play-services-basement:18.2.0] /home/takuma/.gradle/caches/transforms-3/347bde976d8b93a7aa1c4415bb42a9ac/transformed/play-services-basement-18.2.0/AndroidManifest.xml:22:13-58
+382            android:value="@integer/google_play_services_version" />
+382-->[com.google.android.gms:play-services-basement:18.2.0] /home/takuma/.gradle/caches/transforms-3/347bde976d8b93a7aa1c4415bb42a9ac/transformed/play-services-basement-18.2.0/AndroidManifest.xml:23:13-66
+383
+384        <receiver
+384-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+385            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+385-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+386            android:directBootAware="false"
+386-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+387            android:enabled="true"
+387-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+388            android:exported="true"
+388-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+389            android:permission="android.permission.DUMP" >
+389-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+390            <intent-filter>
+390-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+391                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+391-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+391-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+392            </intent-filter>
+393            <intent-filter>
+393-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+394                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+394-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+394-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+395            </intent-filter>
+396            <intent-filter>
+396-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+397                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+397-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+397-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+398            </intent-filter>
+399            <intent-filter>
+399-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+400                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+400-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+400-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/takuma/.gradle/caches/transforms-3/005de9094c8d622e1fe5bab311ab922f/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+401            </intent-filter>
+402        </receiver>
+403
+404        <service
+404-->[com.google.android.datatransport:transport-backend-cct:2.3.3] /home/takuma/.gradle/caches/transforms-3/9e95e4239170bc8aa03dc8d4be7a808b/transformed/transport-backend-cct-2.3.3/AndroidManifest.xml:29:9-35:19
+405            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+405-->[com.google.android.datatransport:transport-backend-cct:2.3.3] /home/takuma/.gradle/caches/transforms-3/9e95e4239170bc8aa03dc8d4be7a808b/transformed/transport-backend-cct-2.3.3/AndroidManifest.xml:30:13-103
+406            android:exported="false" >
+406-->[com.google.android.datatransport:transport-backend-cct:2.3.3] /home/takuma/.gradle/caches/transforms-3/9e95e4239170bc8aa03dc8d4be7a808b/transformed/transport-backend-cct-2.3.3/AndroidManifest.xml:31:13-37
+407            <meta-data
+407-->[com.google.android.datatransport:transport-backend-cct:2.3.3] /home/takuma/.gradle/caches/transforms-3/9e95e4239170bc8aa03dc8d4be7a808b/transformed/transport-backend-cct-2.3.3/AndroidManifest.xml:32:13-34:39
+408                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+408-->[com.google.android.datatransport:transport-backend-cct:2.3.3] /home/takuma/.gradle/caches/transforms-3/9e95e4239170bc8aa03dc8d4be7a808b/transformed/transport-backend-cct-2.3.3/AndroidManifest.xml:33:17-94
+409                android:value="cct" />
+409-->[com.google.android.datatransport:transport-backend-cct:2.3.3] /home/takuma/.gradle/caches/transforms-3/9e95e4239170bc8aa03dc8d4be7a808b/transformed/transport-backend-cct-2.3.3/AndroidManifest.xml:34:17-36
+410        </service>
+411        <service
+411-->[com.google.android.datatransport:transport-runtime:2.2.6] /home/takuma/.gradle/caches/transforms-3/4093e1c018dc0cde013c45d4d0265cb4/transformed/transport-runtime-2.2.6/AndroidManifest.xml:26:9-30:19
+412            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+412-->[com.google.android.datatransport:transport-runtime:2.2.6] /home/takuma/.gradle/caches/transforms-3/4093e1c018dc0cde013c45d4d0265cb4/transformed/transport-runtime-2.2.6/AndroidManifest.xml:27:13-117
+413            android:exported="false"
+413-->[com.google.android.datatransport:transport-runtime:2.2.6] /home/takuma/.gradle/caches/transforms-3/4093e1c018dc0cde013c45d4d0265cb4/transformed/transport-runtime-2.2.6/AndroidManifest.xml:28:13-37
+414            android:permission="android.permission.BIND_JOB_SERVICE" >
+414-->[com.google.android.datatransport:transport-runtime:2.2.6] /home/takuma/.gradle/caches/transforms-3/4093e1c018dc0cde013c45d4d0265cb4/transformed/transport-runtime-2.2.6/AndroidManifest.xml:29:13-69
+415        </service>
+416
+417        <receiver
+417-->[com.google.android.datatransport:transport-runtime:2.2.6] /home/takuma/.gradle/caches/transforms-3/4093e1c018dc0cde013c45d4d0265cb4/transformed/transport-runtime-2.2.6/AndroidManifest.xml:32:9-34:40
+418            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+418-->[com.google.android.datatransport:transport-runtime:2.2.6] /home/takuma/.gradle/caches/transforms-3/4093e1c018dc0cde013c45d4d0265cb4/transformed/transport-runtime-2.2.6/AndroidManifest.xml:33:13-132
+419            android:exported="false" />
+419-->[com.google.android.datatransport:transport-runtime:2.2.6] /home/takuma/.gradle/caches/transforms-3/4093e1c018dc0cde013c45d4d0265cb4/transformed/transport-runtime-2.2.6/AndroidManifest.xml:34:13-37
+420
+421        <meta-data
+421-->[com.google.android.instantapps:instantapps:1.1.0] /home/takuma/.gradle/caches/transforms-3/7714edcff8ba6d5de418bd8967ebf429/transformed/instantapps-1.1.0/AndroidManifest.xml:10:9-12:33
+422            android:name="aia-compat-api-min-version"
+422-->[com.google.android.instantapps:instantapps:1.1.0] /home/takuma/.gradle/caches/transforms-3/7714edcff8ba6d5de418bd8967ebf429/transformed/instantapps-1.1.0/AndroidManifest.xml:11:13-54
+423            android:value="1" />
+423-->[com.google.android.instantapps:instantapps:1.1.0] /home/takuma/.gradle/caches/transforms-3/7714edcff8ba6d5de418bd8967ebf429/transformed/instantapps-1.1.0/AndroidManifest.xml:12:13-30
+424    </application>
+425
+426</manifest>

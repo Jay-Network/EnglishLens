@@ -1,0 +1,4 @@
+7Screen bounds: left=461 top=1091 right=618 bottom=1248
+Canvas: 1080.0x2340.0
+!Center X: 539.5, expected: 540.0
+#Center Y: 1169.5, expected: 1170.0

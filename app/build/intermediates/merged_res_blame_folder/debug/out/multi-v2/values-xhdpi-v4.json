@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.jworks.kanjilens.app-mergeDebugResources-102:/values-xhdpi-v4/values-xhdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/home/takuma/.gradle/caches/transforms-3/4aa0b1e4ac26fef559a3e3b5ef44034e/transformed/payments-core-20.35.0/res/values-xhdpi-v4/values-xhdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "63",
+                        "endOffsets": "114"
+                    }
+                }
+            ]
+        }
+    ]
+}
