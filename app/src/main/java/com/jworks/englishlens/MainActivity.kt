@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jworks.englishlens.ui.camera.CameraScreen
+import com.jworks.englishlens.ui.capture.CaptureFlowScreen
 import com.jworks.englishlens.ui.gallery.GalleryImportScreen
 import com.jworks.englishlens.ui.settings.SettingsScreen
 import com.jworks.englishlens.ui.theme.EnglishLensTheme
@@ -34,10 +34,10 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "camera"
+                        startDestination = "capture"
                     ) {
-                        composable("camera") {
-                            CameraScreen(
+                        composable("capture") {
+                            CaptureFlowScreen(
                                 onSettingsClick = { navController.navigate("settings") },
                                 onGalleryClick = { navController.navigate("gallery") }
                             )

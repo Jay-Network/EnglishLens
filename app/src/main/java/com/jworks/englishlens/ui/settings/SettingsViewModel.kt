@@ -8,7 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,22 +17,4 @@ class SettingsViewModel @Inject constructor(
 
     val settings: StateFlow<AppSettings> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppSettings())
-
-    fun updateShowBoxes(show: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.updateSettings(settings.value.copy(showBoxes = show))
-        }
-    }
-
-    fun updateShowDebugHud(show: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.updateSettings(settings.value.copy(showDebugHud = show))
-        }
-    }
-
-    fun updateFrameSkip(skip: Int) {
-        viewModelScope.launch {
-            settingsRepository.updateSettings(settings.value.copy(frameSkip = skip))
-        }
-    }
 }
