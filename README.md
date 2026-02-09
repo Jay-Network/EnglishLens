@@ -1,31 +1,34 @@
-# KanjiLens Android App
+# EnglishLens Android App
 
-**Camera-based Japanese Reading Assistant**
+**Camera-based English Text Analyzer**
 
-Real-time furigana overlay for Japanese text using phone camera.
+Point your camera at any English text for instant definitions, reading level analysis, and NLP insights.
 
 ## Quick Info
 
 - **Language**: Kotlin
 - **UI**: Jetpack Compose
 - **Camera**: CameraX
-- **OCR**: Google ML Kit (Japanese)
+- **OCR**: Google ML Kit (English/Latin)
+- **Dictionary**: WordNet (147k words, 207k definitions, offline)
+- **NLP**: Rule-based lemmatizer, POS tagger, NER
 - **Target SDK**: Android 8.0+ (API 26+)
-- **GitHub**: https://github.com/Jay-Network/KanjiLens
+- **GitHub**: https://github.com/Jay-Network/EnglishLens
 
-## Project Documentation
+## Features
 
-Full project documentation, planning, and technical specs are maintained in the agent workspace:
-- **Location**: `/home/takuma/1_jworks/A_ai/4_Apps/KanjiLens/`
-- **Planning**: `planning/2026-02-05-kanjilens-ecosystem.md`
-- **Technical Spec**: `docs/technical-spec.md`
-- **Phase Tasks**: `docs/phase1-tasks.md`
+- Real-time OCR text detection via camera
+- Tap any word for instant definitions, synonyms, and antonyms
+- Lemma fallback: inflected words ("running", "went", "mice") resolve to base forms
+- Readability scoring: Flesch-Kincaid, Flesch RE, SMOG, Coleman-Liau
+- Partial/full screen camera modes
+- 3-tier definition lookup: LruCache -> WordNet DB -> Cloud API (future)
 
 ## Development
 
-This is the Android app source code, managed as a GitHub repository for regular backups.
+This is the Android app source code, managed as a GitHub repository.
 
-**Active Development Agent**: jworks:43 (KanjiLens-Dev)
+**Active Development Agent**: jworks:46 (EnglishLens-Dev)
 
 ## Build
 
@@ -36,8 +39,12 @@ This is the Android app source code, managed as a GitHub repository for regular 
 ## Structure
 
 ```
-KanjiLens/
+EnglishLens/
 ├── app/                   # Main Android app module
+│   └── src/main/java/com/jworks/englishlens/
+│       ├── data/          # Repository, Room DB, DAO
+│       ├── domain/        # Models, use cases, NLP, analysis
+│       └── ui/            # Compose screens, ViewModel
 ├── build.gradle.kts       # Root build configuration
 ├── settings.gradle.kts    # Gradle settings
 └── gradle.properties      # Gradle properties
@@ -46,5 +53,5 @@ KanjiLens/
 ---
 
 **Part of**: JWorks Apps Division
-**Agent Workspace**: ~/1_jworks/A_ai/4_Apps/KanjiLens/
+**Agent Workspace**: ~/1_jworks/A_ai/4_Apps/EnglishLens/
 **GitHub Backup**: This repository

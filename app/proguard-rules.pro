@@ -1,4 +1,4 @@
-# KanjiLens ProGuard Rules
+# EnglishLens ProGuard Rules
 
 # Keep ML Kit classes
 -keep class com.google.mlkit.** { *; }
@@ -9,7 +9,7 @@
 }
 
 # Keep Room entities
--keep class com.jworks.kanjilens.data.local.entities.** { *; }
+-keep class com.jworks.englishlens.data.local.entities.** { *; }
 
 # Keep Hilt generated classes
 -keep class dagger.hilt.** { *; }
