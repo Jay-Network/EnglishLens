@@ -3,19 +3,18 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
-    kotlin("plugin.serialization") version "1.9.22"
 }
 
 android {
-    namespace = "com.jworks.kanjilens"
+    namespace = "com.jworks.englishlens"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.jworks.kanjilens"
+        applicationId = "com.jworks.englishlens"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 1
+        versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -82,23 +81,14 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
     implementation("androidx.camera:camera-view:$cameraxVersion")
 
-    // ML Kit - Text Recognition (Japanese)
+    // ML Kit - Text Recognition (English/Latin - default)
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
-    implementation("com.google.android.gms:play-services-mlkit-text-recognition-japanese:16.0.0")
 
-    // Kuromoji (Japanese morphological analyzer - context-aware readings)
-    implementation("com.atilika.kuromoji:kuromoji-ipadic:0.9.0")
-
-    // Room (local JMDict database)
+    // Room (local WordNet database)
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
-
-    // Retrofit (backend API client)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
@@ -117,27 +107,6 @@ dependencies {
 
     // Accompanist (permissions)
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
-
-    // Google Sign-In
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
-
-    // Supabase
-    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.1.5")
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.5")
-    implementation("io.github.jan-tennert.supabase:functions-kt:2.1.5")
-    implementation("io.ktor:ktor-client-android:2.3.8")
-
-    // Stripe
-    implementation("com.stripe:stripe-android:20.35.0")
-
-    // Browser (Chrome Custom Tabs for Stripe checkout)
-    implementation("androidx.browser:browser:1.7.0")
-
-    // WorkManager (offline J Coin sync)
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
-
-    // Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
