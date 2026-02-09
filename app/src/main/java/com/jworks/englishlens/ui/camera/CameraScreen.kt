@@ -84,13 +84,14 @@ private data class WordEntry(val word: String, val count: Int = 1)
 @Composable
 fun CameraScreen(
     onSettingsClick: () -> Unit,
+    onGalleryClick: () -> Unit = {},
     onWordSelected: (String) -> Unit = {},
     viewModel: CameraViewModel = hiltViewModel()
 ) {
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     if (cameraPermissionState.status.isGranted) {
-        CameraContent(viewModel, onSettingsClick, onWordSelected)
+        CameraContent(viewModel, onSettingsClick, onGalleryClick, onWordSelected)
     } else {
         CameraPermissionRequest(
             showRationale = cameraPermissionState.status.shouldShowRationale,
@@ -103,6 +104,7 @@ fun CameraScreen(
 private fun CameraContent(
     viewModel: CameraViewModel,
     onSettingsClick: () -> Unit,
+    onGalleryClick: () -> Unit,
     onWordSelected: (String) -> Unit
 ) {
     val detectedTexts by viewModel.detectedTexts.collectAsState()
@@ -135,6 +137,7 @@ private fun CameraContent(
     var flashBtnOffset by remember { mutableStateOf(Offset.Zero) }
     var modeBtnOffset by remember { mutableStateOf(Offset.Zero) }
     var readBtnOffset by remember { mutableStateOf(Offset.Zero) }
+    var galleryBtnOffset by remember { mutableStateOf(Offset.Zero) }
     var buttonsInitialized by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
@@ -167,8 +170,9 @@ private fun CameraContent(
         val bottomFooterPadding = 160f
 
         if (!buttonsInitialized) {
-            // 1x4 row: bottom-right corner
-            val col4 = maxWidthPx - btnSizePx - rightMargin
+            // 1x5 row: bottom-right corner
+            val col5 = maxWidthPx - btnSizePx - rightMargin
+            val col4 = col5 - btnSizePx - btnGap
             val col3 = col4 - btnSizePx - btnGap
             val col2 = col3 - btnSizePx - btnGap
             val col1 = col2 - btnSizePx - btnGap
@@ -177,6 +181,7 @@ private fun CameraContent(
             flashBtnOffset = Offset(col2, row1)
             modeBtnOffset = Offset(col3, row1)
             readBtnOffset = Offset(col4, row1)
+            galleryBtnOffset = Offset(col5, row1)
             buttonsInitialized = true
         }
 
@@ -520,6 +525,22 @@ private fun CameraContent(
             )
         }
 
+        // Layer 10: Gallery import button
+        DraggableFloatingButton(
+            offset = galleryBtnOffset,
+            onOffsetChange = { galleryBtnOffset = it },
+            onClick = onGalleryClick,
+            maxWidth = maxWidthPx,
+            maxHeight = maxHeightPx,
+            btnSize = btnSizePx
+        ) {
+            Text(
+                "IMG",
+                color = Color(0xFF64B5F6),
+                fontSize = 9.sp
+            )
+        }
+
         // Version label (bottom-left)
         Text(
             text = "v${com.jworks.englishlens.BuildConfig.VERSION_NAME}",
@@ -530,7 +551,7 @@ private fun CameraContent(
                 .padding(start = 8.dp, bottom = 8.dp)
         )
 
-        // Layer 10: App brand indicator (top-right)
+        // Layer 11: App brand indicator (top-right)
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)

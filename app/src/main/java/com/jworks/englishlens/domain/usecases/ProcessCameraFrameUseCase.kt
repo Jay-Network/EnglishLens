@@ -1,5 +1,6 @@
 package com.jworks.englishlens.domain.usecases
 
+import android.graphics.Bitmap
 import android.util.Log
 import android.util.Size
 import com.google.mlkit.vision.common.InputImage
@@ -17,6 +18,12 @@ class ProcessCameraFrameUseCase @Inject constructor(
     companion object {
         private const val TAG = "OCR"
         private const val MIN_WORD_LENGTH = 1
+    }
+
+    suspend fun processStaticImage(bitmap: Bitmap): OCRResult {
+        val inputImage = InputImage.fromBitmap(bitmap, 0)
+        val imageSize = Size(bitmap.width, bitmap.height)
+        return execute(inputImage, imageSize)
     }
 
     suspend fun execute(inputImage: InputImage, imageSize: Size): OCRResult {

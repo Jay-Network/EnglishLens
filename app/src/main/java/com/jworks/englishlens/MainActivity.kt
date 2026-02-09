@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jworks.englishlens.ui.camera.CameraScreen
+import com.jworks.englishlens.ui.gallery.GalleryImportScreen
 import com.jworks.englishlens.ui.settings.SettingsScreen
 import com.jworks.englishlens.ui.theme.EnglishLensTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,13 +38,20 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("camera") {
                             CameraScreen(
-                                onSettingsClick = { navController.navigate("settings") }
+                                onSettingsClick = { navController.navigate("settings") },
+                                onGalleryClick = { navController.navigate("gallery") }
                             )
                         }
 
                         composable("settings") {
                             SettingsScreen(
                                 onBackClick = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable("gallery") {
+                            GalleryImportScreen(
+                                onBack = { navController.popBackStack() }
                             )
                         }
                     }
