@@ -13,8 +13,11 @@ import com.jworks.englishlens.domain.models.AppSettings
 import com.jworks.englishlens.domain.models.Definition
 import com.jworks.englishlens.domain.models.DetectedText
 import com.jworks.englishlens.domain.models.ReadabilityMetrics
+import com.jworks.englishlens.domain.nlp.NlpProcessor
+import com.jworks.englishlens.domain.nlp.NlpResult
 import com.jworks.englishlens.domain.repository.SettingsRepository
 import com.jworks.englishlens.domain.usecases.ProcessCameraFrameUseCase
+import kotlinx.coroutines.Job
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,7 +45,8 @@ class CameraViewModel @Inject constructor(
     private val processCameraFrame: ProcessCameraFrameUseCase,
     private val settingsRepository: SettingsRepository,
     private val definitionRepository: DefinitionRepository,
-    private val readabilityCalculator: ReadabilityCalculator
+    private val readabilityCalculator: ReadabilityCalculator,
+    private val nlpProcessor: NlpProcessor
 ) : ViewModel() {
 
     companion object {
@@ -87,9 +91,13 @@ class CameraViewModel @Inject constructor(
     private val _visibleRegion = MutableStateFlow<Rect?>(null)
     val visibleRegion: StateFlow<Rect?> = _visibleRegion.asStateFlow()
 
+    private val _nlpResult = MutableStateFlow<NlpResult?>(null)
+    val nlpResult: StateFlow<NlpResult?> = _nlpResult.asStateFlow()
+
     private val _ocrStats = MutableStateFlow(OCRStats())
     val ocrStats: StateFlow<OCRStats> = _ocrStats.asStateFlow()
 
+    private var nlpJob: Job? = null
     private var frameCount = 0
     private val recentTimings = ArrayDeque<Long>(STATS_WINDOW)
     private val modeSwitchPauseFrames = java.util.concurrent.atomic.AtomicInteger(0)
@@ -242,11 +250,31 @@ class CameraViewModel @Inject constructor(
                 }
                 _sourceImageSize.value = result.imageSize
                 updateStats(result.processingTimeMs, sorted.size)
+
+                // Trigger async NLP analysis on detected text
+                triggerNlpAnalysis(sorted)
             } catch (_: Exception) {
                 // OCR failed for this frame, keep previous results
             } finally {
                 _isProcessing.value = false
                 imageProxy.close()
+            }
+        }
+    }
+
+    private fun triggerNlpAnalysis(texts: List<DetectedText>) {
+        val allText = texts.joinToString(" ") { it.text }
+        if (allText.isBlank()) return
+
+        // Cancel previous NLP job if still running
+        nlpJob?.cancel()
+        nlpJob = viewModelScope.launch {
+            try {
+                val result = nlpProcessor.analyze(allText)
+                _nlpResult.value = result
+                Log.d(TAG, "NLP: ${result.tokens.size} tokens, ${result.entities.size} entities in ${result.processingTimeMs}ms")
+            } catch (_: Exception) {
+                // NLP analysis failed, keep previous result
             }
         }
     }

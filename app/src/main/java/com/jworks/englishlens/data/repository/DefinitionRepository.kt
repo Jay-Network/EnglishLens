@@ -7,12 +7,14 @@ import com.jworks.englishlens.data.local.entities.WordWithDefinitions
 import com.jworks.englishlens.domain.models.Definition
 import com.jworks.englishlens.domain.models.Meaning
 import com.jworks.englishlens.domain.models.PartOfSpeech
+import com.jworks.englishlens.domain.nlp.NlpProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class DefinitionRepository @Inject constructor(
-    private val wordNetDao: WordNetDao
+    private val wordNetDao: WordNetDao,
+    private val nlpProcessor: NlpProcessor
 ) {
     companion object {
         private const val TAG = "DefRepo"
@@ -41,9 +43,19 @@ class DefinitionRepository @Inject constructor(
                 return Result.success(definition)
             }
 
-            // Try lemma form (e.g., "running" -> look up as-is first, then we could add stemming later)
-            // For MVP, just report not found
-            Log.d(TAG, "Not found: $normalizedWord")
+            // Try lemma form (e.g., "running" -> "run")
+            val lemma = nlpProcessor.lemmatize(normalizedWord)
+            if (lemma != normalizedWord) {
+                val lemmaWithDefs = wordNetDao.lookupWithDefinitions(lemma)
+                if (lemmaWithDefs != null && lemmaWithDefs.definitions.isNotEmpty()) {
+                    val definition = lemmaWithDefs.toDomain()
+                    memoryCache.put(normalizedWord, definition)
+                    Log.d(TAG, "Lemma hit: $normalizedWord -> $lemma (${lemmaWithDefs.definitions.size} defs)")
+                    return Result.success(definition)
+                }
+            }
+
+            Log.d(TAG, "Not found: $normalizedWord (lemma: $lemma)")
             return Result.failure(NoSuchElementException("Word not found: $normalizedWord"))
         } catch (e: Exception) {
             Log.e(TAG, "DB error for $normalizedWord", e)
