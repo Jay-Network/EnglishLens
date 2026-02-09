@@ -37,10 +37,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("camera") {
                             CameraScreen(
-                                onSettingsClick = { navController.navigate("settings") },
-                                onWordSelected = { word ->
-                                    // TODO: Navigate to definition view (Task #13)
-                                }
+                                onSettingsClick = { navController.navigate("settings") }
                             )
                         }
 

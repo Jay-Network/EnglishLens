@@ -2,8 +2,10 @@ package com.jworks.englishlens.data.local
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.jworks.englishlens.data.local.entities.WordEntry
 import com.jworks.englishlens.data.local.entities.DefinitionEntry
+import com.jworks.englishlens.data.local.entities.WordWithDefinitions
 
 @Dao
 interface WordNetDao {
@@ -22,6 +24,13 @@ interface WordNetDao {
     """)
     suspend fun getDefinitions(word: String): List<DefinitionEntry>
 
+    @Transaction
+    @Query("SELECT * FROM words WHERE word = :word LIMIT 1")
+    suspend fun lookupWithDefinitions(word: String): WordWithDefinitions?
+
     @Query("SELECT * FROM words WHERE word LIKE :prefix || '%' ORDER BY frequency ASC LIMIT :limit")
     suspend fun searchByPrefix(prefix: String, limit: Int = 20): List<WordEntry>
+
+    @Query("SELECT * FROM words ORDER BY frequency ASC LIMIT :limit")
+    suspend fun getTopFrequentWords(limit: Int = 100): List<WordEntry>
 }

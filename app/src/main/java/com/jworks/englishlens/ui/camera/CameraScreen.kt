@@ -69,6 +69,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.jworks.englishlens.R
+import com.jworks.englishlens.domain.models.Definition
 
 import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
@@ -106,6 +107,7 @@ private fun CameraContent(
 ) {
     val detectedTexts by viewModel.detectedTexts.collectAsState()
     val selectedWord by viewModel.selectedWord.collectAsState()
+    val lookupState by viewModel.lookupState.collectAsState()
     val sourceImageSize by viewModel.sourceImageSize.collectAsState()
     val rotationDegrees by viewModel.rotationDegrees.collectAsState()
     val isFlashOn by viewModel.isFlashOn.collectAsState()
@@ -236,7 +238,7 @@ private fun CameraContent(
             )
         }
 
-        // Layer 3: Word list panel (bottom portion in partial mode)
+        // Layer 3: Bottom panel (definition or word list in partial mode)
         if (displayBoundary < 0.99f) {
             var wordList by remember { mutableStateOf<List<WordEntry>>(emptyList()) }
             var wordAccumulator by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
@@ -276,15 +278,100 @@ private fun CameraContent(
                 .border(width = 1.dp, color = Color(0xFFE0E0E0))
 
             Box(modifier = panelModifier) {
-                DetectedWordList(
-                    words = wordList,
-                    selectedWord = selectedWord,
-                    onWordClick = { entry ->
-                        viewModel.selectWord(entry.word)
-                        onWordSelected(entry.word)
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
+                when (val state = lookupState) {
+                    is LookupState.Success -> {
+                        DefinitionPanel(
+                            definition = state.definition,
+                            onDismiss = { viewModel.dismissDefinition() },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    is LookupState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(32.dp),
+                                color = Color(0xFF2196F3)
+                            )
+                        }
+                    }
+                    is LookupState.NotFound -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "\"${state.word}\"",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF333333)
+                                )
+                                Text(
+                                    text = "Back",
+                                    color = Color(0xFF2196F3),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .clickable { viewModel.dismissDefinition() }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                            Text(
+                                text = "Word not found in dictionary.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+                    }
+                    is LookupState.Error -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Lookup error",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color(0xFFF44336)
+                            )
+                            Text(
+                                text = state.message ?: "Unknown error",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            Text(
+                                text = "Back",
+                                color = Color(0xFF2196F3),
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .clickable { viewModel.dismissDefinition() }
+                            )
+                        }
+                    }
+                    is LookupState.Idle -> {
+                        DetectedWordList(
+                            words = wordList,
+                            selectedWord = selectedWord,
+                            onWordClick = { entry ->
+                                viewModel.selectWord(entry.word)
+                                onWordSelected(entry.word)
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
             }
         }
 
@@ -527,6 +614,140 @@ private fun DetectedWordList(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DefinitionPanel(
+    definition: Definition,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        // Header: word + back button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = definition.word,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1565C0)
+                )
+                if (definition.lemma != definition.word) {
+                    Text(
+                        text = "lemma: ${definition.lemma}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+            }
+            Text(
+                text = "Back",
+                color = Color(0xFF2196F3),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(4.dp))
+                    .clickable { onDismiss() }
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+        }
+
+        // Frequency badge
+        definition.frequency?.let { freq ->
+            val freqLabel = when {
+                freq <= 100 -> "Very Common"
+                freq <= 1000 -> "Common"
+                freq <= 5000 -> "Moderate"
+                else -> "Uncommon"
+            }
+            val freqColor = when {
+                freq <= 100 -> Color(0xFF4CAF50)
+                freq <= 1000 -> Color(0xFF8BC34A)
+                freq <= 5000 -> Color(0xFFFF9800)
+                else -> Color(0xFF9E9E9E)
+            }
+            Text(
+                text = freqLabel,
+                fontSize = 11.sp,
+                color = freqColor,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+
+        // Meanings
+        definition.meanings.forEachIndexed { index, meaning ->
+            if (index > 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .height(1.dp)
+                        .background(Color(0xFFE0E0E0))
+                )
+            }
+
+            // Part of speech tag
+            Text(
+                text = meaning.partOfSpeech.label,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFF78909C))
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+            )
+
+            // Definition text
+            Text(
+                text = meaning.definition,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF333333),
+                modifier = Modifier.padding(top = 6.dp)
+            )
+
+            // Example
+            if (meaning.examples.isNotEmpty()) {
+                Text(
+                    text = "\"${meaning.examples.first()}\"",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF666666),
+                    fontWeight = FontWeight.Light,
+                    modifier = Modifier.padding(top = 4.dp, start = 8.dp)
+                )
+            }
+
+            // Synonyms
+            if (meaning.synonyms.isNotEmpty()) {
+                Text(
+                    text = "syn: ${meaning.synonyms.take(5).joinToString(", ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF4CAF50),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            // Antonyms
+            if (meaning.antonyms.isNotEmpty()) {
+                Text(
+                    text = "ant: ${meaning.antonyms.take(5).joinToString(", ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFFF44336),
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
         }
     }

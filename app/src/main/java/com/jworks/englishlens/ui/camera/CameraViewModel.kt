@@ -7,7 +7,9 @@ import androidx.camera.core.ImageProxy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.mlkit.vision.common.InputImage
+import com.jworks.englishlens.data.repository.DefinitionRepository
 import com.jworks.englishlens.domain.models.AppSettings
+import com.jworks.englishlens.domain.models.Definition
 import com.jworks.englishlens.domain.models.DetectedText
 import com.jworks.englishlens.domain.repository.SettingsRepository
 import com.jworks.englishlens.domain.usecases.ProcessCameraFrameUseCase
@@ -20,10 +22,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed class LookupState {
+    data object Idle : LookupState()
+    data object Loading : LookupState()
+    data class Success(val definition: Definition) : LookupState()
+    data class NotFound(val word: String) : LookupState()
+    data class Error(val message: String?) : LookupState()
+}
+
 @HiltViewModel
 class CameraViewModel @Inject constructor(
     private val processCameraFrame: ProcessCameraFrameUseCase,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val definitionRepository: DefinitionRepository
 ) : ViewModel() {
 
     companion object {
@@ -40,6 +51,9 @@ class CameraViewModel @Inject constructor(
 
     private val _selectedWord = MutableStateFlow<String?>(null)
     val selectedWord: StateFlow<String?> = _selectedWord.asStateFlow()
+
+    private val _lookupState = MutableStateFlow<LookupState>(LookupState.Idle)
+    val lookupState: StateFlow<LookupState> = _lookupState.asStateFlow()
 
     private val _isProcessing = MutableStateFlow(false)
     val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
@@ -72,6 +86,10 @@ class CameraViewModel @Inject constructor(
         viewModelScope.launch {
             settings.collect { cachedFrameSkip = it.frameSkip }
         }
+        // Preload common words into memory cache
+        viewModelScope.launch {
+            definitionRepository.preloadCommonWords(100)
+        }
     }
 
     fun toggleFlash() {
@@ -84,6 +102,33 @@ class CameraViewModel @Inject constructor(
 
     fun selectWord(word: String?) {
         _selectedWord.value = word
+        if (word != null) {
+            lookupWord(word)
+        } else {
+            _lookupState.value = LookupState.Idle
+        }
+    }
+
+    fun dismissDefinition() {
+        _selectedWord.value = null
+        _lookupState.value = LookupState.Idle
+    }
+
+    private fun lookupWord(word: String) {
+        viewModelScope.launch {
+            _lookupState.value = LookupState.Loading
+            definitionRepository.getDefinition(word)
+                .onSuccess { definition ->
+                    _lookupState.value = LookupState.Success(definition)
+                }
+                .onFailure { error ->
+                    if (error is NoSuchElementException) {
+                        _lookupState.value = LookupState.NotFound(word)
+                    } else {
+                        _lookupState.value = LookupState.Error(error.message)
+                    }
+                }
+        }
     }
 
     fun updatePartialModeBoundaryRatio(ratio: Float) {
