@@ -108,6 +108,8 @@ private fun CameraContent(
     val detectedTexts by viewModel.detectedTexts.collectAsState()
     val selectedWord by viewModel.selectedWord.collectAsState()
     val lookupState by viewModel.lookupState.collectAsState()
+    val analysisMode by viewModel.analysisMode.collectAsState()
+    val readabilityMetrics by viewModel.readabilityMetrics.collectAsState()
     val sourceImageSize by viewModel.sourceImageSize.collectAsState()
     val rotationDegrees by viewModel.rotationDegrees.collectAsState()
     val isFlashOn by viewModel.isFlashOn.collectAsState()
@@ -132,6 +134,7 @@ private fun CameraContent(
     var settingsBtnOffset by remember { mutableStateOf(Offset.Zero) }
     var flashBtnOffset by remember { mutableStateOf(Offset.Zero) }
     var modeBtnOffset by remember { mutableStateOf(Offset.Zero) }
+    var readBtnOffset by remember { mutableStateOf(Offset.Zero) }
     var buttonsInitialized by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
@@ -164,14 +167,16 @@ private fun CameraContent(
         val bottomFooterPadding = 160f
 
         if (!buttonsInitialized) {
-            // 1x3 row: bottom-right corner
-            val col3 = maxWidthPx - btnSizePx - rightMargin
+            // 1x4 row: bottom-right corner
+            val col4 = maxWidthPx - btnSizePx - rightMargin
+            val col3 = col4 - btnSizePx - btnGap
             val col2 = col3 - btnSizePx - btnGap
             val col1 = col2 - btnSizePx - btnGap
             val row1 = maxHeightPx - btnSizePx - bottomFooterPadding
             settingsBtnOffset = Offset(col1, row1)
             flashBtnOffset = Offset(col2, row1)
             modeBtnOffset = Offset(col3, row1)
+            readBtnOffset = Offset(col4, row1)
             buttonsInitialized = true
         }
 
@@ -278,98 +283,121 @@ private fun CameraContent(
                 .border(width = 1.dp, color = Color(0xFFE0E0E0))
 
             Box(modifier = panelModifier) {
-                when (val state = lookupState) {
-                    is LookupState.Success -> {
-                        DefinitionPanel(
-                            definition = state.definition,
-                            onDismiss = { viewModel.dismissDefinition() },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    is LookupState.Loading -> {
-                        Box(
+                when (analysisMode) {
+                    is AnalysisMode.Readability -> {
+                        readabilityMetrics?.let { metrics ->
+                            ReadabilityPanel(
+                                metrics = metrics,
+                                onBack = { viewModel.switchToWordLookup() },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } ?: Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(32.dp),
-                                color = Color(0xFF2196F3)
-                            )
-                        }
-                    }
-                    is LookupState.NotFound -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "\"${state.word}\"",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF333333)
-                                )
-                                Text(
-                                    text = "Back",
-                                    color = Color(0xFF2196F3),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .clickable { viewModel.dismissDefinition() }
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                            }
                             Text(
-                                text = "Word not found in dictionary.",
+                                text = "Not enough text to analyze. Point camera at text first.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Gray,
-                                modifier = Modifier.padding(top = 8.dp)
+                                modifier = Modifier.padding(16.dp)
                             )
                         }
                     }
-                    is LookupState.Error -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Lookup error",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color(0xFFF44336)
-                            )
-                            Text(
-                                text = state.message ?: "Unknown error",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                            Text(
-                                text = "Back",
-                                color = Color(0xFF2196F3),
-                                fontSize = 14.sp,
-                                modifier = Modifier
-                                    .padding(top = 8.dp)
-                                    .clickable { viewModel.dismissDefinition() }
-                            )
+                    is AnalysisMode.WordLookup -> {
+                        when (val state = lookupState) {
+                            is LookupState.Success -> {
+                                DefinitionPanel(
+                                    definition = state.definition,
+                                    onDismiss = { viewModel.dismissDefinition() },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            is LookupState.Loading -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(32.dp),
+                                        color = Color(0xFF2196F3)
+                                    )
+                                }
+                            }
+                            is LookupState.NotFound -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "\"${state.word}\"",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF333333)
+                                        )
+                                        Text(
+                                            text = "Back",
+                                            color = Color(0xFF2196F3),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .clickable { viewModel.dismissDefinition() }
+                                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                    Text(
+                                        text = "Word not found in dictionary.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
+                            }
+                            is LookupState.Error -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = "Lookup error",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = Color(0xFFF44336)
+                                    )
+                                    Text(
+                                        text = state.message ?: "Unknown error",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                    Text(
+                                        text = "Back",
+                                        color = Color(0xFF2196F3),
+                                        fontSize = 14.sp,
+                                        modifier = Modifier
+                                            .padding(top = 8.dp)
+                                            .clickable { viewModel.dismissDefinition() }
+                                    )
+                                }
+                            }
+                            is LookupState.Idle -> {
+                                DetectedWordList(
+                                    words = wordList,
+                                    selectedWord = selectedWord,
+                                    onWordClick = { entry ->
+                                        viewModel.selectWord(entry.word)
+                                        onWordSelected(entry.word)
+                                    },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
-                    }
-                    is LookupState.Idle -> {
-                        DetectedWordList(
-                            words = wordList,
-                            selectedWord = selectedWord,
-                            onWordClick = { entry ->
-                                viewModel.selectWord(entry.word)
-                                onWordSelected(entry.word)
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
                     }
                 }
             }
@@ -467,6 +495,28 @@ private fun CameraContent(
                 if (settings.partialModeBoundaryRatio > 0.6f) "LIST" else "FULL",
                 color = Color.White,
                 fontSize = 10.sp
+            )
+        }
+
+        // Layer 9: Readability analysis button
+        DraggableFloatingButton(
+            offset = readBtnOffset,
+            onOffsetChange = { readBtnOffset = it },
+            onClick = {
+                if (analysisMode is AnalysisMode.Readability) {
+                    viewModel.switchToWordLookup()
+                } else {
+                    viewModel.analyzeReadability()
+                }
+            },
+            maxWidth = maxWidthPx,
+            maxHeight = maxHeightPx,
+            btnSize = btnSizePx
+        ) {
+            Text(
+                if (analysisMode is AnalysisMode.Readability) "WORD" else "READ",
+                color = if (analysisMode is AnalysisMode.Readability) Color(0xFF4CAF50) else Color.White,
+                fontSize = 9.sp
             )
         }
 

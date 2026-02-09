@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.mlkit.vision.common.InputImage
 import com.jworks.englishlens.data.repository.DefinitionRepository
+import com.jworks.englishlens.domain.analysis.ReadabilityCalculator
 import com.jworks.englishlens.domain.models.AppSettings
 import com.jworks.englishlens.domain.models.Definition
 import com.jworks.englishlens.domain.models.DetectedText
+import com.jworks.englishlens.domain.models.ReadabilityMetrics
 import com.jworks.englishlens.domain.repository.SettingsRepository
 import com.jworks.englishlens.domain.usecases.ProcessCameraFrameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,11 +32,17 @@ sealed class LookupState {
     data class Error(val message: String?) : LookupState()
 }
 
+sealed class AnalysisMode {
+    data object WordLookup : AnalysisMode()
+    data object Readability : AnalysisMode()
+}
+
 @HiltViewModel
 class CameraViewModel @Inject constructor(
     private val processCameraFrame: ProcessCameraFrameUseCase,
     private val settingsRepository: SettingsRepository,
-    private val definitionRepository: DefinitionRepository
+    private val definitionRepository: DefinitionRepository,
+    private val readabilityCalculator: ReadabilityCalculator
 ) : ViewModel() {
 
     companion object {
@@ -54,6 +62,12 @@ class CameraViewModel @Inject constructor(
 
     private val _lookupState = MutableStateFlow<LookupState>(LookupState.Idle)
     val lookupState: StateFlow<LookupState> = _lookupState.asStateFlow()
+
+    private val _analysisMode = MutableStateFlow<AnalysisMode>(AnalysisMode.WordLookup)
+    val analysisMode: StateFlow<AnalysisMode> = _analysisMode.asStateFlow()
+
+    private val _readabilityMetrics = MutableStateFlow<ReadabilityMetrics?>(null)
+    val readabilityMetrics: StateFlow<ReadabilityMetrics?> = _readabilityMetrics.asStateFlow()
 
     private val _isProcessing = MutableStateFlow(false)
     val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
@@ -112,6 +126,19 @@ class CameraViewModel @Inject constructor(
     fun dismissDefinition() {
         _selectedWord.value = null
         _lookupState.value = LookupState.Idle
+    }
+
+    fun analyzeReadability() {
+        val allText = _detectedTexts.value.joinToString(" ") { it.text }
+        if (allText.isBlank()) return
+
+        _analysisMode.value = AnalysisMode.Readability
+        _readabilityMetrics.value = readabilityCalculator.calculate(allText)
+    }
+
+    fun switchToWordLookup() {
+        _analysisMode.value = AnalysisMode.WordLookup
+        _readabilityMetrics.value = null
     }
 
     private fun lookupWord(word: String) {
