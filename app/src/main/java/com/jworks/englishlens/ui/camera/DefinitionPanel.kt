@@ -45,8 +45,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -127,33 +125,7 @@ fun DefinitionPanel(
             DefinitionList(meanings = definition.meanings)
         }
 
-        // Add to vocabulary FAB
-        var isAdded by remember { mutableStateOf(false) }
-        FloatingActionButton(
-            onClick = { isAdded = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = if (isAdded)
-                Color(0xFF4CAF50)
-            else
-                MaterialTheme.colorScheme.primary,
-            elevation = FloatingActionButtonDefaults.elevation(4.dp)
-        ) {
-            AnimatedContent(
-                targetState = isAdded,
-                transitionSpec = {
-                    (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut())
-                },
-                label = "fab_icon"
-            ) { added ->
-                if (added) {
-                    Icon(Icons.Default.Check, "Added", tint = Color.White)
-                } else {
-                    Icon(Icons.Default.Add, "Add to Vocabulary")
-                }
-            }
-        }
+        // TODO: Add-to-Vocabulary feature (requires persistence layer - deferred to v0.2.0)
     }
 }
 

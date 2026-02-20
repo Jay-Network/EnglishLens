@@ -1,7 +1,6 @@
 package com.jworks.englishlens.ui.auth
 
 import android.app.Activity
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -266,7 +265,7 @@ fun LoginScreen(
             }
 
             Text(
-                text = "5 free scans/day. Sign in for unlimited access.",
+                text = "Continue without an account. Sign in anytime for cloud features.",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
