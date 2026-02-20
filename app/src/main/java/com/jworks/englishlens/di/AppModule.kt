@@ -4,8 +4,10 @@ import android.content.Context
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.jworks.englishlens.data.feedback.FeedbackRepositoryImpl
 import com.jworks.englishlens.data.preferences.SettingsDataStore
 import com.jworks.englishlens.data.repository.SettingsRepositoryImpl
+import com.jworks.englishlens.domain.repository.FeedbackRepository
 import com.jworks.englishlens.domain.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
@@ -35,5 +37,11 @@ object AppModule {
     @Singleton
     fun provideSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository {
         return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideFeedbackRepository(): FeedbackRepository {
+        return FeedbackRepositoryImpl()
     }
 }

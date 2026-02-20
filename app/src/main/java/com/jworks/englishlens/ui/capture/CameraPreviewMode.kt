@@ -1,6 +1,7 @@
 package com.jworks.englishlens.ui.capture
 
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.jworks.englishlens.R
@@ -41,6 +43,7 @@ fun CameraPreviewMode(
     modifier: Modifier = Modifier
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
     var camera by remember { mutableStateOf<Camera?>(null) }
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
 
@@ -121,7 +124,12 @@ fun CameraPreviewMode(
         // Capture button (bottom-center)
         FloatingActionButton(
             onClick = {
-                previewView?.bitmap?.let { onCapture(it) }
+                val bitmap = previewView?.bitmap
+                if (bitmap != null) {
+                    onCapture(bitmap)
+                } else {
+                    Toast.makeText(context, "Camera not ready. Please try again.", Toast.LENGTH_SHORT).show()
+                }
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
