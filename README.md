@@ -1,4 +1,4 @@
-# EnglishLens Android App
+# EigoLens Android App
 
 **Camera-based English Text Analyzer**
 
@@ -13,7 +13,7 @@ Point your camera at any English text for instant definitions, reading level ana
 - **Dictionary**: WordNet (147k words, 207k definitions, offline)
 - **NLP**: Rule-based lemmatizer, POS tagger, NER
 - **Target SDK**: Android 8.0+ (API 26+)
-- **GitHub**: https://github.com/Jay-Network/EnglishLens
+- **GitHub**: https://github.com/Jay-Network/EigoLens
 
 ## Features
 
@@ -28,7 +28,7 @@ Point your camera at any English text for instant definitions, reading level ana
 
 This is the Android app source code, managed as a GitHub repository.
 
-**Active Development Agent**: jworks:46 (EnglishLens-Dev)
+**Active Development Agent**: jworks:46 (EigoLens-Dev)
 
 ## Build
 
@@ -39,9 +39,9 @@ This is the Android app source code, managed as a GitHub repository.
 ## Structure
 
 ```
-EnglishLens/
+EigoLens/
 ├── app/                   # Main Android app module
-│   └── src/main/java/com/jworks/englishlens/
+│   └── src/main/java/com/jworks/eigolens/
 │       ├── data/          # Repository, Room DB, DAO
 │       ├── domain/        # Models, use cases, NLP, analysis
 │       └── ui/            # Compose screens, ViewModel
@@ -53,5 +53,5 @@ EnglishLens/
 ---
 
 **Part of**: JWorks Apps Division
-**Agent Workspace**: ~/1_jworks/A_ai/4_Apps/EnglishLens/
+**Agent Workspace**: ~/1_jworks/A_ai/4_Apps/EigoLens/
 **GitHub Backup**: This repository

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-generate_wordnet_db.py - Generate WordNet SQLite database for EnglishLens
+generate_wordnet_db.py - Generate WordNet SQLite database for EigoLens
 
 Creates an offline English dictionary database from WordNet 3.1 (via NLTK)
 with frequency rankings derived from NLTK's word frequency data.
@@ -438,7 +438,7 @@ def verify_database(db_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate WordNet database for EnglishLens")
+    parser = argparse.ArgumentParser(description="Generate WordNet database for EigoLens")
     parser.add_argument(
         "--output", "-o",
         type=str,
@@ -465,7 +465,7 @@ def main():
         verify_database(args.output)
         return
 
-    log.info("EnglishLens WordNet Database Generator")
+    log.info("EigoLens WordNet Database Generator")
     log.info("=" * 40)
 
     # Download NLTK data
@@ -477,7 +477,7 @@ def main():
     # Verify
     verify_database(db_path)
 
-    log.info("\nDone! Database ready for EnglishLens.")
+    log.info("\nDone! Database ready for EigoLens.")
 
 
 if __name__ == "__main__":

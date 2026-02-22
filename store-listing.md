@@ -1,7 +1,7 @@
-# EnglishLens - Google Play Store Listing
+# EigoLens - Google Play Store Listing
 
 ## App Name
-EnglishLens
+EigoLens
 
 ## Short Description (80 characters max)
 Point your camera at English text for instant definitions and reading analysis.
@@ -10,15 +10,15 @@ Point your camera at English text for instant definitions and reading analysis.
 
 ## Full Description (4000 characters max)
 
-EnglishLens turns your camera into a powerful English reading assistant. Simply point at any English text, capture it, and get instant word definitions, part-of-speech tags, and reading level analysis.
+EigoLens turns your camera into a powerful English reading assistant. Simply point at any English text, capture it, and get instant word definitions, part-of-speech tags, and reading level analysis.
 
 CORE FEATURES
 
 Camera Text Recognition
-Capture any printed English text with your camera. EnglishLens uses advanced OCR to detect words, sentences, and paragraphs with high accuracy. You can also import photos from your gallery.
+Capture any printed English text with your camera. EigoLens uses advanced OCR to detect words, sentences, and paragraphs with high accuracy. You can also import photos from your gallery.
 
 Instant Word Definitions
-Draw a circle around any word to look up its definition instantly. EnglishLens includes a comprehensive offline dictionary with over 147,000 words and 207,000 definitions powered by WordNet. No internet connection required for word lookups.
+Draw a circle around any word to look up its definition instantly. EigoLens includes a comprehensive offline dictionary with over 147,000 words and 207,000 definitions powered by WordNet. No internet connection required for word lookups.
 
 Smart Word Analysis
 Get detailed information for every word including:
@@ -37,7 +37,7 @@ Understand how difficult a text is with four standard readability formulas:
 Each text gets a difficulty rating from Elementary to Graduate level, helping you choose reading material at the right level.
 
 Natural Language Processing
-EnglishLens includes a built-in NLP pipeline that identifies:
+EigoLens includes a built-in NLP pipeline that identifies:
 - Parts of speech (nouns, verbs, adjectives, etc.)
 - Named entities (dates, numbers, proper nouns)
 - Root word forms through lemmatization
@@ -61,7 +61,7 @@ KEY HIGHLIGHTS
 - Clean interface: Capture, circle, and learn in seconds
 - Free to use: Core features available without an account
 
-EnglishLens is developed by JWorks as part of our language learning toolkit.
+EigoLens is developed by JWorks as part of our language learning toolkit.
 
 ---
 
@@ -152,7 +152,7 @@ Recommended 8 phone screenshots showing:
 8. **Login Screen** - Clean sign-in with Google and email options
 
 ## Feature Graphic (1024x500)
-- App name "EnglishLens" prominently displayed
+- App name "EigoLens" prominently displayed
 - Visual showing camera viewfinder + text overlay + definition popup
 - Color scheme: Dark background with blue (#2196F3) accents matching app theme
 - Tagline: "Point. Capture. Learn."
@@ -225,7 +225,7 @@ Dictionary lookups: Yes - LRU cache in memory, cleared on app close.
 ## Release Notes (v0.1.0 - Internal Testing)
 
 ### What's New
-First internal release of EnglishLens - your camera-powered English reading assistant.
+First internal release of EigoLens - your camera-powered English reading assistant.
 
 Features included:
 - Camera text capture with ML Kit OCR

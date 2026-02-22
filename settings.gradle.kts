@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "EnglishLens"
+rootProject.name = "EigoLens"
 include(":app")

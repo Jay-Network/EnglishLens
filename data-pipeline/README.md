@@ -1,6 +1,6 @@
-# EnglishLens Data Pipeline
+# EigoLens Data Pipeline
 
-Generates the offline WordNet dictionary database (`wordnet.db`) for the EnglishLens Android app.
+Generates the offline WordNet dictionary database (`wordnet.db`) for the EigoLens Android app.
 
 ## Quick Start
 

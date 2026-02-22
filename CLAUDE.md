@@ -1,6 +1,6 @@
-# EnglishLens - Claude Code Agent Instructions
+# EigoLens - Claude Code Agent Instructions
 
-**Project**: EnglishLens - English Text Analyzer with OCR
+**Project**: EigoLens - English Text Analyzer with OCR
 **Owner**: JWorks (Jay's Technology & Manufacturing Business)
 **Created**: 2026-02-08
 **Status**: Initial Setup
@@ -9,7 +9,7 @@
 
 ## Project Overview
 
-EnglishLens is a camera-based English text analysis app that provides real-time word definitions, grammar analysis, and reading comprehension assistance. It's the English counterpart to KanjiLens, targeting ESL students and language learners.
+EigoLens is a camera-based English text analysis app that provides real-time word definitions, grammar analysis, and reading comprehension assistance. It's the English counterpart to KanjiLens, targeting ESL students and language learners.
 
 **Core Value**: Point your camera at any English text and get instant definitions, synonyms, grammar explanations, and reading level analysis.
 
@@ -18,8 +18,8 @@ EnglishLens is a camera-based English text analysis app that provides real-time 
 ## Key Documents
 
 **Development Resources**:
-1. `/home/takuma/1_jworks/A_ai/4_Apps/EnglishLens/README.md` - Project overview and status (if exists)
-2. Source code: `/home/takuma/Data_ubuntu/GitHub/Jay-Network/apps/EnglishLens/`
+1. `/home/takuma/1_jworks/A_ai/4_Apps/EigoLens/README.md` - Project overview and status (if exists)
+2. Source code: `/home/takuma/Data_ubuntu/GitHub/Jay-Network/apps/EigoLens/`
 3. **Reference**: KanjiLens CLAUDE.md for similar camera + OCR architecture
 
 ---
@@ -56,10 +56,10 @@ EnglishLens is a camera-based English text analysis app that provides real-time 
 ## Directory Structure
 
 ### Agent Workspace (This Directory)
-**Location**: `/home/takuma/1_jworks/A_ai/4_Apps/EnglishLens/`
+**Location**: `/home/takuma/1_jworks/A_ai/4_Apps/EigoLens/`
 
 ```
-~/1_jworks/A_ai/4_Apps/EnglishLens/
+~/1_jworks/A_ai/4_Apps/EigoLens/
 ├── README.md              # Project overview
 ├── CLAUDE.md              # This file (agent instructions)
 ├── STATUS.md              # Project status tracker
@@ -68,13 +68,13 @@ EnglishLens is a camera-based English text analysis app that provides real-time 
 ```
 
 ### Android App Project (GitHub Repository)
-**Location**: `/home/takuma/Data_ubuntu/GitHub/Jay-Network/apps/EnglishLens/`
+**Location**: `/home/takuma/Data_ubuntu/GitHub/Jay-Network/apps/EigoLens/`
 
 ```
-~/Data_ubuntu/GitHub/Jay-Network/apps/EnglishLens/
+~/Data_ubuntu/GitHub/Jay-Network/apps/EigoLens/
 ├── app/                   # Main Android module
 │   ├── src/main/
-│   │   ├── java/com/jworks/englishlens/
+│   │   ├── java/com/jworks/eigolens/
 │   │   │   ├── MainActivity.kt
 │   │   │   ├── domain/    # Business logic
 │   │   │   ├── data/      # Data layer
@@ -87,7 +87,7 @@ EnglishLens is a camera-based English text analysis app that provides real-time 
 
 **IMPORTANT**: When working on Android code, change to the GitHub directory:
 ```bash
-cd ~/Data_ubuntu/GitHub/Jay-Network/apps/EnglishLens/
+cd ~/Data_ubuntu/GitHub/Jay-Network/apps/EigoLens/
 ```
 
 ---
@@ -146,12 +146,12 @@ cd ~/Data_ubuntu/GitHub/Jay-Network/apps/EnglishLens/
 
 ## Sub-Agent Information
 
-**Identity**: [Claude-JWorks | EnglishLens-Dev] (jworks:46)
-**Launcher**: `claude-jworks-englishlens`
-**Working Directory**: `/home/takuma/1_jworks/A_ai/4_Apps/EnglishLens/`
+**Identity**: [Claude-JWorks | EigoLens-Dev] (jworks:46)
+**Launcher**: `claude-jworks-eigolens`
+**Working Directory**: `/home/takuma/1_jworks/A_ai/4_Apps/EigoLens/`
 **tmux Window**: jworks:46
 
-**Purpose**: Dedicated Android development agent for EnglishLens project
+**Purpose**: Dedicated Android development agent for EigoLens project
 
 **Parent Agent**: Window 42 (Apps Division) - `jworks:42`
 
@@ -167,7 +167,7 @@ cd ~/Data_ubuntu/GitHub/Jay-Network/apps/EnglishLens/
 
 ### Strategic Value
 
-EnglishLens is part of JWorks' **language learning app portfolio**:
+EigoLens is part of JWorks' **language learning app portfolio**:
 1. Complements VocabQuest (structured learning)
 2. Shares tech foundation with KanjiLens (camera + OCR architecture)
 3. Potential B2B licensing to language schools and universities

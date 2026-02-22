@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "com.jworks.englishlens"
+    namespace = "com.jworks.eigolens"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.jworks.englishlens"
+        applicationId = "com.jworks.eigolens"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -48,9 +48,9 @@ android {
                     load(localPropertiesFile.inputStream())
                 }
             }
-            storeFile = file(localProperties.getProperty("RELEASE_STORE_FILE", "../keystore/englishlens-release.jks"))
+            storeFile = file(localProperties.getProperty("RELEASE_STORE_FILE", "../keystore/eigolens-release.jks"))
             storePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD", "")
-            keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS", "englishlens")
+            keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS", "eigolens")
             keyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD", "")
         }
     }
