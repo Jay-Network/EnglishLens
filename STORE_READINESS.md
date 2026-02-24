@@ -1,9 +1,9 @@
 # EigoLens - Play Store Readiness Checklist
 
-**App**: EigoLens v0.1.0 (versionCode 1)
+**App**: EigoLens v0.2.0 (versionCode 2)
 **Package**: com.jworks.eigolens
 **Track**: Internal Testing
-**Last Updated**: 2026-02-20
+**Last Updated**: 2026-02-24
 
 ---
 
@@ -12,12 +12,12 @@
 | Item | Status | Notes |
 |------|--------|-------|
 | App name | DONE | EigoLens |
-| Short description (80 char) | DONE | 76 chars - see store-listing.md |
-| Full description (4000 char) | DONE | ~2400 chars - see store-listing.md |
+| Short description (80 char) | DONE | 79 chars - see store-listing.md |
+| Full description (4000 char) | DONE | Updated for tap-to-define - see store-listing.md |
 | App category | DONE | Education |
 | Contact email | DONE | jay@jworks-ai.com |
 | Developer website | DONE | https://jworks-ai.com |
-| Privacy policy URL | DONE | https://jworks-ai.com/privacy/englishlens (live, set in Play Console) |
+| Privacy policy URL | NEEDS UPDATE | Old: jworks-ai.com/privacy/englishlens → Need: /privacy/eigolens |
 
 ## 2. Graphics / Assets
 
@@ -68,27 +68,25 @@
 | ProGuard / R8 rules | DONE | kotlinx.serialization, Ktor, Supabase, Firebase, Credentials |
 | Signing config | DONE | Release keystore configured, gitignored |
 | CI/CD workflow | DONE | GitHub Actions on master, debug+test+release jobs |
-| Unit tests passing | DONE | 52/53 (1 pre-existing syllable heuristic failure) |
+| Unit tests passing | DONE | 58/59 passing (1 pre-existing syllable heuristic) |
 | Camera permission request | DONE | Accompanist gate with rationale |
 | Firebase graceful degradation | DONE | Auto-init disabled, isFirebaseAvailable() guard |
 | Session persistence | DONE | SharedPrefsSessionManager |
 | Offline graceful degradation | DONE | All Supabase calls guarded, core features on-device |
 | Null bitmap handling | DONE | Toast feedback on capture failure |
+| Room schema validation | DONE | DB tables rebuilt with correct NOT NULL constraints |
 
 ## 7. Remaining Bugs / Polish
 
 | Issue | Severity | Status | Notes |
 |-------|----------|--------|-------|
+| First capture sometimes 0 words | Medium | INVESTIGATING | Camera warm-up? Second capture works fine |
+| Google Sign-In not working | Medium | BLOCKED | Needs Google provider in Supabase dashboard |
+| Privacy policy URL needs update | Low | PENDING | Redirect /englishlens to /eigolens (jworks:17) |
 | App icon needs designer review | Low | DEFERRED | Vector icon created, may want professional polish |
-| SettingsScreen minimal | Low | DONE | Shows version, dictionary info, features, branding |
-| Add-to-Vocabulary removed | Low | DONE | Removed stub FAB, TODO for v0.2.0 |
-| Guest "5 scans/day" text | Low | DONE | Replaced with accurate text |
-| Theme parent mismatch | Low | DONE | Fixed to Material.NoActionBar (dark) |
-| Unused Image import | Low | DONE | Removed from LoginScreen |
 | Syllable count heuristic | Low | DEFERRED | "university" test expects 4, heuristic returns 5 |
-| Light theme support | Low | DEFERRED | App is dark-only, acceptable for v0.1.0 |
+| Light theme support | Low | DEFERRED | App is dark-only, acceptable for v0.2.0 |
 | Supabase SDK version 2.1.5 | Low | DEFERRED | Behind current 2.6.x, works for now |
-| SettingsScreen controls | Medium | DEFERRED | Highlight color / stroke width not exposed in UI |
 
 ## 8. Release Checklist
 
@@ -102,29 +100,33 @@
 - [x] Data safety answers ready
 - [x] App icon created
 - [x] Privacy policy URL live
+- [x] Tap-to-define working
+- [x] Overlay panel working
+- [x] Room schema validated on device
 - [ ] Screenshots captured
 - [ ] Feature graphic created
+- [ ] New Play Store listing (package changed)
 
-### Before Closed Beta (v0.2.0)
-- [ ] Privacy policy deployed and accessible
+### Before Closed Beta (v0.3.0)
+- [ ] AI phrase/sentence analysis (Phase B)
+- [ ] Privacy policy URL redirected to /eigolens
 - [ ] All screenshots uploaded to Play Console
 - [ ] Feature graphic uploaded
 - [ ] Content rating questionnaire submitted
 - [ ] Data safety form completed
 - [ ] Internal testing feedback addressed
-- [ ] Syllable heuristic improved
-- [ ] Add-to-Vocabulary feature implemented
-- [ ] Settings screen controls added
+- [ ] First-capture 0-words bug fixed
+- [ ] Google Sign-In working (Supabase dashboard)
 - [ ] google-services.json added (Firebase/FCM)
-- [ ] Google provider enabled in Supabase dashboard
 
 ### Before Production (v1.0.0)
+- [ ] Reading context system (Phase D)
+- [ ] Full-text AI analysis (Phase C)
 - [ ] Closed beta feedback addressed
 - [ ] Crash-free rate >99%
 - [ ] Light theme support
 - [ ] Supabase SDK updated to latest
 - [ ] Comprehensive test coverage (>60%)
-- [ ] Instrumentation tests added
 - [ ] Performance profiling
 - [ ] Accessibility audit
 - [ ] Professional app icon / feature graphic
@@ -135,12 +137,13 @@
 
 | Need | Owner | Status |
 |------|-------|--------|
-| Privacy policy page | jworks:17 | DONE - live at jworks-ai.com/privacy/englishlens |
+| Privacy policy redirect | jworks:17 | PENDING - /englishlens → /eigolens |
 | Screenshots / feature graphic | jayhub:31 (Vision) | Not started |
 | Google provider in Supabase | Jay (manual) | Pending dashboard access |
 | Firebase google-services.json | Jay (manual) | Pending Firebase project setup |
+| New Play Store listing | Jay (manual) | Needed (package changed from englishlens) |
 | Git pushes | jworks:42 | On request |
 
 ---
 
-*Generated by jworks:46 (EigoLens Dev Agent)*
+*Generated by jworks:46 (EigoLens Dev Agent) - 2026-02-24*

@@ -4,28 +4,31 @@
 EigoLens
 
 ## Short Description (80 characters max)
-Point your camera at English text for instant definitions and reading analysis.
+Tap any English word for instant definitions. Offline dictionary + reading level.
 
-(76 characters)
+(79 characters)
 
 ## Full Description (4000 characters max)
 
-EigoLens turns your camera into a powerful English reading assistant. Simply point at any English text, capture it, and get instant word definitions, part-of-speech tags, and reading level analysis.
+EigoLens turns your camera into a powerful English reading assistant. Capture any text, tap a word, and get instant definitions - all offline, all on-device.
 
 CORE FEATURES
 
-Camera Text Recognition
-Capture any printed English text with your camera. EigoLens uses advanced OCR to detect words, sentences, and paragraphs with high accuracy. You can also import photos from your gallery.
+Tap Any Word for Instant Definitions
+Capture text with your camera, then simply tap any word to look it up. No menus, no typing - just tap. EigoLens includes a comprehensive offline dictionary with over 147,000 words and 207,000 definitions powered by WordNet. Works without internet.
 
-Instant Word Definitions
-Draw a circle around any word to look up its definition instantly. EigoLens includes a comprehensive offline dictionary with over 147,000 words and 207,000 definitions powered by WordNet. No internet connection required for word lookups.
+Circle Phrases for Multi-Word Lookup
+Need to look up a phrase? Switch to circle mode and draw around multiple words. EigoLens will look up the phrase or fall back to individual word definitions. After selection, you're automatically back in tap mode.
+
+Full-Screen Image with Overlay Panel
+Your captured text stays full-screen while the definition panel slides up from the bottom. Drag the panel to resize it. Pinch to zoom and pan the image with two fingers - even while in tap mode.
 
 Smart Word Analysis
-Get detailed information for every word including:
-- Multiple definitions organized by part of speech
+Every word lookup includes:
+- Multiple definitions organized by part of speech (noun, verb, adjective, etc.)
 - Synonyms and antonyms
-- Word frequency indicators
-- Automatic lemmatization (finds root forms of conjugated words)
+- Word frequency indicators (Top 100, Common, Moderate, Rare)
+- Automatic lemmatization - inflected words like "running", "went", or "mice" resolve to their base forms
 
 Reading Level Analysis
 Understand how difficult a text is with four standard readability formulas:
@@ -34,31 +37,29 @@ Understand how difficult a text is with four standard readability formulas:
 - SMOG Index
 - Coleman-Liau Index
 
-Each text gets a difficulty rating from Elementary to Graduate level, helping you choose reading material at the right level.
+Each text gets a difficulty rating from Very Easy to Very Difficult, with the equivalent U.S. grade level and target audience.
 
 Natural Language Processing
 EigoLens includes a built-in NLP pipeline that identifies:
-- Parts of speech (nouns, verbs, adjectives, etc.)
+- Parts of speech (nouns, verbs, adjectives, adverbs, and more)
 - Named entities (dates, numbers, proper nouns)
 - Root word forms through lemmatization
 
-PDF Export
-Save your analysis results as professionally formatted PDF documents. Share them with teachers, classmates, or keep them for your own reference.
+WHO IS EIGOLENS FOR?
 
-WHO IS ENGLISHLENS FOR?
-
-- ESL/EFL students looking to build vocabulary while reading
-- Language learners who want to understand real-world English text
-- Students preparing for standardized English tests
+- ESL/EFL students building vocabulary while reading
+- Language learners understanding real-world English text
+- Students preparing for standardized English tests (TOEFL, IELTS, SAT)
 - Teachers assessing text difficulty for their students
-- Anyone who encounters unfamiliar English words in daily life
+- Anyone encountering unfamiliar English words in daily life
+- Parents helping children with English reading
 
 KEY HIGHLIGHTS
 
 - Works offline: Dictionary and NLP features work without internet
-- Fast: OCR processing in under 200ms
+- Fast: OCR processing in under 200ms, word lookup in under 30ms
 - Privacy-focused: Text analysis happens entirely on your device
-- Clean interface: Capture, circle, and learn in seconds
+- Natural interaction: Tap words, pinch to zoom, drag to resize - no learning curve
 - Free to use: Core features available without an account
 
 EigoLens is developed by JWorks as part of our language learning toolkit.
@@ -70,10 +71,10 @@ Primary: Education
 Sub-category: Language Learning (if available, otherwise Education)
 
 ## Tags/Keywords
-english dictionary, text scanner, OCR reader, vocabulary builder, reading level, ESL, English learner, word definitions, text analysis, readability
+english dictionary, text scanner, OCR reader, vocabulary builder, reading level, ESL, English learner, word definitions, text analysis, readability, TOEFL, IELTS
 
 ## Privacy Policy URL
-https://jworks-ai.com/privacy/englishlens
+https://jworks-ai.com/privacy/eigolens
 
 ## Contact Details
 - Developer name: JWorks
@@ -138,24 +139,24 @@ https://jworks-ai.com/privacy/englishlens
 
 ---
 
-## Screenshot Descriptions (for Vision agent to generate)
+## Screenshot Descriptions
 
 Recommended 8 phone screenshots showing:
 
 1. **Camera Preview** - Clean camera interface with capture button
-2. **Text Capture** - Captured text with OCR overlay showing detected words
-3. **Lasso Selection** - User drawing circle around a word in DRAW mode
-4. **Definition Card** - Word definition with POS tags, synonyms, frequency badge
-5. **Readability Panel** - Reading level scores with difficulty indicator
-6. **Gallery Import** - Importing a photo for text analysis
-7. **PDF Export** - Generated PDF analysis report
-8. **Login Screen** - Clean sign-in with Google and email options
+2. **Text Capture** - Captured text with OCR bounding boxes showing detected words
+3. **Tap Word** - User tapping a word, blue highlight pulse on the word
+4. **Definition Panel** - Overlay panel with word definition, POS tags, synonyms, frequency badge
+5. **Circle Selection** - Circle mode active, user drawing lasso around multiple words
+6. **Readability Panel** - Reading level scores with difficulty grade and statistics
+7. **Gallery Import** - Importing a photo from gallery for text analysis
+8. **Login Screen** - Clean sign-in with Google, email, and guest options
 
 ## Feature Graphic (1024x500)
 - App name "EigoLens" prominently displayed
 - Visual showing camera viewfinder + text overlay + definition popup
 - Color scheme: Dark background with blue (#2196F3) accents matching app theme
-- Tagline: "Point. Capture. Learn."
+- Tagline: "Tap. Define. Learn."
 
 ---
 
@@ -169,13 +170,13 @@ Recommended 8 phone screenshots showing:
 | Auth tokens | Yes (if signed in) | No | Session management |
 | Feedback text | Optional | No | User-submitted feedback to developer |
 | Device info | Yes (with feedback) | No | Bug diagnosis (OS version, device model) |
-| App settings | Yes | No | Highlight color, stroke width preferences |
-| FCM token | Future (when Firebase added) | No | Push notifications for feedback updates |
+| App settings | Yes | No | User preferences |
+| FCM token | Future | No | Push notifications |
 
 ### Data NOT Collected
 - Camera images (processed on-device only, never transmitted)
 - OCR text results (stays on-device)
-- Dictionary lookup history (in-memory cache only)
+- Dictionary lookup history (in-memory cache only, cleared on app close)
 - Location data
 - Contacts
 - Files (beyond user-selected gallery photos)
@@ -187,28 +188,6 @@ Yes - all network communication uses HTTPS via Supabase/Ktor.
 
 **Can users request that their data be deleted?**
 Yes - users can sign out (clears session) and contact developer for account deletion.
-
-**Does your app collect any of these data types?**
-
-Location: No
-Personal info:
-  - Email address: Optional, for account creation and feedback. Not shared.
-  - User IDs: Generated by Supabase auth. Not shared.
-  - Name: No
-
-Financial info: No
-Health and fitness: No
-Messages: No
-Photos and videos: No (camera used for OCR only, images not stored or sent)
-Audio: No
-Files and docs: No
-Calendar: No
-Contacts: No
-App activity: No
-Web browsing: No
-App info and performance:
-  - Crash logs: No (no crash reporting SDK)
-  - Device or other IDs: Device model/OS sent with feedback only
 
 **Is this data processed ephemerally?**
 Camera images: Yes - processed for OCR and discarded (not stored).
@@ -222,29 +201,25 @@ Dictionary lookups: Yes - LRU cache in memory, cleared on app close.
 
 ---
 
-## Release Notes (v0.1.0 - Internal Testing)
+## Release Notes (v0.2.0 - Phase A)
 
 ### What's New
-First internal release of EigoLens - your camera-powered English reading assistant.
+Major interaction upgrade: tap any word for instant definitions!
 
-Features included:
+- Tap any word on captured text for instant offline definitions
+- Full-screen image with draggable overlay panel (replaces split view)
+- Two-finger zoom/pan works alongside word tapping - no mode switching
+- Circle mode for multi-word selection (toggle via FAB)
+- Pulsing blue highlight on tapped words
+- Landscape support: panel anchors to right side
+- Fixed WordNet database schema validation
+- 6 new unit tests for word tap detection
+
+### Previous (v0.1.0 - Internal Testing)
 - Camera text capture with ML Kit OCR
 - Offline dictionary with 147,000+ words (WordNet)
-- Lasso word selection with instant definitions
 - Reading level analysis (Flesch-Kincaid, SMOG, Coleman-Liau)
 - NLP analysis (parts of speech, named entities, lemmatization)
 - Gallery photo import
-- PDF export of analysis results
 - Google Sign-In and email authentication
 - In-app feedback system
-
-### Testing Focus Areas
-Please test and report on:
-1. Camera capture on your device (does OCR detect text reliably?)
-2. Lasso word selection (can you circle words accurately?)
-3. Definition lookups (are definitions showing correctly?)
-4. Readability scores (do they seem reasonable for the text?)
-5. Gallery import (can you import and analyze saved photos?)
-6. Login flow (Google Sign-In and email/password)
-7. PDF export (does it generate and share correctly?)
-8. General stability (any crashes or freezes?)
