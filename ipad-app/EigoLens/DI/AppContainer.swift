@@ -46,8 +46,10 @@ final class AppContainer: ObservableObject {
         keychainStore = KeychainStore()
         readabilityCalculator = ReadabilityCalculator()
 
-        let claudeKey = keychainStore.load(key: KeychainStore.Keys.claudeApiKey) ?? ""
-        let geminiKey = keychainStore.load(key: KeychainStore.Keys.geminiApiKey) ?? ""
+        let claudeKey = keychainStore.load(key: KeychainStore.Keys.claudeApiKey)
+            ?? Configuration.builtInClaudeApiKey
+        let geminiKey = keychainStore.load(key: KeychainStore.Keys.geminiApiKey)
+            ?? Configuration.builtInGeminiApiKey
         let preferredProvider = UserDefaults.standard.string(forKey: "active_provider")
 
         aiProviderManager = AiProviderManager()

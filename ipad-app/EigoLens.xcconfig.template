@@ -7,3 +7,8 @@ PRODUCT_BUNDLE_IDENTIFIER = com.jworks.eigolens
 
 // Development Team (Apple Developer Team ID)
 DEVELOPMENT_TEAM = YOUR_TEAM_ID
+
+// API Keys (baked into the app at build time)
+// These pre-populate the Settings screen so you don't have to type them in.
+GEMINI_API_KEY =
+CLAUDE_API_KEY =

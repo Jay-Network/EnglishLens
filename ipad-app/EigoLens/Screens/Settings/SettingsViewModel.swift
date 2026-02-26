@@ -13,8 +13,10 @@ final class SettingsViewModel: ObservableObject {
         keychainStore = container.keychainStore
         aiProviderManager = container.aiProviderManager
 
-        claudeApiKey = keychainStore?.load(key: KeychainStore.Keys.claudeApiKey) ?? ""
-        geminiApiKey = keychainStore?.load(key: KeychainStore.Keys.geminiApiKey) ?? ""
+        claudeApiKey = keychainStore?.load(key: KeychainStore.Keys.claudeApiKey)
+            ?? Configuration.builtInClaudeApiKey
+        geminiApiKey = keychainStore?.load(key: KeychainStore.Keys.geminiApiKey)
+            ?? Configuration.builtInGeminiApiKey
         activeProvider = UserDefaults.standard.string(forKey: "active_provider") ?? aiProviderManager?.activeProviderName
     }
 

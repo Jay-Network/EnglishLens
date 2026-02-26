@@ -117,10 +117,14 @@ jobs:
       - name: Create xcconfig
         env:
           EL_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          EL_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+          EL_CLAUDE_KEY: ${{ secrets.CLAUDE_API_KEY }}
         run: |
           cat > EigoLens.xcconfig << XCCONFIG
           PRODUCT_BUNDLE_IDENTIFIER = com.jworks.eigolens
           DEVELOPMENT_TEAM = ${EL_TEAM_ID}
+          GEMINI_API_KEY = ${EL_GEMINI_KEY}
+          CLAUDE_API_KEY = ${EL_CLAUDE_KEY}
           XCCONFIG
 
       - name: Stage WordNet database

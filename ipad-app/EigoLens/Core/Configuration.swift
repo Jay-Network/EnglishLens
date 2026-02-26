@@ -8,4 +8,13 @@ enum Configuration {
     static let maxImageDimension: CGFloat = 2048
     static let preloadWordCount = 100
     static let tapTolerancePoints: CGFloat = 20.0
+
+    // Build-time API keys from xcconfig → Info.plist
+    static var builtInGeminiApiKey: String {
+        Bundle.main.infoDictionary?["GEMINI_API_KEY"] as? String ?? ""
+    }
+
+    static var builtInClaudeApiKey: String {
+        Bundle.main.infoDictionary?["CLAUDE_API_KEY"] as? String ?? ""
+    }
 }
