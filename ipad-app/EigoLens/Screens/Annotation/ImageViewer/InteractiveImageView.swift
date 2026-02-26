@@ -21,49 +21,60 @@ struct InteractiveImageView: View {
         GeometryReader { geometry in
             let imageSize = capturedImage.image.size
             let containerSize = geometry.size
-            let fitScale = min(containerSize.width / imageSize.width, containerSize.height / imageSize.height)
-            let displaySize = CGSize(width: imageSize.width * fitScale, height: imageSize.height * fitScale)
 
-            ZStack {
-                // Image layer
-                Image(uiImage: capturedImage.image)
-                    .resizable()
-                    .scaledToFit()
-                    .scaleEffect(scale)
-                    .offset(offset)
+            if imageSize.width > 0 && imageSize.height > 0 {
+                imageContent(imageSize: imageSize, containerSize: containerSize)
+            } else {
+                Color.black
+            }
+        }
+        .background(Color.black)
+    }
 
-                // OCR overlay
-                Canvas { context, size in
-                    drawOCROverlay(
-                        context: &context,
-                        size: size,
-                        displaySize: displaySize,
-                        containerSize: containerSize
-                    )
-                }
-                .allowsHitTesting(false)
+    // MARK: - Image Content
+
+    private func imageContent(imageSize: CGSize, containerSize: CGSize) -> some View {
+        let fitScale = min(containerSize.width / imageSize.width, containerSize.height / imageSize.height)
+        let displaySize = CGSize(width: imageSize.width * fitScale, height: imageSize.height * fitScale)
+
+        return ZStack {
+            // Image layer
+            Image(uiImage: capturedImage.image)
+                .resizable()
+                .scaledToFit()
                 .scaleEffect(scale)
                 .offset(offset)
 
-                // Selection rectangle overlay
-                if interactionMode == .select, let start = selectStart, let end = selectEnd {
-                    Path { path in
-                        path.addRect(CGRect(
-                            x: min(start.x, end.x),
-                            y: min(start.y, end.y),
-                            width: abs(end.x - start.x),
-                            height: abs(end.y - start.y)
-                        ))
-                    }
-                    .stroke(Color.orange, lineWidth: 2)
-                    .fill(Color.orange.opacity(0.15))
-                }
+            // OCR overlay
+            Canvas { context, size in
+                drawOCROverlay(
+                    context: &context,
+                    size: size,
+                    displaySize: displaySize,
+                    containerSize: containerSize
+                )
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
-            .gesture(combinedGesture(containerSize: containerSize, displaySize: displaySize, fitScale: fitScale))
+            .allowsHitTesting(false)
+            .scaleEffect(scale)
+            .offset(offset)
+
+            // Selection rectangle overlay
+            if interactionMode == .select, let start = selectStart, let end = selectEnd {
+                Path { path in
+                    path.addRect(CGRect(
+                        x: min(start.x, end.x),
+                        y: min(start.y, end.y),
+                        width: abs(end.x - start.x),
+                        height: abs(end.y - start.y)
+                    ))
+                }
+                .stroke(Color.orange, lineWidth: 2)
+                .fill(Color.orange.opacity(0.15))
+            }
         }
-        .background(Color.black)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .gesture(combinedGesture(containerSize: containerSize, displaySize: displaySize, fitScale: fitScale))
     }
 
     // MARK: - OCR Overlay Drawing
