@@ -45,9 +45,9 @@ final class PreviewUIView: UIView {
             let orientation = windowScene.interfaceOrientation
             let angle: CGFloat
             switch orientation {
-            case .landscapeLeft:
-                angle = 0
             case .landscapeRight:
+                angle = 0
+            case .landscapeLeft:
                 angle = 180
             case .portraitUpsideDown:
                 angle = 270
