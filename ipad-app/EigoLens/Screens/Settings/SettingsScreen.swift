@@ -55,6 +55,24 @@ struct SettingsScreen: View {
                 )
             }
 
+            // Token Usage Section
+            Section("Token Usage") {
+                tokenUsageCard(
+                    providerName: "Claude Haiku",
+                    inputTokens: viewModel.claudeInputTokens,
+                    outputTokens: viewModel.claudeOutputTokens,
+                    pricing: TokenUsageStore.claudePricing,
+                    onReset: { viewModel.resetTokenUsage(provider: "Claude") }
+                )
+                tokenUsageCard(
+                    providerName: "Gemini 2.5 Flash",
+                    inputTokens: viewModel.geminiInputTokens,
+                    outputTokens: viewModel.geminiOutputTokens,
+                    pricing: TokenUsageStore.geminiPricing,
+                    onReset: { viewModel.resetTokenUsage(provider: "Gemini") }
+                )
+            }
+
             // About Section
             Section("About") {
                 infoRow(label: "Version", value: Bundle.main.infoPlistString(for: "CFBundleShortVersionString") ?? "1.0.0")
@@ -122,6 +140,50 @@ struct SettingsScreen: View {
             Text(value)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    private func tokenUsageCard(providerName: String, inputTokens: Int, outputTokens: Int, pricing: TokenUsageStore.Pricing, onReset: @escaping () -> Void) -> some View {
+        let cost = TokenUsageStore.estimatedCost(inputTokens: inputTokens, outputTokens: outputTokens, pricing: pricing)
+        let hasUsage = inputTokens > 0 || outputTokens > 0
+
+        return VStack(alignment: .leading, spacing: 8) {
+            Text(providerName)
+                .font(EigoLensTheme.titleMedium)
+
+            HStack {
+                Text("Input")
+                    .font(EigoLensTheme.bodySmall)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(inputTokens.formatted())
+                    .font(EigoLensTheme.bodyMedium)
+                    .monospacedDigit()
+            }
+            HStack {
+                Text("Output")
+                    .font(EigoLensTheme.bodySmall)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(outputTokens.formatted())
+                    .font(EigoLensTheme.bodyMedium)
+                    .monospacedDigit()
+            }
+            HStack {
+                Text("Est. cost")
+                    .font(EigoLensTheme.bodySmall)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(String(format: "$%.4f", cost))
+                    .font(EigoLensTheme.bodyMedium)
+                    .monospacedDigit()
+            }
+
+            if hasUsage {
+                Button("Reset", role: .destructive, action: onReset)
+                    .font(EigoLensTheme.bodySmall)
+            }
+        }
+        .padding(.vertical, 4)
     }
 
     private func featureRow(icon: String, title: String, description: String) -> some View {

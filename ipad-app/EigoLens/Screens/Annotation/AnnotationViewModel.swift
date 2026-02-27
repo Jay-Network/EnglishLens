@@ -23,6 +23,7 @@ final class AnnotationViewModel: ObservableObject {
     private var geminiOcrCorrector: GeminiOcrCorrector?
     private var historyRepository: HistoryRepository?
     private var readabilityCalculator: ReadabilityCalculator?
+    private let tokenUsageStore = TokenUsageStore()
 
     private var currentWord: String?
 
@@ -193,6 +194,11 @@ final class AnnotationViewModel: ObservableObject {
                     contextSnippet: nil,
                     aiProvider: response.provider
                 )
+                let input = response.inputTokens ?? 0
+                let output = response.outputTokens ?? (response.tokensUsed ?? 0)
+                if input + output > 0 {
+                    tokenUsageStore.addTokenUsage(provider: response.provider, inputTokens: input, outputTokens: output)
+                }
             } catch {
                 panelState = .error(message: error.localizedDescription)
             }

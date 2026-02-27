@@ -17,6 +17,8 @@ struct AiResponse: Equatable {
     let provider: String
     let model: String
     let tokensUsed: Int?
+    let inputTokens: Int?
+    let outputTokens: Int?
     let processingTimeMs: Int
 }
 

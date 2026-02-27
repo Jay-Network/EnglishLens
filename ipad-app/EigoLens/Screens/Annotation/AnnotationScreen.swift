@@ -100,6 +100,8 @@ struct AnnotationScreen: View {
             DraggablePanel(isVisible: viewModel.panelState.isVisible, isLandscape: isLandscape) {
                 PanelContentView(
                     state: viewModel.panelState,
+                    interactionMode: viewModel.interactionMode,
+                    onInteractionModeChange: { viewModel.interactionMode = $0 },
                     onDismiss: { viewModel.dismissPanel() },
                     onToggleBookmark: { viewModel.toggleBookmark() },
                     isBookmarked: viewModel.isCurrentWordBookmarked

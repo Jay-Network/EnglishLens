@@ -13,9 +13,12 @@ struct InteractiveImageView: View {
     @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
 
-    // Selection mode state
+    // Selection mode state (active drag)
     @State private var selectStart: CGPoint?
     @State private var selectEnd: CGPoint?
+    // Completed selection (persists after finger release)
+    @State private var completedSelectStart: CGPoint?
+    @State private var completedSelectEnd: CGPoint?
 
     var body: some View {
         GeometryReader { geometry in
@@ -58,23 +61,35 @@ struct InteractiveImageView: View {
             .scaleEffect(scale)
             .offset(offset)
 
-            // Selection rectangle overlay
+            // Completed selection rectangle (persists after finger release)
+            if let start = completedSelectStart, let end = completedSelectEnd {
+                selectionRectangle(start: start, end: end)
+            }
+
+            // Active drag selection rectangle
             if interactionMode == .select, let start = selectStart, let end = selectEnd {
-                Path { path in
-                    path.addRect(CGRect(
-                        x: min(start.x, end.x),
-                        y: min(start.y, end.y),
-                        width: abs(end.x - start.x),
-                        height: abs(end.y - start.y)
-                    ))
-                }
-                .stroke(Color.orange, lineWidth: 2)
-                .fill(Color.orange.opacity(0.15))
+                selectionRectangle(start: start, end: end)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
         .gesture(combinedGesture(containerSize: containerSize, displaySize: displaySize, fitScale: fitScale))
+    }
+
+    @ViewBuilder
+    private func selectionRectangle(start: CGPoint, end: CGPoint) -> some View {
+        let rect = CGRect(
+            x: min(start.x, end.x),
+            y: min(start.y, end.y),
+            width: abs(end.x - start.x),
+            height: abs(end.y - start.y)
+        )
+        ZStack {
+            Path { path in path.addRect(rect) }
+                .fill(Color(hex: 0xFFEB3B).opacity(0.10))
+            Path { path in path.addRect(rect) }
+                .stroke(Color(hex: 0xFFEB3B).opacity(0.7), lineWidth: 2)
+        }
     }
 
     // MARK: - OCR Overlay Drawing
@@ -180,12 +195,16 @@ struct InteractiveImageView: View {
     // MARK: - Hit Testing
 
     private func handleTap(at point: CGPoint, containerSize: CGSize, displaySize: CGSize, fitScale: CGFloat) {
+        completedSelectStart = nil
+        completedSelectEnd = nil
         if let result = findTappedWord(at: point, containerSize: containerSize, displaySize: displaySize, fitScale: fitScale) {
             onWordTapped(result)
         }
     }
 
     private func handleLongPress(at point: CGPoint, containerSize: CGSize, displaySize: CGSize, fitScale: CGFloat) {
+        completedSelectStart = nil
+        completedSelectEnd = nil
         if let result = findTappedWord(at: point, containerSize: containerSize, displaySize: displaySize, fitScale: fitScale) {
             onWordLongPressed(result)
         }
@@ -203,6 +222,8 @@ struct InteractiveImageView: View {
 
         let words = findWordsInRect(selectionRect, containerSize: containerSize, displaySize: displaySize)
         if !words.isEmpty {
+            completedSelectStart = start
+            completedSelectEnd = end
             onWordsSelected(words)
         }
     }

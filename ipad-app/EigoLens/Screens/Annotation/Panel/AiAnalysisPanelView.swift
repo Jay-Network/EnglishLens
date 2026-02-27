@@ -7,6 +7,8 @@ struct AiAnalysisPanelView: View {
     }
 
     let viewState: ViewState
+    var interactionMode: InteractionMode = .tap
+    var onInteractionModeChange: (InteractionMode) -> Void = { _ in }
     var onDismiss: () -> Void
 
     @State private var selectedTab = 0
@@ -82,6 +84,17 @@ struct AiAnalysisPanelView: View {
             }
 
             Spacer()
+
+            // Lasso/select mode toggle
+            Button {
+                let newMode: InteractionMode = interactionMode == .tap ? .select : .tap
+                onInteractionModeChange(newMode)
+            } label: {
+                Image(systemName: interactionMode == .select ? "hand.tap.fill" : "crop")
+                    .foregroundStyle(interactionMode == .select ? Color(hex: 0xFFEB3B) : .secondary)
+                    .font(.system(size: 16))
+                    .frame(width: 32, height: 32)
+            }
 
             Button(action: onDismiss) {
                 Image(systemName: "xmark")

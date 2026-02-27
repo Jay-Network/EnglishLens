@@ -2,6 +2,8 @@ import SwiftUI
 
 struct PanelContentView: View {
     let state: PanelState
+    var interactionMode: InteractionMode = .tap
+    var onInteractionModeChange: (InteractionMode) -> Void = { _ in }
     var onDismiss: () -> Void
     var onToggleBookmark: () -> Void
     var isBookmarked: Bool
@@ -23,11 +25,15 @@ struct PanelContentView: View {
         case .aiLoading(let scope, let text, let readability):
             AiAnalysisPanelView(
                 viewState: .loading(text, scope, readability),
+                interactionMode: interactionMode,
+                onInteractionModeChange: onInteractionModeChange,
                 onDismiss: onDismiss
             )
         case .aiAnalysis(let scope, let text, let response, let readability):
             AiAnalysisPanelView(
                 viewState: .loaded(text, scope, response, readability),
+                interactionMode: interactionMode,
+                onInteractionModeChange: onInteractionModeChange,
                 onDismiss: onDismiss
             )
         case .notFound(let word):

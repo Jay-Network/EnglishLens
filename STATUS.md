@@ -37,6 +37,9 @@
 | **Guest mode** | DONE | DONE |
 | **Session persistence (Keychain)** | DONE | DONE |
 | **Sign out** | DONE | DONE |
+| **Token usage tracking (Settings)** | DONE | DONE |
+| **Lasso selection persistence** | DONE | DONE |
+| **Lasso toggle in AI panel** | DONE | DONE |
 | **Feedback system** | DONE | - |
 | **Dark mode** | DONE | SCAFFOLDED |
 
@@ -55,8 +58,8 @@
 ### iPad (jworks:61)
 - **Version**: 0.1.0 (scaffolding complete)
 - **Bundle ID**: com.jworks.eigolens (App Store Connect registered)
-- **Current work**: Auth sign-in screen implemented (Email/Password + Guest). Supabase GoTrue REST API, Keychain session persistence, AuthManager with token refresh.
-- **Next**: Build on macOS, test auth flow end-to-end, Google Sign-In (v2)
+- **Current work**: Auth + token usage tracking + lasso fixes ported from Android. All 3 features from jworks:46 implemented.
+- **Next**: Build on macOS, test all features end-to-end, Google Sign-In (v2)
 - **Blockers**: Requires macOS for xcodegen + Xcode build. GitHub secrets (SUPABASE_URL, SUPABASE_ANON_KEY) need to be set on the repo.
 
 ---

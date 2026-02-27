@@ -61,6 +61,8 @@ final class ClaudeClient: AiProviderProtocol {
             provider: "Claude",
             model: model,
             tokensUsed: inputTokens + outputTokens,
+            inputTokens: inputTokens,
+            outputTokens: outputTokens,
             processingTimeMs: elapsed
         )
     }

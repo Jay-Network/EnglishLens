@@ -62,12 +62,16 @@ final class GeminiClient: AiProviderProtocol {
 
         let usageMetadata = json?["usageMetadata"] as? [String: Any]
         let totalTokens = usageMetadata?["totalTokenCount"] as? Int
+        let promptTokens = usageMetadata?["promptTokenCount"] as? Int
+        let candidateTokens = usageMetadata?["candidatesTokenCount"] as? Int
 
         return AiResponse(
             content: text,
             provider: "Gemini",
             model: model,
             tokensUsed: totalTokens,
+            inputTokens: promptTokens,
+            outputTokens: candidateTokens,
             processingTimeMs: elapsed
         )
     }
