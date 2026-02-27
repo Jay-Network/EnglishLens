@@ -9,9 +9,18 @@ struct EigoLensApp: App {
         WindowGroup {
             if let error = container.initError {
                 ErrorInitView(message: error)
-            } else {
+            } else if container.authManager.isRestoringSession {
+                ProgressView("Restoring session...")
+                    .environmentObject(container)
+            } else if container.authManager.authState.isLoggedIn || container.authManager.isGuest {
                 AppNavigation()
                     .environmentObject(container)
+            } else {
+                LoginScreen(
+                    onLoginSuccess: { },
+                    onContinueAsGuest: { container.authManager.continueAsGuest() }
+                )
+                .environmentObject(container)
             }
         }
         .modelContainer(for: [LookupHistoryEntry.self, BookmarkedWord.self])

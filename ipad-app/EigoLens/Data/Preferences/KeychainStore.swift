@@ -5,6 +5,10 @@ final class KeychainStore {
     enum Keys {
         static let claudeApiKey = "claude_api_key"
         static let geminiApiKey = "gemini_api_key"
+        static let supabaseAccessToken = "supabase_access_token"
+        static let supabaseRefreshToken = "supabase_refresh_token"
+        static let supabaseUserId = "supabase_user_id"
+        static let supabaseUserEmail = "supabase_user_email"
     }
 
     private let service = "com.jworks.eigolens.apikeys"

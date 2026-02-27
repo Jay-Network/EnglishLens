@@ -8,10 +8,12 @@ final class SettingsViewModel: ObservableObject {
 
     private var keychainStore: KeychainStore?
     private var aiProviderManager: AiProviderManager?
+    private var authManager: AuthManager?
 
     func configure(container: AppContainer) {
         keychainStore = container.keychainStore
         aiProviderManager = container.aiProviderManager
+        authManager = container.authManager
 
         claudeApiKey = keychainStore?.load(key: KeychainStore.Keys.claudeApiKey)
             ?? Configuration.builtInClaudeApiKey
@@ -34,6 +36,12 @@ final class SettingsViewModel: ObservableObject {
         activeProvider = provider
         UserDefaults.standard.set(provider, forKey: "active_provider")
         reconfigureAi()
+    }
+
+    func signOut() {
+        Task {
+            await authManager?.signOut()
+        }
     }
 
     private func reconfigureAi() {

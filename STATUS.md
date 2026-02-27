@@ -3,7 +3,7 @@
 > **Shared status file** — updated by both jworks:46 (Android) and jworks:61 (iPad).
 > Each agent updates its own column. Check this file before starting work to stay in sync.
 
-**Last updated**: 2026-02-25
+**Last updated**: 2026-02-27
 
 ---
 
@@ -32,6 +32,11 @@
 | **Lookup history** | DONE | SCAFFOLDED |
 | **History screen (Recent + Saved)** | DONE | SCAFFOLDED |
 | **Settings (API key config)** | DONE | SCAFFOLDED |
+| **Sign-in (Email/Password)** | DONE | DONE |
+| **Sign-in (Google)** | DONE | - |
+| **Guest mode** | DONE | DONE |
+| **Session persistence (Keychain)** | DONE | DONE |
+| **Sign out** | DONE | DONE |
 | **Feedback system** | DONE | - |
 | **Dark mode** | DONE | SCAFFOLDED |
 
@@ -50,9 +55,9 @@
 ### iPad (jworks:61)
 - **Version**: 0.1.0 (scaffolding complete)
 - **Bundle ID**: com.jworks.eigolens (App Store Connect registered)
-- **Current work**: 38 Swift source files across 6 phases created. Needs xcodegen on macOS to generate .xcodeproj, then compile + test.
-- **Next**: Build on macOS, test camera + OCR pipeline, validate landscape panel
-- **Blockers**: Requires macOS for xcodegen + Xcode build
+- **Current work**: Auth sign-in screen implemented (Email/Password + Guest). Supabase GoTrue REST API, Keychain session persistence, AuthManager with token refresh.
+- **Next**: Build on macOS, test auth flow end-to-end, Google Sign-In (v2)
+- **Blockers**: Requires macOS for xcodegen + Xcode build. GitHub secrets (SUPABASE_URL, SUPABASE_ANON_KEY) need to be set on the repo.
 
 ---
 

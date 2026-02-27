@@ -17,4 +17,12 @@ enum Configuration {
     static var builtInClaudeApiKey: String {
         Bundle.main.infoDictionary?["CLAUDE_API_KEY"] as? String ?? ""
     }
+
+    static var builtInSupabaseUrl: String {
+        Bundle.main.infoDictionary?["SUPABASE_URL"] as? String ?? ""
+    }
+
+    static var builtInSupabaseAnonKey: String {
+        Bundle.main.infoDictionary?["SUPABASE_ANON_KEY"] as? String ?? ""
+    }
 }

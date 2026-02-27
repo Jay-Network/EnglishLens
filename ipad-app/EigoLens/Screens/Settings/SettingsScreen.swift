@@ -7,6 +7,24 @@ struct SettingsScreen: View {
 
     var body: some View {
         List {
+            // Account Section
+            Section("Account") {
+                if let email = container.authManager.authState.email {
+                    HStack {
+                        Text("Signed in as")
+                        Spacer()
+                        Text(email)
+                            .foregroundStyle(.secondary)
+                    }
+                    Button("Sign Out", role: .destructive) {
+                        viewModel.signOut()
+                    }
+                } else {
+                    Text("Guest Mode")
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             // AI Analysis Section
             Section("AI Analysis") {
                 // Provider selection

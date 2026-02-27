@@ -12,3 +12,5 @@ DEVELOPMENT_TEAM = YOUR_TEAM_ID
 // These pre-populate the Settings screen so you don't have to type them in.
 GEMINI_API_KEY =
 CLAUDE_API_KEY =
+SUPABASE_URL =
+SUPABASE_ANON_KEY =

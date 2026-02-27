@@ -1,9 +1,11 @@
 import Foundation
 import SwiftUI
+import Combine
 
 @MainActor
 final class AppContainer: ObservableObject {
     @Published var initError: String?
+    private var authCancellable: AnyCancellable?
 
     // Transient capture storage (avoids Hashable requirement on CapturedImage)
     private var pendingCaptures: [UUID: CapturedImage] = [:]
@@ -25,6 +27,9 @@ final class AppContainer: ObservableObject {
     private(set) var historyRepository: HistoryRepository!
     private(set) var keychainStore: KeychainStore!
 
+    // -- Auth --
+    private(set) var authManager: AuthManager!
+
     init() {
         do {
             try initializeServices()
@@ -34,6 +39,17 @@ final class AppContainer: ObservableObject {
     }
 
     private func initializeServices() throws {
+        // Auth (before other services so it starts session restoration early)
+        keychainStore = KeychainStore()
+        let supabaseClient = SupabaseAuthClient(
+            baseURL: Configuration.builtInSupabaseUrl,
+            anonKey: Configuration.builtInSupabaseAnonKey
+        )
+        authManager = AuthManager(client: supabaseClient, keychain: keychainStore)
+        authCancellable = authManager.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }
+
         // Phase 2
         ocrService = OCRService()
 
@@ -43,7 +59,6 @@ final class AppContainer: ObservableObject {
         definitionRepository = DefinitionRepository(db: wordNetDatabase, lemmatizer: lemmatizer)
 
         // Phase 5: AI
-        keychainStore = KeychainStore()
         readabilityCalculator = ReadabilityCalculator()
 
         let claudeKey = keychainStore.load(key: KeychainStore.Keys.claudeApiKey)
