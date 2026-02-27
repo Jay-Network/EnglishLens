@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,6 +64,19 @@ class SettingsViewModel @Inject constructor(
             )
         )
         refreshProviderState()
+    }
+
+    fun setIpaFontScale(scale: Float) {
+        viewModelScope.launch {
+            val current = settingsRepository.settings.first()
+            settingsRepository.updateSettings(current.copy(ipaFontScale = scale))
+        }
+    }
+
+    fun resetTokenUsage(provider: String?) {
+        viewModelScope.launch {
+            settingsRepository.resetTokenUsage(provider)
+        }
     }
 
     fun setActiveProvider(name: String) {

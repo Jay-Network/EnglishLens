@@ -15,57 +15,164 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CropFree
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import com.jworks.eigolens.R
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jworks.eigolens.domain.ai.AiResponse
+import com.jworks.eigolens.domain.models.CefrLevel
+import com.jworks.eigolens.domain.models.DifficultyLevel
+import com.jworks.eigolens.domain.models.EnrichedWord
+import com.jworks.eigolens.domain.models.ReadabilityMetrics
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiAnalysisPanel(
     selectedText: String,
     scopeLevel: ScopeLevel,
     response: AiResponse,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    readability: ReadabilityMetrics? = null,
+    enrichedWords: List<EnrichedWord> = emptyList(),
+    onWordClick: (String) -> Unit = {},
+    interactionMode: InteractionMode = InteractionMode.TAP,
+    onInteractionModeChange: (InteractionMode) -> Unit = {}
 ) {
+    var selectedTab by remember { mutableIntStateOf(0) }
+
+    // Filter difficult words for the Words tab
+    val difficultWords = remember(enrichedWords) {
+        enrichedWords
+            .filter { it.cefr != null && it.cefr.ordinalIndex >= CefrLevel.B1.ordinalIndex }
+            .distinctBy { it.text }
+    }
+    val hasWords = difficultWords.isNotEmpty()
+
     Column(modifier = modifier.fillMaxSize()) {
         // Header
         AiPanelHeader(
             scopeLevel = scopeLevel,
             provider = response.provider,
-            onDismiss = onDismiss
+            onDismiss = onDismiss,
+            interactionMode = interactionMode,
+            onInteractionModeChange = onInteractionModeChange
         )
 
-        // Content
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        // Tabs
+        PrimaryTabRow(
+            selectedTabIndex = selectedTab,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            item { SelectedQuoteCard(selectedText) }
-            val sections = parseAiSections(response.content)
-            items(sections) { section ->
-                AiSectionCard(section)
+            if (hasWords) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    text = { Text("Words") }
+                )
+            }
+            Tab(
+                selected = selectedTab == (if (hasWords) 1 else 0),
+                onClick = { selectedTab = if (hasWords) 1 else 0 },
+                text = { Text("Summary") }
+            )
+            Tab(
+                selected = selectedTab == (if (hasWords) 2 else 1),
+                onClick = { selectedTab = if (hasWords) 2 else 1 },
+                text = { Text("Full Text") }
+            )
+            Tab(
+                selected = selectedTab == (if (hasWords) 3 else 2),
+                onClick = { selectedTab = if (hasWords) 3 else 2 },
+                text = { Text("Readability") }
+            )
+            Tab(
+                selected = selectedTab == (if (hasWords) 4 else 3),
+                onClick = { selectedTab = if (hasWords) 4 else 3 },
+                text = { Text("Statistics") }
+            )
+        }
+
+        // Content — adjust tab indices based on whether Words tab exists
+        val summaryIdx = if (hasWords) 1 else 0
+        val fullTextIdx = if (hasWords) 2 else 1
+        val readabilityIdx = if (hasWords) 3 else 2
+        val statisticsIdx = if (hasWords) 4 else 3
+
+        when (selectedTab) {
+            0 -> if (hasWords) {
+                // Words tab
+                DifficultWordsPanel(
+                    words = difficultWords,
+                    threshold = CefrLevel.B1,
+                    onWordClick = onWordClick,
+                    onDismiss = onDismiss,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                // Summary (when no Words tab)
+                SummaryContent(response = response, modifier = Modifier.weight(1f))
+            }
+            summaryIdx -> if (hasWords) {
+                SummaryContent(response = response, modifier = Modifier.weight(1f))
+            }
+            fullTextIdx -> {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = selectedText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            readabilityIdx -> {
+                ReadabilityTab(
+                    readability = readability,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            statisticsIdx -> {
+                StatisticsTab(
+                    readability = readability,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
@@ -77,39 +184,172 @@ fun AiAnalysisPanel(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiLoadingPanel(
     selectedText: String,
     scopeLevel: ScopeLevel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    readability: ReadabilityMetrics? = null,
+    onDismiss: () -> Unit = {},
+    enrichedWords: List<EnrichedWord> = emptyList(),
+    onWordClick: (String) -> Unit = {},
+    interactionMode: InteractionMode = InteractionMode.TAP,
+    onInteractionModeChange: (InteractionMode) -> Unit = {}
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    // Start on Words tab (index 0) so user can study while AI loads
+    var selectedTab by remember { mutableIntStateOf(0) }
+
+    val difficultWords = remember(enrichedWords) {
+        enrichedWords
+            .filter { it.cefr != null && it.cefr.ordinalIndex >= CefrLevel.B1.ordinalIndex }
+            .distinctBy { it.text }
+    }
+    val hasWords = difficultWords.isNotEmpty()
+
+    Column(modifier = modifier.fillMaxSize()) {
+        // Header
+        AiPanelHeader(
+            scopeLevel = scopeLevel,
+            provider = "Loading...",
+            onDismiss = onDismiss,
+            interactionMode = interactionMode,
+            onInteractionModeChange = onInteractionModeChange
+        )
+
+        // Tabs — Words first (if available), then AI loading tabs
+        PrimaryTabRow(
+            selectedTabIndex = selectedTab,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (hasWords) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    text = { Text("Words") }
+                )
+            }
+            Tab(
+                selected = selectedTab == (if (hasWords) 1 else 0),
+                onClick = { selectedTab = if (hasWords) 1 else 0 },
+                text = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(12.dp),
+                            strokeWidth = 1.5.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Summary")
+                    }
+                }
+            )
+            Tab(
+                selected = selectedTab == (if (hasWords) 2 else 1),
+                onClick = { selectedTab = if (hasWords) 2 else 1 },
+                text = { Text("Full Text") }
+            )
+            Tab(
+                selected = selectedTab == (if (hasWords) 3 else 2),
+                onClick = { selectedTab = if (hasWords) 3 else 2 },
+                text = { Text("Readability") }
+            )
+        }
+
+        val summaryIdx = if (hasWords) 1 else 0
+        val fullTextIdx = if (hasWords) 2 else 1
+        val readabilityIdx = if (hasWords) 3 else 2
+
+        when (selectedTab) {
+            0 -> if (hasWords) {
+                DifficultWordsPanel(
+                    words = difficultWords,
+                    threshold = CefrLevel.B1,
+                    onWordClick = onWordClick,
+                    onDismiss = onDismiss,
+                    modifier = Modifier.weight(1f),
+                    isAiLoading = true
+                )
+            } else {
+                // Summary loading placeholder
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp),
+                            strokeWidth = 3.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Analyzing...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+            summaryIdx -> {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp),
+                            strokeWidth = 3.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Analyzing...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+            fullTextIdx -> {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = selectedText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            readabilityIdx -> {
+                ReadabilityTab(
+                    readability = readability,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SummaryContent(response: AiResponse, modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        ScopeBadge(scopeLevel)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        SelectedQuoteCard(selectedText)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        CircularProgressIndicator(
-            modifier = Modifier.size(32.dp),
-            strokeWidth = 3.dp,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = "Analyzing...",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        val sections = parseAiSections(response.content)
+        items(sections) { section ->
+            AiSectionCard(section)
+        }
     }
 }
 
@@ -119,7 +359,9 @@ fun AiLoadingPanel(
 private fun AiPanelHeader(
     scopeLevel: ScopeLevel,
     provider: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    interactionMode: InteractionMode = InteractionMode.TAP,
+    onInteractionModeChange: (InteractionMode) -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -145,16 +387,33 @@ private fun AiPanelHeader(
                 )
             )
         }
+        // Lasso selection toggle
         IconButton(
-            onClick = onDismiss,
-            modifier = Modifier.size(32.dp)
+            onClick = {
+                val newMode = if (interactionMode == InteractionMode.TAP) {
+                    InteractionMode.CIRCLE
+                } else {
+                    InteractionMode.TAP
+                }
+                onInteractionModeChange(newMode)
+            },
+            modifier = Modifier.size(36.dp)
         ) {
-            Icon(
-                Icons.Default.Close,
-                contentDescription = "Close",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
-            )
+            if (interactionMode == InteractionMode.CIRCLE) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_tap),
+                    contentDescription = "Switch to tap mode",
+                    tint = Color(0xFFFFEB3B),
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.CropFree,
+                    contentDescription = "Switch to select mode",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
@@ -367,4 +626,193 @@ private fun StyledText(
         color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier
     )
+}
+
+// -- Readability Tab --
+
+@Composable
+private fun ReadabilityTab(
+    readability: ReadabilityMetrics?,
+    modifier: Modifier = Modifier
+) {
+    if (readability == null) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = "Text too short for readability analysis",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        return
+    }
+
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        // Grade level card
+        val diffColor = difficultyColor(readability.difficulty)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(diffColor.copy(alpha = 0.15f))
+                .padding(16.dp)
+        ) {
+            Column {
+                Text(
+                    text = "Grade Level",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = diffColor
+                )
+                Text(
+                    text = "%.1f".format(readability.averageGrade),
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = diffColor
+                )
+                Text(
+                    text = readability.difficulty.label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = diffColor
+                )
+                Text(
+                    text = readability.targetAudience,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 12.dp),
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+
+        Text(
+            text = "Scores",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        ScoreRow("Flesch-Kincaid Grade", "%.1f".format(readability.fleschKincaidGrade), "U.S. grade level")
+        ScoreRow("Reading Ease", "%.0f".format(readability.fleschReadingEase), readingEaseLabel(readability.fleschReadingEase))
+        ScoreRow("SMOG Index", "%.1f".format(readability.smogIndex), "Education years needed")
+        ScoreRow("Coleman-Liau", "%.1f".format(readability.colemanLiauIndex), "Character-based grade")
+    }
+}
+
+// -- Statistics Tab --
+
+@Composable
+private fun StatisticsTab(
+    readability: ReadabilityMetrics?,
+    modifier: Modifier = Modifier
+) {
+    if (readability == null) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = "Text too short for statistics",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        return
+    }
+
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Text Statistics",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        StatRow("Words", readability.statistics.totalWords.toString())
+        StatRow("Sentences", readability.statistics.totalSentences.toString())
+        StatRow("Syllables", readability.statistics.totalSyllables.toString())
+        StatRow("Avg words/sentence", "%.1f".format(readability.statistics.averageWordsPerSentence))
+        StatRow("Avg syllables/word", "%.2f".format(readability.statistics.averageSyllablesPerWord))
+        StatRow("Polysyllable words", readability.statistics.polysyllableCount.toString())
+    }
+}
+
+@Composable
+private fun ScoreRow(name: String, value: String, detail: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = detail,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun StatRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+private fun difficultyColor(level: DifficultyLevel): Color = when (level) {
+    DifficultyLevel.VERY_EASY -> Color(0xFF1A73E8)
+    DifficultyLevel.EASY -> Color(0xFF4285F4)
+    DifficultyLevel.MODERATE -> Color(0xFF5F6368)
+    DifficultyLevel.DIFFICULT -> Color(0xFF80868B)
+    DifficultyLevel.VERY_DIFFICULT -> Color(0xFFADB0B5)
+}
+
+private fun readingEaseLabel(score: Double): String = when {
+    score >= 90 -> "Very Easy"
+    score >= 80 -> "Easy"
+    score >= 70 -> "Fairly Easy"
+    score >= 60 -> "Standard"
+    score >= 50 -> "Fairly Difficult"
+    score >= 30 -> "Difficult"
+    else -> "Very Difficult"
 }

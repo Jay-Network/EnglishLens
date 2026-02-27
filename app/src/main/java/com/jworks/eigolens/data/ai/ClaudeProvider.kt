@@ -46,7 +46,7 @@ class ClaudeProvider(
 
         val requestBody = buildJsonObject {
             put("model", model)
-            put("max_tokens", 1024)
+            put("max_tokens", 4096)
             put("system", AiPrompts.SYSTEM_PROMPT)
             putJsonArray("messages") {
                 addJsonObject {
@@ -78,10 +78,13 @@ class ClaudeProvider(
                 ?: return Result.failure(RuntimeException("Empty response from Claude"))
 
             val usage = json["usage"]?.jsonObject
-            val tokensUsed = usage?.get("input_tokens")?.jsonPrimitive?.content?.toIntOrNull()
-                ?.plus(usage["output_tokens"]?.jsonPrimitive?.content?.toIntOrNull() ?: 0)
+            val inputTokens = usage?.get("input_tokens")?.jsonPrimitive?.content?.toIntOrNull()
+            val outputTokens = usage?.get("output_tokens")?.jsonPrimitive?.content?.toIntOrNull()
+            val tokensUsed = if (inputTokens != null || outputTokens != null) {
+                (inputTokens ?: 0) + (outputTokens ?: 0)
+            } else null
 
-            Log.d(TAG, "Response in ${elapsed}ms, tokens: $tokensUsed")
+            Log.d(TAG, "Response in ${elapsed}ms, tokens: $tokensUsed (in=$inputTokens, out=$outputTokens)")
 
             Result.success(
                 AiResponse(
@@ -89,6 +92,8 @@ class ClaudeProvider(
                     provider = "Claude",
                     model = model,
                     tokensUsed = tokensUsed,
+                    inputTokens = inputTokens,
+                    outputTokens = outputTokens,
                     processingTimeMs = elapsed
                 )
             )

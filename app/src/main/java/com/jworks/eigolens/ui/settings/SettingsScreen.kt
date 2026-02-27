@@ -19,10 +19,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,9 +35,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import java.text.NumberFormat
+import java.util.Locale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jworks.eigolens.R
 
@@ -48,9 +56,14 @@ fun SettingsScreen(
     val activeProvider by viewModel.activeProvider.collectAsState()
     val availableProviders by viewModel.availableProviders.collectAsState()
     val allProviderNames by viewModel.allProviderNames.collectAsState()
+    val settings by viewModel.settings.collectAsState()
 
     var claudeKeyInput by remember(claudeKey) { mutableStateOf(claudeKey) }
     var geminiKeyInput by remember(geminiKey) { mutableStateOf(geminiKey) }
+
+    val providersForUi = if (allProviderNames.isNotEmpty()) allProviderNames else listOf("Claude", "Gemini")
+    // Track which provider tab is selected (for showing the right key editor)
+    var selectedProviderTab by remember { mutableStateOf(activeProvider ?: providersForUi.firstOrNull() ?: "Claude") }
 
     Column(
         modifier = Modifier
@@ -66,12 +79,14 @@ fun SettingsScreen(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_back),
                     contentDescription = "Back",
+                    tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
             }
             Text(
                 text = "Settings",
                 style = MaterialTheme.typography.headlineSmall,
+                color = Color.White,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -106,9 +121,8 @@ fun SettingsScreen(
                     .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                val providersForUi = if (allProviderNames.isNotEmpty()) allProviderNames else listOf("Claude", "Gemini")
                 Text(
-                    text = "Preferred Provider",
+                    text = "Provider",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -116,51 +130,152 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     providersForUi.forEachIndexed { index, provider ->
-                        val enabled = provider in availableProviders
                         SegmentedButton(
-                            selected = provider == activeProvider,
-                            onClick = { if (enabled) viewModel.setActiveProvider(provider) },
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = providersForUi.size),
-                            enabled = enabled
+                            selected = provider == selectedProviderTab,
+                            onClick = {
+                                selectedProviderTab = provider
+                                if (provider in availableProviders) {
+                                    viewModel.setActiveProvider(provider)
+                                }
+                            },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = providersForUi.size)
                         ) {
                             Text(provider)
                         }
                     }
-                }
-
-                if (availableProviders.isEmpty()) {
-                    Text(
-                        text = "No AI provider configured. Offline word definitions still work.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        KeyEditorCard(
-            title = "Claude API Key",
-            placeholder = "sk-ant-...",
-            input = claudeKeyInput,
-            saved = claudeKey,
-            onInputChanged = { claudeKeyInput = it },
-            onSave = { viewModel.setClaudeApiKey(claudeKeyInput.trim()) },
-            onClear = { claudeKeyInput = "" }
+        // Show key editor for the selected provider only
+        when (selectedProviderTab) {
+            "Claude" -> KeyEditorCard(
+                title = "Claude API Key",
+                placeholder = "sk-ant-...",
+                input = claudeKeyInput,
+                saved = claudeKey,
+                onInputChanged = { claudeKeyInput = it },
+                onSave = { viewModel.setClaudeApiKey(claudeKeyInput.trim()) },
+                onClear = { claudeKeyInput = "" }
+            )
+            "Gemini" -> KeyEditorCard(
+                title = "Gemini API Key",
+                placeholder = "AIza...",
+                input = geminiKeyInput,
+                saved = geminiKey,
+                onInputChanged = { geminiKeyInput = it },
+                onSave = { viewModel.setGeminiApiKey(geminiKeyInput.trim()) },
+                onClear = { geminiKeyInput = "" }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "API Usage",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = "Cumulative token usage and estimated cost per provider.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        KeyEditorCard(
-            title = "Gemini API Key",
-            placeholder = "AIza...",
-            input = geminiKeyInput,
-            saved = geminiKey,
-            onInputChanged = { geminiKeyInput = it },
-            onSave = { viewModel.setGeminiApiKey(geminiKeyInput.trim()) },
-            onClear = { geminiKeyInput = "" }
+        TokenUsageCard(
+            providerName = "Claude Haiku",
+            inputTokens = settings.claudeInputTokens,
+            outputTokens = settings.claudeOutputTokens,
+            inputRatePerMillion = 0.80,
+            outputRatePerMillion = 4.00,
+            onReset = { viewModel.resetTokenUsage("Claude") }
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TokenUsageCard(
+            providerName = "Gemini 2.5 Flash",
+            inputTokens = settings.geminiInputTokens,
+            outputTokens = settings.geminiOutputTokens,
+            inputRatePerMillion = 0.15,
+            outputRatePerMillion = 0.60,
+            onReset = { viewModel.resetTokenUsage("Gemini") }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Display",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = "IPA Font Size",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Small",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Slider(
+                        value = settings.ipaFontScale,
+                        onValueChange = { viewModel.setIpaFontScale(it) },
+                        valueRange = 0.3f..1.0f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp)
+                    )
+                    Text(
+                        text = "Large",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text(
+                    text = "Preview: /ˈsæm.pəl/",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    color = Color(0xFF00E6FF),
+                    fontSize = (6 + (settings.ipaFontScale * 8)).sp
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -174,7 +289,7 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        SettingsItem(label = "Version", value = "0.3.0")
+        SettingsItem(label = "Version", value = "0.4.0")
         SettingsItem(label = "Dictionary", value = "WordNet (147,000+ words)")
         SettingsItem(label = "OCR Engine", value = "ML Kit Text Recognition")
 
@@ -273,6 +388,106 @@ private fun KeyEditorCard(
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TokenUsageCard(
+    providerName: String,
+    inputTokens: Long,
+    outputTokens: Long,
+    inputRatePerMillion: Double,
+    outputRatePerMillion: Double,
+    onReset: () -> Unit
+) {
+    val fmt = remember { NumberFormat.getNumberInstance(Locale.US) }
+    val cost = (inputTokens * inputRatePerMillion + outputTokens * outputRatePerMillion) / 1_000_000.0
+    val hasUsage = inputTokens > 0 || outputTokens > 0
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = providerName,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (hasUsage) {
+                    TextButton(onClick = onReset) {
+                        Text("Reset", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Input tokens",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = fmt.format(inputTokens),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Output tokens",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = fmt.format(outputTokens),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 4.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Estimated cost",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "$${String.format(Locale.US, "%.4f", cost)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

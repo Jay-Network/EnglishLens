@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,16 +30,23 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import android.graphics.Paint
+import android.graphics.Typeface
 import com.jworks.eigolens.R
+import com.jworks.eigolens.domain.models.CefrLevel
+import com.jworks.eigolens.domain.models.EnrichedWord
+import com.jworks.eigolens.domain.models.color
 
 @Composable
 fun InteractiveImageViewer(
@@ -51,6 +57,10 @@ fun InteractiveImageViewer(
     onWordTapped: (TapResult) -> Unit,
     onWordLongPressed: (TapResult) -> Unit = {},
     tappedWord: TapResult?,
+    enrichedWords: List<EnrichedWord> = emptyList(),
+    cefrThreshold: CefrLevel = CefrLevel.B2,
+    showIpa: Boolean = true,
+    ipaFontScale: Float = 0.6f,
     modifier: Modifier = Modifier
 ) {
     val bitmap = capturedImage.bitmap
@@ -58,7 +68,10 @@ fun InteractiveImageViewer(
 
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-    var lassoPoints by remember { mutableStateOf<List<Offset>>(emptyList()) }
+    var rectStart by remember { mutableStateOf<Offset?>(null) }
+    var rectEnd by remember { mutableStateOf<Offset?>(null) }
+    var completedRectStart by remember { mutableStateOf<Offset?>(null) }
+    var completedRectEnd by remember { mutableStateOf<Offset?>(null) }
     var selectedWordBounds by remember { mutableStateOf<List<android.graphics.Rect>>(emptyList()) }
 
     // Pulse animation for tapped word highlight
@@ -72,6 +85,8 @@ fun InteractiveImageViewer(
         ),
         label = "tap_pulse_alpha"
     )
+
+    val density = LocalDensity.current
 
     BoxWithConstraints(modifier = modifier) {
         val containerWidth = constraints.maxWidth.toFloat()
@@ -119,6 +134,8 @@ fun InteractiveImageViewer(
                                         )
                                         if (result != null) {
                                             selectedWordBounds = emptyList()
+                                            completedRectStart = null
+                                            completedRectEnd = null
                                             onWordTapped(result)
                                         }
                                     },
@@ -129,6 +146,8 @@ fun InteractiveImageViewer(
                                         )
                                         if (result != null) {
                                             selectedWordBounds = emptyList()
+                                            completedRectStart = null
+                                            completedRectEnd = null
                                             onWordLongPressed(result)
                                         }
                                     }
@@ -136,33 +155,40 @@ fun InteractiveImageViewer(
                             }
                         }
                         InteractionMode.CIRCLE -> {
-                            // Single-finger drag to draw lasso
+                            // Single-finger drag to draw rectangle
                             Modifier.pointerInput(Unit) {
                                 detectDragGestures(
                                     onDragStart = { startPoint ->
-                                        lassoPoints = listOf(startPoint)
+                                        rectStart = startPoint
+                                        rectEnd = startPoint
                                         selectedWordBounds = emptyList()
                                     },
                                     onDrag = { change, _ ->
                                         change.consume()
-                                        lassoPoints = lassoPoints + change.position
+                                        rectEnd = change.position
                                     },
                                     onDragEnd = {
-                                        if (lassoPoints.size >= 3) {
-                                            val words = findWordsInLasso(
-                                                lassoPoints, ocrResult, bitmap,
+                                        val start = rectStart
+                                        val end = rectEnd
+                                        if (start != null && end != null) {
+                                            val words = findWordsInRect(
+                                                start, end, ocrResult, bitmap,
                                                 scale, offset, containerSize
                                             )
                                             if (words.isNotEmpty()) {
-                                                selectedWordBounds = findSelectedBounds(
-                                                    lassoPoints, ocrResult, bitmap,
+                                                selectedWordBounds = findSelectedBoundsInRect(
+                                                    start, end, ocrResult, bitmap,
                                                     scale, offset, containerSize
                                                 )
+                                                // Persist the selection rectangle
+                                                completedRectStart = start
+                                                completedRectEnd = end
                                                 onWordsSelected(words)
                                             }
                                         }
-                                        lassoPoints = emptyList()
-                                        // Auto-switch back to TAP after lasso selection
+                                        rectStart = null
+                                        rectEnd = null
+                                        // Auto-switch back to TAP after selection
                                         onInteractionModeChange(InteractionMode.TAP)
                                     }
                                 )
@@ -186,21 +212,78 @@ fun InteractiveImageViewer(
                 )
             }
 
-            // Layer 2: OCR bounding boxes + highlights + lasso
+            // Build enrichment lookup for fast matching
+            val enrichmentMap = remember(enrichedWords) {
+                enrichedWords.filter { it.bounds != null }
+                    .groupBy { "${it.bounds!!.left},${it.bounds.top}" }
+            }
+
+            // IPA text paint (reused across draw calls)
+            val ipaPaint = remember {
+                Paint().apply {
+                    color = android.graphics.Color.rgb(0, 230, 255) // cyan
+                    textAlign = Paint.Align.CENTER
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
+                    isAntiAlias = true
+                }
+            }
+
+            // Layer 2: OCR bounding boxes + CEFR coloring + IPA + highlights + lasso
             Canvas(modifier = Modifier.fillMaxSize()) {
-                // Draw OCR word bounding boxes
+                // Draw OCR word bounding boxes with CEFR coloring (always visible)
                 for (detected in ocrResult.texts) {
                     for (element in detected.elements) {
                         val bounds = element.bounds ?: continue
                         val screenRect = transformBoundsToScreen(
                             bounds, bitmap, scale, offset, containerSize
                         )
-                        drawRect(
-                            color = Color(0xFF2196F3).copy(alpha = 0.25f),
-                            topLeft = Offset(screenRect.left, screenRect.top),
-                            size = Size(screenRect.width, screenRect.height),
-                            style = Stroke(width = 1.5f)
-                        )
+
+                        // Find enrichment data for this word
+                        val key = "${bounds.left},${bounds.top}"
+                        val enriched = enrichmentMap[key]?.firstOrNull()
+                        val wordCefr = enriched?.cefr
+
+                        if (wordCefr != null && wordCefr.ordinalIndex >= cefrThreshold.ordinalIndex) {
+                            // CEFR-colored box for difficult words
+                            val cefrColor = wordCefr.color()
+                            if (cefrColor != Color.Transparent) {
+                                drawRoundRect(
+                                    color = cefrColor.copy(alpha = 0.25f),
+                                    topLeft = Offset(screenRect.left, screenRect.top),
+                                    size = Size(screenRect.width, screenRect.height),
+                                    cornerRadius = CornerRadius(3f, 3f)
+                                )
+                                drawRoundRect(
+                                    color = cefrColor.copy(alpha = 0.6f),
+                                    topLeft = Offset(screenRect.left, screenRect.top),
+                                    size = Size(screenRect.width, screenRect.height),
+                                    cornerRadius = CornerRadius(3f, 3f),
+                                    style = Stroke(width = 1.5f)
+                                )
+                            }
+
+                            // Draw IPA above word (respects toggle)
+                            if (showIpa) {
+                                enriched.ipa?.let { ipa ->
+                                    val baseSizeDp = 6f + (ipaFontScale * 8f) // 8.4dp – 14dp
+                                    ipaPaint.textSize = baseSizeDp * density.density
+                                    drawContext.canvas.nativeCanvas.drawText(
+                                        ipa,
+                                        (screenRect.left + screenRect.right) / 2f,
+                                        screenRect.top - 2f * density.density,
+                                        ipaPaint
+                                    )
+                                }
+                            }
+                        } else {
+                            // Default blue outline for easy words
+                            drawRect(
+                                color = Color(0xFF2196F3).copy(alpha = 0.25f),
+                                topLeft = Offset(screenRect.left, screenRect.top),
+                                size = Size(screenRect.width, screenRect.height),
+                                style = Stroke(width = 1.5f)
+                            )
+                        }
                     }
                 }
 
@@ -241,57 +324,56 @@ fun InteractiveImageViewer(
                     )
                 }
 
-                // Draw lasso path while drawing
-                if (lassoPoints.size >= 2) {
-                    val path = Path().apply {
-                        moveTo(lassoPoints.first().x, lassoPoints.first().y)
-                        for (i in 1 until lassoPoints.size) {
-                            lineTo(lassoPoints[i].x, lassoPoints[i].y)
-                        }
-                    }
-                    drawPath(
-                        path = path,
+                // Draw completed selection rectangle (persists after finger release)
+                val cStart = completedRectStart
+                val cEnd = completedRectEnd
+                if (cStart != null && cEnd != null) {
+                    val left = minOf(cStart.x, cEnd.x)
+                    val top = minOf(cStart.y, cEnd.y)
+                    val width = kotlin.math.abs(cEnd.x - cStart.x)
+                    val height = kotlin.math.abs(cEnd.y - cStart.y)
+                    drawRect(
+                        color = Color(0xFFFFEB3B).copy(alpha = 0.10f),
+                        topLeft = Offset(left, top),
+                        size = Size(width, height)
+                    )
+                    drawRect(
+                        color = Color(0xFFFFEB3B).copy(alpha = 0.7f),
+                        topLeft = Offset(left, top),
+                        size = Size(width, height),
+                        style = Stroke(width = 2f)
+                    )
+                }
+
+                // Draw selection rectangle while dragging
+                val start = rectStart
+                val end = rectEnd
+                if (start != null && end != null) {
+                    val left = minOf(start.x, end.x)
+                    val top = minOf(start.y, end.y)
+                    val width = kotlin.math.abs(end.x - start.x)
+                    val height = kotlin.math.abs(end.y - start.y)
+                    // Fill
+                    drawRect(
+                        color = Color(0xFFFFEB3B).copy(alpha = 0.15f),
+                        topLeft = Offset(left, top),
+                        size = Size(width, height)
+                    )
+                    // Border
+                    drawRect(
                         color = Color(0xFFFFEB3B),
-                        style = Stroke(width = 3f)
+                        topLeft = Offset(left, top),
+                        size = Size(width, height),
+                        style = Stroke(width = 2.5f)
                     )
                 }
             }
         }
 
-        // Mode toggle FAB: TAP ↔ CIRCLE
-        FloatingActionButton(
-            onClick = {
-                val newMode = if (interactionMode == InteractionMode.TAP) {
-                    InteractionMode.CIRCLE
-                } else {
-                    InteractionMode.TAP
-                }
-                onInteractionModeChange(newMode)
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(8.dp)
-                .size(40.dp),
-            containerColor = if (interactionMode == InteractionMode.CIRCLE)
-                Color(0xFFFFEB3B) else Color.Black.copy(alpha = 0.6f),
-            contentColor = if (interactionMode == InteractionMode.CIRCLE)
-                Color.Black else Color.White
-        ) {
-            Icon(
-                painter = painterResource(
-                    if (interactionMode == InteractionMode.CIRCLE) R.drawable.ic_tap
-                    else R.drawable.ic_circle
-                ),
-                contentDescription = if (interactionMode == InteractionMode.CIRCLE)
-                    "Switch to tap mode" else "Switch to circle mode",
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
         // Mode indicator
         if (interactionMode == InteractionMode.CIRCLE) {
             Text(
-                text = "Draw around words",
+                text = "Drag to select words",
                 color = Color(0xFFFFEB3B),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -301,30 +383,20 @@ fun InteractiveImageViewer(
     }
 }
 
-/** Collect the bounding boxes of words hit by the lasso for highlighting */
-private fun findSelectedBounds(
-    lassoPoints: List<Offset>,
+/** Collect the bounding boxes of words inside the selection rectangle */
+private fun findSelectedBoundsInRect(
+    start: Offset,
+    end: Offset,
     ocrResult: com.jworks.eigolens.domain.models.OCRResult,
     bitmap: android.graphics.Bitmap,
     scale: Float,
     offset: Offset,
     containerSize: Size
 ): List<android.graphics.Rect> {
-    if (lassoPoints.size < 3) return emptyList()
-
-    val path = android.graphics.Path().apply {
-        moveTo(lassoPoints.first().x, lassoPoints.first().y)
-        for (i in 1 until lassoPoints.size) {
-            lineTo(lassoPoints[i].x, lassoPoints[i].y)
-        }
-        close()
-    }
-
-    val clipRegion = android.graphics.Region(
-        0, 0, containerSize.width.toInt(), containerSize.height.toInt()
-    )
-    val lassoRegion = android.graphics.Region()
-    lassoRegion.setPath(path, clipRegion)
+    val left = minOf(start.x, end.x)
+    val top = minOf(start.y, end.y)
+    val right = maxOf(start.x, end.x)
+    val bottom = maxOf(start.y, end.y)
 
     val result = mutableListOf<android.graphics.Rect>()
     for (detected in ocrResult.texts) {
@@ -336,7 +408,7 @@ private fun findSelectedBounds(
                 bounds.exactCenterX(), bounds.exactCenterY(),
                 bitmap, scale, offset, containerSize
             )
-            if (lassoRegion.contains(center.x.toInt(), center.y.toInt())) {
+            if (center.x in left..right && center.y in top..bottom) {
                 result.add(bounds)
             }
         }

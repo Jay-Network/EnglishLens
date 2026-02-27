@@ -54,7 +54,7 @@ class GeminiProvider(
                 }
             }
             putJsonObject("generationConfig") {
-                put("maxOutputTokens", 1024)
+                put("maxOutputTokens", 4096)
                 put("temperature", 0.3)
             }
         }.toString()
@@ -81,9 +81,11 @@ class GeminiProvider(
                 ?: return Result.failure(RuntimeException("Empty response from Gemini"))
 
             val usageMetadata = json["usageMetadata"]?.jsonObject
+            val inputTokens = usageMetadata?.get("promptTokenCount")?.jsonPrimitive?.content?.toIntOrNull()
+            val outputTokens = usageMetadata?.get("candidatesTokenCount")?.jsonPrimitive?.content?.toIntOrNull()
             val tokensUsed = usageMetadata?.get("totalTokenCount")?.jsonPrimitive?.content?.toIntOrNull()
 
-            Log.d(TAG, "Response in ${elapsed}ms, tokens: $tokensUsed")
+            Log.d(TAG, "Response in ${elapsed}ms, tokens: $tokensUsed (in=$inputTokens, out=$outputTokens)")
 
             Result.success(
                 AiResponse(
@@ -91,6 +93,8 @@ class GeminiProvider(
                     provider = "Gemini",
                     model = model,
                     tokensUsed = tokensUsed,
+                    inputTokens = inputTokens,
+                    outputTokens = outputTokens,
                     processingTimeMs = elapsed
                 )
             )

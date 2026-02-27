@@ -1,11 +1,6 @@
 package com.jworks.eigolens.ui.capture
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
@@ -16,20 +11,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -47,14 +36,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.jworks.eigolens.R
+import com.jworks.eigolens.domain.models.EnrichedWord
 import com.jworks.eigolens.ui.camera.DefinitionPanel
 import com.jworks.eigolens.ui.camera.DefinitionSkeleton
-import com.jworks.eigolens.ui.camera.ReadabilityPanel
-import kotlin.math.roundToInt
-import com.jworks.eigolens.domain.ai.AiResponse
 
 @Composable
 fun AnnotationMode(
@@ -67,10 +53,20 @@ fun AnnotationMode(
     val interactionMode by viewModel.interactionMode.collectAsState()
     val tappedWord by viewModel.tappedWord.collectAsState()
     val isCorrectingOcr by viewModel.isCorrectingOcr.collectAsState()
+    val isBookmarked by viewModel.isCurrentWordBookmarked.collectAsState()
+    val enrichedWords by viewModel.enrichedWords.collectAsState()
+    val cefrThreshold by viewModel.cefrThreshold.collectAsState()
+    val showIpa by viewModel.showIpaOverlay.collectAsState()
+    val ipaFontScale by viewModel.ipaFontScale.collectAsState()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    val showPanel = panelState !is PanelState.Idle
+    val handleWordClick: (String) -> Unit = { word ->
+        val cleanWord = word.replace(Regex("[^a-zA-Z'-]"), "").trim()
+        if (cleanWord.isNotEmpty()) {
+            viewModel.selectWords(listOf(cleanWord))
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         // Full-screen image viewer (always full size)
@@ -82,6 +78,10 @@ fun AnnotationMode(
             onWordTapped = { tapResult -> viewModel.onWordTapped(tapResult) },
             onWordLongPressed = { tapResult -> viewModel.analyzeSentenceForWord(tapResult) },
             tappedWord = tappedWord,
+            enrichedWords = enrichedWords,
+            cefrThreshold = cefrThreshold,
+            showIpa = showIpa,
+            ipaFontScale = ipaFontScale,
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black)
@@ -104,7 +104,7 @@ fun AnnotationMode(
             )
         }
 
-        // Top scrim gradient for readability over camera content
+        // Top scrim gradient
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -143,62 +143,32 @@ fun AnnotationMode(
             )
         }
 
-        // Analysis FABs column (bottom-start, shifts up when panel open)
-        if (!showPanel || (panelState !is PanelState.ReadabilityResult && panelState !is PanelState.AiAnalysis)) {
-            Column(
-                modifier = Modifier
-                    .align(if (isLandscape) Alignment.CenterEnd else Alignment.BottomStart)
-                    .padding(16.dp)
-                    .then(
-                        if (showPanel && !isLandscape) Modifier.padding(bottom = 280.dp)
-                        else Modifier
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Full Text AI analysis
-                ExtendedFloatingActionButton(
-                    onClick = { viewModel.analyzeFullText() },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    icon = {
-                        Icon(
-                            Icons.Default.Star,
-                            contentDescription = null
-                        )
-                    },
-                    text = { Text("AI Analyze") }
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Readability analysis
-                ExtendedFloatingActionButton(
-                    onClick = { viewModel.analyzeReadability() },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_read),
-                            contentDescription = null
-                        )
-                    },
-                    text = { Text("Reading Level") }
-                )
-            }
-        }
-
-        // Overlay panel — slides in from bottom (portrait) or side (landscape)
+        // Always-visible draggable panel (portrait: bottom, landscape: right)
         if (isLandscape) {
             LandscapePanel(
                 panelState = panelState,
-                showPanel = showPanel,
-                onDismiss = { viewModel.switchToWordLookup() }
+                onDismiss = { viewModel.switchToWordLookup() },
+                isBookmarked = isBookmarked,
+                onToggleBookmark = { viewModel.toggleBookmark() },
+                onWordClick = handleWordClick,
+                enrichedWords = enrichedWords,
+                onAiAnalyze = { viewModel.analyzeFullText() },
+                interactionMode = interactionMode,
+                onInteractionModeChange = { viewModel.setInteractionMode(it) },
+                onBackToWords = { viewModel.showDifficultWordsPanel() }
             )
         } else {
             PortraitPanel(
                 panelState = panelState,
-                showPanel = showPanel,
-                onDismiss = { viewModel.switchToWordLookup() }
+                onDismiss = { viewModel.switchToWordLookup() },
+                isBookmarked = isBookmarked,
+                onToggleBookmark = { viewModel.toggleBookmark() },
+                onWordClick = handleWordClick,
+                enrichedWords = enrichedWords,
+                onAiAnalyze = { viewModel.analyzeFullText() },
+                interactionMode = interactionMode,
+                onInteractionModeChange = { viewModel.setInteractionMode(it) },
+                onBackToWords = { viewModel.showDifficultWordsPanel() }
             )
         }
     }
@@ -207,56 +177,72 @@ fun AnnotationMode(
 @Composable
 private fun PortraitPanel(
     panelState: PanelState,
-    showPanel: Boolean,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    isBookmarked: Boolean = false,
+    onToggleBookmark: () -> Unit = {},
+    onWordClick: (String) -> Unit = {},
+    enrichedWords: List<EnrichedWord> = emptyList(),
+    onAiAnalyze: () -> Unit = {},
+    interactionMode: InteractionMode = InteractionMode.TAP,
+    onInteractionModeChange: (InteractionMode) -> Unit = {},
+    onBackToWords: () -> Unit = {}
 ) {
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
-    val minHeightPx = with(density) { 200.dp.toPx() }
+    val handleHeightPx = with(density) { 28.dp.toPx() }
+    val minHeightPx = handleHeightPx // collapsed = just the handle bar
     val maxHeightPx = screenHeightPx * 0.85f
-    val defaultHeightPx = screenHeightPx * 0.45f
+    val defaultHeightPx = if (panelState is PanelState.Idle) handleHeightPx
+                          else screenHeightPx * 0.45f
 
-    // Draggable panel height (offset from bottom)
     var panelHeightPx by remember { mutableFloatStateOf(defaultHeightPx) }
 
-    AnimatedVisibility(
-        visible = showPanel,
-        enter = slideInVertically(
-            initialOffsetY = { it },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-        ),
-        exit = slideOutVertically(
-            targetOffsetY = { it },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-        ),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(with(density) { panelHeightPx.toDp() })
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    // Drag handle
-                    DragHandle(
-                        onDrag = { deltaY ->
-                            panelHeightPx = (panelHeightPx - deltaY)
-                                .coerceIn(minHeightPx, maxHeightPx)
-                        }
-                    )
+    // Expand when content arrives if currently collapsed
+    val hasContent = panelState !is PanelState.Idle
+    androidx.compose.runtime.LaunchedEffect(hasContent) {
+        if (hasContent && panelHeightPx < with(density) { 200.dp.toPx() }) {
+            panelHeightPx = screenHeightPx * 0.45f
+        }
+    }
 
-                    // Panel content
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(with(density) { panelHeightPx.toDp() })
+                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Drag handle — always visible
+                DragHandle(
+                    onDrag = { deltaY ->
+                        panelHeightPx = (panelHeightPx - deltaY)
+                            .coerceIn(minHeightPx, maxHeightPx)
+                    }
+                )
+
+                // Panel content (only if expanded enough)
+                if (panelHeightPx > with(density) { 60.dp.toPx() }) {
                     PanelContent(
                         panelState = panelState,
                         onDismiss = onDismiss,
                         modifier = Modifier
                             .fillMaxSize()
-                            .weight(1f)
+                            .weight(1f),
+                        isBookmarked = isBookmarked,
+                        onToggleBookmark = onToggleBookmark,
+                        onWordClick = onWordClick,
+                        enrichedWords = enrichedWords,
+                        onAiAnalyze = onAiAnalyze,
+                        interactionMode = interactionMode,
+                        onInteractionModeChange = onInteractionModeChange,
+                        onBackToWords = onBackToWords
                     )
                 }
             }
@@ -267,55 +253,69 @@ private fun PortraitPanel(
 @Composable
 private fun LandscapePanel(
     panelState: PanelState,
-    showPanel: Boolean,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    isBookmarked: Boolean = false,
+    onToggleBookmark: () -> Unit = {},
+    onWordClick: (String) -> Unit = {},
+    enrichedWords: List<EnrichedWord> = emptyList(),
+    onAiAnalyze: () -> Unit = {},
+    interactionMode: InteractionMode = InteractionMode.TAP,
+    onInteractionModeChange: (InteractionMode) -> Unit = {},
+    onBackToWords: () -> Unit = {}
 ) {
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
-    val minWidthPx = with(density) { 200.dp.toPx() }
-    val maxWidthPx = screenWidthPx * 0.6f
-    val defaultWidthPx = screenWidthPx * 0.4f
+    val handleWidthPx = with(density) { 24.dp.toPx() }
+    val minWidthPx = handleWidthPx
+    val maxWidthPx = screenWidthPx * 0.65f
+    val defaultWidthPx = if (panelState is PanelState.Idle) handleWidthPx
+                         else screenWidthPx * 0.45f
 
     var panelWidthPx by remember { mutableFloatStateOf(defaultWidthPx) }
 
-    AnimatedVisibility(
-        visible = showPanel,
-        enter = slideInVertically(
-            initialOffsetY = { it },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-        ),
-        exit = slideOutVertically(
-            targetOffsetY = { it },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-        ),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .fillMaxHeight()
-                    .width(with(density) { panelWidthPx.toDp() })
-                    .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    // Drag handle (horizontal in landscape)
-                    DragHandle(
-                        onDrag = { deltaY ->
-                            // In landscape, vertical drag on handle resizes width
-                            panelWidthPx = (panelWidthPx + deltaY)
-                                .coerceIn(minWidthPx, maxWidthPx)
-                        }
-                    )
+    val hasContent = panelState !is PanelState.Idle
+    androidx.compose.runtime.LaunchedEffect(hasContent) {
+        if (hasContent && panelWidthPx < with(density) { 200.dp.toPx() }) {
+            panelWidthPx = screenWidthPx * 0.45f
+        }
+    }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .fillMaxHeight()
+                .width(with(density) { panelWidthPx.toDp() })
+        ) {
+            // Vertical drag handle — always visible
+            VerticalDragHandle(
+                onDrag = { deltaX ->
+                    panelWidthPx = (panelWidthPx - deltaX)
+                        .coerceIn(minWidthPx, maxWidthPx)
+                }
+            )
+
+            if (panelWidthPx > with(density) { 60.dp.toPx() }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                        .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+                ) {
                     PanelContent(
                         panelState = panelState,
                         onDismiss = onDismiss,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
+                        modifier = Modifier.fillMaxSize(),
+                        isBookmarked = isBookmarked,
+                        onToggleBookmark = onToggleBookmark,
+                        onWordClick = onWordClick,
+                        enrichedWords = enrichedWords,
+                        onAiAnalyze = onAiAnalyze,
+                        interactionMode = interactionMode,
+                        onInteractionModeChange = onInteractionModeChange,
+                        onBackToWords = onBackToWords
                     )
                 }
             }
@@ -348,10 +348,43 @@ private fun DragHandle(onDrag: (Float) -> Unit) {
 }
 
 @Composable
+private fun VerticalDragHandle(onDrag: (Float) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(20.dp)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    onDrag(dragAmount.x)
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(40.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+        )
+    }
+}
+
+@Composable
 private fun PanelContent(
     panelState: PanelState,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isBookmarked: Boolean = false,
+    onToggleBookmark: () -> Unit = {},
+    onWordClick: (String) -> Unit = {},
+    enrichedWords: List<EnrichedWord> = emptyList(),
+    onAiAnalyze: () -> Unit = {},
+    interactionMode: InteractionMode = InteractionMode.TAP,
+    onInteractionModeChange: (InteractionMode) -> Unit = {},
+    onBackToWords: () -> Unit = {}
 ) {
     Box(modifier = modifier) {
         when (val state = panelState) {
@@ -360,24 +393,41 @@ private fun PanelContent(
                     definition = state.definition,
                     onDismiss = onDismiss,
                     modifier = Modifier.fillMaxSize(),
-                    contextualInsight = state.contextualInsight
+                    contextualInsight = state.contextualInsight,
+                    isBookmarked = isBookmarked,
+                    onToggleBookmark = onToggleBookmark,
+                    onBackToWords = onBackToWords
                 )
             }
             is PanelState.Loading -> {
                 DefinitionSkeleton(modifier = Modifier.fillMaxSize())
             }
             is PanelState.ReadabilityResult -> {
-                ReadabilityPanel(
-                    metrics = state.metrics,
-                    onBack = onDismiss,
-                    modifier = Modifier.fillMaxSize()
+                // Readability is now shown as tabs in AiAnalysisPanel
+            }
+            is PanelState.DifficultWordsList -> {
+                DifficultWordsPanel(
+                    words = state.words,
+                    threshold = state.threshold,
+                    onWordClick = onWordClick,
+                    onDismiss = onDismiss,
+                    modifier = Modifier.fillMaxSize(),
+                    onAiAnalyze = onAiAnalyze,
+                    interactionMode = interactionMode,
+                    onInteractionModeChange = onInteractionModeChange
                 )
             }
             is PanelState.AiLoading -> {
                 AiLoadingPanel(
                     selectedText = state.selectedText,
                     scopeLevel = state.scopeLevel,
-                    modifier = Modifier.fillMaxSize()
+                    readability = state.readability,
+                    onDismiss = onDismiss,
+                    modifier = Modifier.fillMaxSize(),
+                    enrichedWords = enrichedWords,
+                    onWordClick = onWordClick,
+                    interactionMode = interactionMode,
+                    onInteractionModeChange = onInteractionModeChange
                 )
             }
             is PanelState.AiAnalysis -> {
@@ -385,8 +435,13 @@ private fun PanelContent(
                     selectedText = state.selectedText,
                     scopeLevel = state.scopeLevel,
                     response = state.response,
+                    readability = state.readability,
                     onDismiss = onDismiss,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    enrichedWords = enrichedWords,
+                    onWordClick = onWordClick,
+                    interactionMode = interactionMode,
+                    onInteractionModeChange = onInteractionModeChange
                 )
             }
             is PanelState.NotFound -> {
@@ -402,7 +457,7 @@ private fun PanelContent(
                 )
             }
             is PanelState.Idle -> {
-                // Should not be visible, but handle gracefully
+                // Empty — handle bar is still visible
             }
         }
     }

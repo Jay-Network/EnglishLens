@@ -1,24 +1,42 @@
 package com.jworks.eigolens.ui.capture
 
+import android.app.Application
 import android.graphics.Bitmap
 import android.util.Log
+import android.util.Size
+import androidx.camera.core.ImageProxy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.mlkit.vision.common.InputImage
 import com.jworks.eigolens.data.ai.AiProviderManager
 import com.jworks.eigolens.data.ai.ContextualInsight
 import com.jworks.eigolens.data.ai.GeminiOcrCorrector
 import com.jworks.eigolens.data.ai.OcrTextMerger
+import com.jworks.eigolens.data.jcoin.DeviceAuthRepository
+import com.jworks.eigolens.data.jcoin.JCoinClient
+import com.jworks.eigolens.data.jcoin.JCoinEarnRules
 import com.jworks.eigolens.data.repository.DefinitionRepository
+import com.jworks.eigolens.data.repository.HistoryRepository
+import com.jworks.eigolens.data.repository.WordEnrichmentRepository
+import com.jworks.eigolens.domain.models.CefrLevel
+import com.jworks.eigolens.domain.models.EnrichedWord
+import com.jworks.eigolens.domain.models.OCRResult
 import com.jworks.eigolens.domain.ai.AiResponse
 import com.jworks.eigolens.domain.ai.AnalysisContext
 import com.jworks.eigolens.domain.analysis.ReadabilityCalculator
 import com.jworks.eigolens.domain.models.Definition
 import com.jworks.eigolens.domain.models.ReadabilityMetrics
+import com.jworks.eigolens.domain.repository.SettingsRepository
 import com.jworks.eigolens.domain.usecases.ProcessCameraFrameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,19 +61,30 @@ sealed class PanelState {
         val contextualInsight: ContextualInsight? = null
     ) : PanelState()
     data class ReadabilityResult(val metrics: ReadabilityMetrics) : PanelState()
-    data class AiLoading(val scopeLevel: ScopeLevel, val selectedText: String) : PanelState()
-    data class AiAnalysis(val scopeLevel: ScopeLevel, val selectedText: String, val response: AiResponse) : PanelState()
+    data class AiLoading(val scopeLevel: ScopeLevel, val selectedText: String, val readability: ReadabilityMetrics? = null) : PanelState()
+    data class AiAnalysis(val scopeLevel: ScopeLevel, val selectedText: String, val response: AiResponse, val readability: ReadabilityMetrics? = null) : PanelState()
+    data class DifficultWordsList(
+        val words: List<EnrichedWord>,
+        val threshold: CefrLevel
+    ) : PanelState()
     data class NotFound(val word: String) : PanelState()
     data class Error(val message: String) : PanelState()
 }
 
 @HiltViewModel
 class CaptureFlowViewModel @Inject constructor(
+    private val application: Application,
     private val processCameraFrame: ProcessCameraFrameUseCase,
     private val definitionRepository: DefinitionRepository,
     private val readabilityCalculator: ReadabilityCalculator,
     private val aiProviderManager: AiProviderManager,
-    private val geminiOcrCorrector: GeminiOcrCorrector
+    private val geminiOcrCorrector: GeminiOcrCorrector,
+    private val historyRepository: HistoryRepository,
+    private val wordEnrichmentRepository: WordEnrichmentRepository,
+    private val jCoinClient: JCoinClient,
+    private val jCoinEarnRules: JCoinEarnRules,
+    private val deviceAuthRepository: DeviceAuthRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     companion object {
@@ -81,17 +110,180 @@ class CaptureFlowViewModel @Inject constructor(
     private val _isCorrectingOcr = MutableStateFlow(false)
     val isCorrectingOcr: StateFlow<Boolean> = _isCorrectingOcr.asStateFlow()
 
+    private val _enrichedWords = MutableStateFlow<List<EnrichedWord>>(emptyList())
+    val enrichedWords: StateFlow<List<EnrichedWord>> = _enrichedWords.asStateFlow()
+
+    private val _cefrThreshold = MutableStateFlow(CefrLevel.B2)
+    val cefrThreshold: StateFlow<CefrLevel> = _cefrThreshold.asStateFlow()
+
     private val _isFlashOn = MutableStateFlow(false)
     val isFlashOn: StateFlow<Boolean> = _isFlashOn.asStateFlow()
+
+    private val _coinBalance = MutableStateFlow<Int?>(null)
+    val coinBalance: StateFlow<Int?> = _coinBalance.asStateFlow()
+
+    // Live camera overlay state
+    private val _liveEnrichedWords = MutableStateFlow<List<EnrichedWord>>(emptyList())
+    val liveEnrichedWords: StateFlow<List<EnrichedWord>> = _liveEnrichedWords.asStateFlow()
+
+    private val _liveImageSize = MutableStateFlow(Size(0, 0))
+    val liveImageSize: StateFlow<Size> = _liveImageSize.asStateFlow()
+
+    private val _liveRotationDegrees = MutableStateFlow(0)
+    val liveRotationDegrees: StateFlow<Int> = _liveRotationDegrees.asStateFlow()
+
+    private val _showIpaOverlay = MutableStateFlow(true)
+    val showIpaOverlay: StateFlow<Boolean> = _showIpaOverlay.asStateFlow()
+
+    private val _ipaFontScale = MutableStateFlow(0.6f)
+    val ipaFontScale: StateFlow<Float> = _ipaFontScale.asStateFlow()
+
+    private var _isLiveProcessing = false
+    private var _liveFrameCount = 0
+    private var _prevLiveEnriched: List<EnrichedWord> = emptyList()
+    private var _emptyFrameCount = 0
+
+    private var hasEarnedFirstCefrScan = false
+    private var hasSetNonDefaultThreshold = false
+    private val reviewedWordsThisScan = mutableSetOf<String>()
+    private var allDifficultClearedThisScan = false
+
+    private val _currentWord = MutableStateFlow<String?>(null)
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val isCurrentWordBookmarked: StateFlow<Boolean> = _currentWord
+        .flatMapLatest { word ->
+            if (word != null) historyRepository.isBookmarked(word) else flowOf(false)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun toggleBookmark() {
+        val state = _panelState.value
+        if (state !is PanelState.WordDefinition) return
+
+        val word = state.definition.word
+        val definition = state.definition.meanings.firstOrNull()?.definition ?: ""
+        val contextSnippet = getContextSnippet()
+
+        viewModelScope.launch {
+            if (isCurrentWordBookmarked.value) {
+                historyRepository.removeBookmark(word)
+            } else {
+                historyRepository.addBookmark(word, definition, contextSnippet)
+                // J Coin: save_definition earn
+                val earn = jCoinEarnRules.checkSaveDefinition(application.applicationContext)
+                if (earn != null) earnCoins(earn.sourceType, earn.coins)
+            }
+        }
+    }
+
+    private fun getContextSnippet(): String? {
+        val state = _captureState.value
+        if (state !is CaptureState.Annotate) return null
+        val fullText = state.capturedImage.ocrResult.texts.joinToString(" ") { it.text }
+        return if (fullText.isNotBlank()) fullText.take(200) else null
+    }
 
     init {
         viewModelScope.launch {
             definitionRepository.preloadCommonWords(100)
         }
+        // Continuously observe IPA overlay settings
+        viewModelScope.launch {
+            settingsRepository.settings.collect { settings ->
+                _showIpaOverlay.value = settings.showIpaOverlay
+                _ipaFontScale.value = settings.ipaFontScale
+            }
+        }
+        // J Coin: establish anonymous session + daily login earn
+        viewModelScope.launch {
+            try {
+                deviceAuthRepository.ensureSession()
+                // Fetch balance
+                refreshCoinBalance()
+                // Daily login earn
+                val ctx = application.applicationContext
+                val dailyLogin = jCoinEarnRules.checkDailyLogin(ctx)
+                if (dailyLogin != null) {
+                    earnCoins(dailyLogin.sourceType, dailyLogin.coins)
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "J Coin init skipped: ${e.message}")
+            }
+        }
     }
 
     fun toggleFlash() {
         _isFlashOn.value = !_isFlashOn.value
+    }
+
+    @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
+    fun processLiveFrame(imageProxy: ImageProxy) {
+        // Skip if already in annotate mode
+        if (_captureState.value is CaptureState.Annotate) {
+            imageProxy.close()
+            return
+        }
+        // Frame skip: process 1 of every 4 frames
+        _liveFrameCount++
+        if (_liveFrameCount % 4 != 0) {
+            imageProxy.close()
+            return
+        }
+        // Backpressure guard
+        if (_isLiveProcessing) {
+            imageProxy.close()
+            return
+        }
+        _isLiveProcessing = true
+        viewModelScope.launch {
+            try {
+                val mediaImage = imageProxy.image
+                if (mediaImage == null) {
+                    imageProxy.close()
+                    return@launch
+                }
+                val rotation = imageProxy.imageInfo.rotationDegrees
+                _liveRotationDegrees.value = rotation
+                val inputImage = InputImage.fromMediaImage(mediaImage, rotation)
+                val imageSize = if (rotation == 90 || rotation == 270) {
+                    Size(mediaImage.height, mediaImage.width)
+                } else {
+                    Size(mediaImage.width, mediaImage.height)
+                }
+                _liveImageSize.value = imageSize
+
+                val ocrResult = processCameraFrame.execute(inputImage, imageSize)
+
+                // Persist previous results if current frame has fewer detections
+                val currentWordCount = ocrResult.texts.sumOf { it.elements.size }
+                if (currentWordCount == 0 && _prevLiveEnriched.isNotEmpty()) {
+                    _emptyFrameCount++
+                    if (_emptyFrameCount <= 3) {
+                        return@launch
+                    }
+                }
+                _emptyFrameCount = 0
+
+                val enriched = wordEnrichmentRepository.enrichOcrWords(ocrResult)
+                _prevLiveEnriched = enriched
+                _liveEnrichedWords.value = enriched
+            } catch (e: Exception) {
+                Log.d(TAG, "Live frame processing error: ${e.message}")
+            } finally {
+                imageProxy.close()
+                _isLiveProcessing = false
+            }
+        }
+    }
+
+    fun toggleIpaOverlay() {
+        val newValue = !_showIpaOverlay.value
+        _showIpaOverlay.value = newValue
+        viewModelScope.launch {
+            val current = settingsRepository.settings.first()
+            settingsRepository.updateSettings(current.copy(showIpaOverlay = newValue))
+        }
     }
 
     fun setInteractionMode(mode: InteractionMode) {
@@ -100,6 +292,9 @@ class CaptureFlowViewModel @Inject constructor(
 
     fun onPhotoCapture(bitmap: Bitmap) {
         _isProcessing.value = true
+        reviewedWordsThisScan.clear()
+        allDifficultClearedThisScan = false
+        _liveEnrichedWords.value = emptyList()
         viewModelScope.launch {
             try {
                 val scaled = downscaleBitmap(bitmap)
@@ -112,6 +307,12 @@ class CaptureFlowViewModel @Inject constructor(
                 val capturedImage = CapturedImage(scaled, ocrResult, System.currentTimeMillis())
                 _captureState.value = CaptureState.Annotate(capturedImage)
                 _isProcessing.value = false
+
+                // Enrich words with IPA + CEFR (fast, <100ms)
+                enrichWords(ocrResult)
+
+                // J Coin: scan_text earn + milestones
+                fireJCoinScanEarns()
 
                 // Run Gemini Vision correction in background
                 if (geminiOcrCorrector.isAvailable && ocrResult.texts.isNotEmpty()) {
@@ -143,6 +344,8 @@ class CaptureFlowViewModel @Inject constructor(
                         _captureState.value = CaptureState.Annotate(
                             CapturedImage(bitmap, corrected, timestamp)
                         )
+                        // Re-enrich with corrected text
+                        enrichWords(corrected)
                     }
                     .onFailure { e ->
                         Log.w(TAG, "Gemini OCR correction failed, keeping ML Kit result", e)
@@ -238,6 +441,9 @@ class CaptureFlowViewModel @Inject constructor(
 
         if (aiProviderManager.isAiAvailable && sentence.split(" ").size > 1) {
             analyzeWithAi(sentence, ScopeLevel.Sentence(sentence))
+            // J Coin: sentence_analysis earn
+            val earn = jCoinEarnRules.checkSentenceAnalysis(application.applicationContext)
+            if (earn != null) earnCoins(earn.sourceType, earn.coins)
         } else {
             // Fallback to word definition if no AI
             lookupWord(word)
@@ -269,7 +475,9 @@ class CaptureFlowViewModel @Inject constructor(
 
         val fullText = state.capturedImage.ocrResult.texts.joinToString(" ") { it.text }
 
-        _panelState.value = PanelState.AiLoading(scopeLevel, selectedText)
+        // Compute readability immediately (available during loading)
+        val metrics = readabilityCalculator.calculate(selectedText)
+        _panelState.value = PanelState.AiLoading(scopeLevel, selectedText, metrics)
 
         viewModelScope.launch {
             val context = AnalysisContext(
@@ -280,7 +488,27 @@ class CaptureFlowViewModel @Inject constructor(
 
             aiProviderManager.analyze(context)
                 .onSuccess { response ->
-                    _panelState.value = PanelState.AiAnalysis(scopeLevel, selectedText, response)
+                    _panelState.value = PanelState.AiAnalysis(scopeLevel, selectedText, response, metrics)
+                    val scopeName = when (scopeLevel) {
+                        is ScopeLevel.Word -> "word"
+                        is ScopeLevel.Phrase -> "phrase"
+                        is ScopeLevel.Sentence -> "sentence"
+                        is ScopeLevel.Paragraph -> "paragraph"
+                        is ScopeLevel.FullSnapshot -> "full"
+                    }
+                    launch {
+                        historyRepository.recordLookup(
+                            word = selectedText.take(100),
+                            scopeLevel = scopeName,
+                            aiProvider = response.provider
+                        )
+                    }
+                    // Accumulate token usage
+                    val input = response.inputTokens ?: 0
+                    val output = response.outputTokens ?: (response.tokensUsed ?: 0)
+                    if (input + output > 0) {
+                        launch { settingsRepository.addTokenUsage(response.provider, input, output) }
+                    }
                 }
                 .onFailure { error ->
                     Log.e(TAG, "AI analysis failed", error)
@@ -301,8 +529,57 @@ class CaptureFlowViewModel @Inject constructor(
         _panelState.value = PanelState.ReadabilityResult(metrics)
     }
 
+    fun setCefrThreshold(level: CefrLevel) {
+        _cefrThreshold.value = level
+        // J Coin: repeatable threshold adjusted earn (+1, 3/day cap)
+        val thresholdEarn = jCoinEarnRules.checkThresholdAdjusted(application.applicationContext)
+        if (thresholdEarn != null) earnCoins(thresholdEarn.sourceType, thresholdEarn.coins)
+        // J Coin: first threshold set milestone (on non-default)
+        if (level != CefrLevel.B2) {
+            fireFirstThresholdSetMilestone()
+        }
+        // Re-filter difficult words if currently showing the panel
+        val current = _panelState.value
+        if (current is PanelState.DifficultWordsList) {
+            val filtered = _enrichedWords.value.filter { word ->
+                word.cefr != null && word.cefr.ordinalIndex >= level.ordinalIndex
+            }
+            _panelState.value = PanelState.DifficultWordsList(filtered, level)
+        }
+    }
+
+    fun showDifficultWordsPanel() {
+        val threshold = _cefrThreshold.value
+        val filtered = _enrichedWords.value.filter { word ->
+            word.cefr != null && word.cefr.ordinalIndex >= threshold.ordinalIndex
+        }
+        // Deduplicate by word text
+        val unique = filtered.distinctBy { it.text }
+        _panelState.value = PanelState.DifficultWordsList(unique, threshold)
+    }
+
+    private fun enrichWords(ocrResult: com.jworks.eigolens.domain.models.OCRResult) {
+        viewModelScope.launch {
+            val enriched = wordEnrichmentRepository.enrichOcrWords(ocrResult)
+            _enrichedWords.value = enriched
+
+            // Auto-show difficult words panel
+            val threshold = _cefrThreshold.value
+            val difficult = enriched.filter { word ->
+                word.cefr != null && word.cefr.ordinalIndex >= threshold.ordinalIndex
+            }.distinctBy { it.text }
+
+            if (difficult.isNotEmpty() && _panelState.value is PanelState.Idle) {
+                _panelState.value = PanelState.DifficultWordsList(difficult, threshold)
+                // J Coin: first CEFR scan milestone
+                fireFirstCefrScanMilestone()
+            }
+        }
+    }
+
     fun switchToWordLookup() {
         _panelState.value = PanelState.Idle
+        _currentWord.value = null
     }
 
     fun resetToCamera() {
@@ -310,6 +587,13 @@ class CaptureFlowViewModel @Inject constructor(
         _panelState.value = PanelState.Idle
         _interactionMode.value = InteractionMode.TAP
         _tappedWord.value = null
+        _currentWord.value = null
+        _enrichedWords.value = emptyList()
+        _liveEnrichedWords.value = emptyList()
+        _prevLiveEnriched = emptyList()
+        _emptyFrameCount = 0
+        reviewedWordsThisScan.clear()
+        allDifficultClearedThisScan = false
     }
 
     private fun lookupWord(query: String, fallbackWord: String? = null) {
@@ -317,11 +601,20 @@ class CaptureFlowViewModel @Inject constructor(
             _panelState.value = PanelState.Loading
 
             definitionRepository.getDefinition(query)
-                .onSuccess { _panelState.value = PanelState.WordDefinition(it) }
+                .onSuccess {
+                    _panelState.value = PanelState.WordDefinition(it)
+                    _currentWord.value = it.word
+                    launch { historyRepository.recordLookup(it.word, "word", getContextSnippet()) }
+                    fireDifficultWordReviewedEarn(it.word)
+                }
                 .onFailure {
                     if (fallbackWord != null) {
                         definitionRepository.getDefinition(fallbackWord)
-                            .onSuccess { _panelState.value = PanelState.WordDefinition(it) }
+                            .onSuccess {
+                                _panelState.value = PanelState.WordDefinition(it)
+                                _currentWord.value = it.word
+                                launch { historyRepository.recordLookup(it.word, "word", getContextSnippet()) }
+                            }
                             .onFailure { err -> setFailureState(fallbackWord, err) }
                     } else {
                         setFailureState(query, it)
@@ -348,5 +641,92 @@ class CaptureFlowViewModel @Inject constructor(
             (bitmap.height * scale).toInt(),
             true
         )
+    }
+
+    // -- J Coin helpers --
+
+    private suspend fun refreshCoinBalance() {
+        val token = deviceAuthRepository.getAccessToken()
+        jCoinClient.getBalance(token)
+            .onSuccess { balance -> _coinBalance.value = balance.balance }
+            .onFailure { Log.d(TAG, "Balance fetch skipped: ${it.message}") }
+    }
+
+    private fun earnCoins(sourceType: String, baseAmount: Int, metadata: Map<String, String> = emptyMap()) {
+        viewModelScope.launch {
+            val token = deviceAuthRepository.getAccessToken()
+            jCoinClient.earn(token, sourceType, baseAmount, metadata)
+                .onSuccess { response ->
+                    _coinBalance.value = response.newBalance.toInt()
+                    Log.d(TAG, "J Coin earned: +${response.coinsAwarded} ($sourceType), balance=${response.newBalance}")
+                }
+                .onFailure { Log.d(TAG, "J Coin earn skipped ($sourceType): ${it.message}") }
+        }
+    }
+
+    private fun fireJCoinScanEarns() {
+        val ctx = application.applicationContext
+        val scanEarn = jCoinEarnRules.checkScanText(ctx)
+        if (scanEarn != null) {
+            earnCoins(scanEarn.sourceType, scanEarn.coins)
+        }
+        // Scan milestones
+        for (milestone in jCoinEarnRules.checkScanMilestones(ctx)) {
+            earnCoins(milestone.sourceType, milestone.coins)
+        }
+        // Streak milestones
+        for (milestone in jCoinEarnRules.checkStreakMilestones(ctx)) {
+            earnCoins(milestone.sourceType, milestone.coins)
+        }
+    }
+
+    private fun fireDifficultWordReviewedEarn(word: String) {
+        val threshold = _cefrThreshold.value
+        val difficultWords = _enrichedWords.value.filter { w ->
+            w.cefr != null && w.cefr.ordinalIndex >= threshold.ordinalIndex
+        }.map { it.text.lowercase() }.distinct()
+
+        // Only earn if this word is in the difficult list and not already reviewed this scan
+        val lowerWord = word.lowercase()
+        if (lowerWord !in difficultWords) return
+        if (!reviewedWordsThisScan.add(lowerWord)) return // already reviewed
+
+        val ctx = application.applicationContext
+        // difficult_word_reviewed: +1 coin, 15/day cap
+        val earn = jCoinEarnRules.checkDifficultWordReviewed(ctx)
+        if (earn != null) {
+            earnCoins(earn.sourceType, earn.coins)
+        }
+        // CEFR word milestones (50/200/500 lifetime)
+        for (milestone in jCoinEarnRules.checkCefrWordMilestones(ctx)) {
+            earnCoins(milestone.sourceType, milestone.coins)
+        }
+
+        // Check if all difficult words have been reviewed
+        if (!allDifficultClearedThisScan && reviewedWordsThisScan.containsAll(difficultWords)) {
+            allDifficultClearedThisScan = true
+            val clearEarn = jCoinEarnRules.checkAllDifficultCleared(ctx)
+            earnCoins(clearEarn.sourceType, clearEarn.coins)
+        }
+    }
+
+    private fun fireFirstCefrScanMilestone() {
+        if (hasEarnedFirstCefrScan) return
+        hasEarnedFirstCefrScan = true
+        val ctx = application.applicationContext
+        val milestone = jCoinEarnRules.checkFirstCefrScan(ctx)
+        if (milestone != null) {
+            earnCoins(milestone.sourceType, milestone.coins)
+        }
+    }
+
+    private fun fireFirstThresholdSetMilestone() {
+        if (hasSetNonDefaultThreshold) return
+        hasSetNonDefaultThreshold = true
+        val ctx = application.applicationContext
+        val milestone = jCoinEarnRules.checkFirstThresholdSet(ctx)
+        if (milestone != null) {
+            earnCoins(milestone.sourceType, milestone.coins)
+        }
     }
 }

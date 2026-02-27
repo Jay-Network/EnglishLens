@@ -15,4 +15,12 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun updateSettings(settings: AppSettings) {
         dataStore.updateSettings(settings)
     }
+
+    override suspend fun addTokenUsage(provider: String, inputTokens: Int, outputTokens: Int) {
+        dataStore.addTokenUsage(provider, inputTokens, outputTokens)
+    }
+
+    override suspend fun resetTokenUsage(provider: String?) {
+        dataStore.resetTokenUsage(provider)
+    }
 }

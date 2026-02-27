@@ -20,5 +20,7 @@ data class AiResponse(
     val provider: String,
     val model: String,
     val tokensUsed: Int? = null,
+    val inputTokens: Int? = null,
+    val outputTokens: Int? = null,
     val processingTimeMs: Long
 )
