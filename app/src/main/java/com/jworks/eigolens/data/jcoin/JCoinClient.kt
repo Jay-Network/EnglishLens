@@ -5,7 +5,6 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.functions.functions
 import io.ktor.client.call.body
 import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -56,13 +55,14 @@ data class CapInfo(
 @Serializable
 data class JCoinSpendResponse(
     @SerialName("transaction_id") val transactionId: String = "",
-    @SerialName("amount_spent") val amountSpent: Int = 0,
+    @SerialName("coins_spent") val coinsSpent: Int = 0,
     @SerialName("balance_after_coins") val newBalance: Double = 0.0
 )
 
 @Singleton
 class JCoinClient @Inject constructor(
-    private val supabaseClient: SupabaseClient
+    private val supabaseClient: SupabaseClient,
+    private val deviceAuthRepository: DeviceAuthRepository
 ) {
     companion object {
         private const val TAG = "JCoinClient"
@@ -76,20 +76,21 @@ class JCoinClient @Inject constructor(
         return root["data"] ?: throw Exception("Response missing 'data' field: $body")
     }
 
-    private fun buildHeaders(accessToken: String?): Headers = Headers.build {
-        if (accessToken != null) {
-            append(HttpHeaders.Authorization, "Bearer $accessToken")
-        }
-        append("X-Auth-Mode", "jwt_anonymous")
+    private fun buildHeaders(appKey: String): Headers = Headers.build {
+        append("X-Auth-Mode", "app_key")
+        append("X-App-Key", appKey)
     }
+
+    private fun getCustomerId(): String = deviceAuthRepository.getDeviceId()
 
     suspend fun getBalance(accessToken: String? = null): Result<JCoinBalance> {
         return try {
             val response = supabaseClient.functions.invoke(
                 function = "jcoin-unified-balance",
-                headers = buildHeaders(accessToken),
+                headers = buildHeaders(com.jworks.eigolens.di.JCoinModule.JCOIN_APP_KEY),
                 body = buildJsonObject {
                     put("source_business", SOURCE_BUSINESS)
+                    put("customer_id", getCustomerId())
                 }
             )
             val body = response.body<String>()
@@ -110,11 +111,12 @@ class JCoinClient @Inject constructor(
         return try {
             val response = supabaseClient.functions.invoke(
                 function = "jcoin-unified-spend",
-                headers = buildHeaders(accessToken),
+                headers = buildHeaders(com.jworks.eigolens.di.JCoinModule.JCOIN_APP_KEY),
                 body = buildJsonObject {
                     put("source_business", SOURCE_BUSINESS)
+                    put("customer_id", getCustomerId())
                     put("mode", "direct")
-                    put("item_description", itemDescription)
+                    put("source_type", itemDescription)
                     put("amount", amount)
                     put("metadata", buildJsonObject {
                         metadata.forEach { (k, v) -> put(k, v) }
@@ -139,9 +141,10 @@ class JCoinClient @Inject constructor(
         return try {
             val response = supabaseClient.functions.invoke(
                 function = "jcoin-unified-earn",
-                headers = buildHeaders(accessToken),
+                headers = buildHeaders(com.jworks.eigolens.di.JCoinModule.JCOIN_APP_KEY),
                 body = buildJsonObject {
                     put("source_business", SOURCE_BUSINESS)
+                    put("customer_id", getCustomerId())
                     put("source_type", sourceType)
                     put("base_amount", baseAmount)
                     put("metadata", buildJsonObject {
