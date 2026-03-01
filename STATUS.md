@@ -40,7 +40,7 @@
 | **Token usage tracking (Settings)** | DONE | DONE |
 | **Lasso selection persistence** | DONE | DONE |
 | **Lasso toggle in AI panel** | DONE | DONE |
-| **Feedback system** | DONE | - |
+| **Feedback system** | DONE | DONE |
 | **Dark mode** | DONE | DONE |
 | **J Coin integration** | DONE | - |
 | **J Coin Spend Store (rewards)** | DONE | - |
@@ -66,8 +66,8 @@
 ### iPad (jworks:61)
 - **Version**: 0.3.0 (Glass UI + Word Enrichment)
 - **Bundle ID**: com.jworks.eigolens (App Store Connect registered)
-- **Current work**: Feature parity port — Glass UI, CEFR/IPA enrichment, difficult words panel all DONE.
-- **Next**: Feedback system, J Coin integration, Google Sign-In, Send to EigoQuest
+- **Current work**: Feature parity port — Glass UI, CEFR/IPA, difficult words, feedback all DONE.
+- **Next**: J Coin integration, Google Sign-In, Send to EigoQuest
 - **Blockers**: None (GitHub secrets set, CI/CD working, TestFlight deployed)
 
 ---
