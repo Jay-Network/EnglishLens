@@ -3,7 +3,7 @@
 > **Shared status file** — updated by both jworks:46 (Android) and jworks:61 (iPad).
 > Each agent updates its own column. Check this file before starting work to stay in sync.
 
-**Last updated**: 2026-02-27
+**Last updated**: 2026-02-28
 
 ---
 
@@ -42,6 +42,13 @@
 | **Lasso toggle in AI panel** | DONE | DONE |
 | **Feedback system** | DONE | - |
 | **Dark mode** | DONE | SCAFFOLDED |
+| **J Coin integration** | DONE | - |
+| **J Coin Spend Store (rewards)** | DONE | - |
+| **Send to EigoQuest (cross-app)** | DONE | - |
+| **Word enrichment (IPA/CEFR)** | DONE | - |
+| **CEFR difficulty filter** | DONE | - |
+| **Difficult words panel** | DONE | - |
+| **Crash safety hardening** | - | DONE |
 
 **Legend**: DONE | SCAFFOLDED (code written, not yet compiled) | IN PROGRESS | - (not started) | N/A
 
@@ -56,11 +63,11 @@
 - **Blockers**: None
 
 ### iPad (jworks:61)
-- **Version**: 0.1.0 (scaffolding complete)
+- **Version**: 0.2.0 (auth + crash fixes)
 - **Bundle ID**: com.jworks.eigolens (App Store Connect registered)
-- **Current work**: Auth + token usage tracking + lasso fixes ported from Android. All 3 features from jworks:46 implemented.
-- **Next**: Build on macOS, test all features end-to-end, Google Sign-In (v2)
-- **Blockers**: Requires macOS for xcodegen + Xcode build. GitHub secrets (SUPABASE_URL, SUPABASE_ANON_KEY) need to be set on the repo.
+- **Current work**: Crash safety hardening (5 critical fixes). Feature parity port in progress.
+- **Next**: Port remaining SCAFFOLDED features to working implementation, J Coin integration, EigoQuest transfer
+- **Blockers**: None (GitHub secrets set, CI/CD working, TestFlight deployed)
 
 ---
 
