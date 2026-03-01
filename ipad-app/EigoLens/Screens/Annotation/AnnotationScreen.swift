@@ -9,6 +9,7 @@ struct AnnotationScreen: View {
 
     @Environment(\.horizontalSizeClass) var hSizeClass
     @Environment(\.verticalSizeClass) var vSizeClass
+    @State private var showCefrOverlay = true
 
     var isLandscape: Bool {
         vSizeClass == .compact
@@ -21,6 +22,9 @@ struct AnnotationScreen: View {
                 capturedImage: viewModel.currentImage,
                 interactionMode: viewModel.interactionMode,
                 tappedWord: viewModel.tappedWord,
+                enrichedWords: viewModel.enrichedWords,
+                cefrThreshold: viewModel.cefrThreshold,
+                showCefrOverlay: showCefrOverlay,
                 onWordTapped: { viewModel.onWordTapped($0) },
                 onWordLongPressed: { viewModel.onWordLongPressed($0) },
                 onWordsSelected: { viewModel.selectWords($0) }
@@ -78,10 +82,48 @@ struct AnnotationScreen: View {
 
                 Spacer()
 
-                // AI FAB (bottom right when panel is not showing AI analysis)
-                if shouldShowAiFab {
-                    HStack {
-                        Spacer()
+                // Bottom FABs
+                HStack {
+                    // CEFR overlay toggle (bottom left)
+                    if !viewModel.enrichedWords.isEmpty {
+                        VStack(spacing: 12) {
+                            // CEFR overlay toggle
+                            Button(action: { showCefrOverlay.toggle() }) {
+                                Image(systemName: showCefrOverlay ? "textformat.abc.dottedunderline" : "textformat.abc")
+                                    .font(.title3)
+                                    .foregroundStyle(.white)
+                                    .padding(12)
+                                    .background(showCefrOverlay ? EigoLensTheme.primary : Color.white.opacity(0.15), in: Circle())
+                            }
+
+                            // Difficult words button
+                            Button(action: { viewModel.showDifficultWordsPanel() }) {
+                                ZStack(alignment: .topTrailing) {
+                                    Image(systemName: "list.bullet.rectangle")
+                                        .font(.title3)
+                                        .foregroundStyle(.white)
+                                        .padding(12)
+                                        .background(Color.white.opacity(0.15), in: Circle())
+
+                                    if viewModel.difficultWords.count > 0 {
+                                        Text("\(viewModel.difficultWords.count)")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundStyle(.white)
+                                            .padding(4)
+                                            .background(EigoLensTheme.error, in: Circle())
+                                            .offset(x: 4, y: -4)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.leading, 20)
+                        .padding(.bottom, !isLandscape && viewModel.panelState.isVisible ? viewModel.panelHeightForFab + 20 : 20)
+                    }
+
+                    Spacer()
+
+                    // AI FAB (bottom right when panel is not showing AI analysis)
+                    if shouldShowAiFab {
                         Button(action: { viewModel.analyzeFullText() }) {
                             Image(systemName: "brain")
                                 .font(.title2)
@@ -104,7 +146,8 @@ struct AnnotationScreen: View {
                     onInteractionModeChange: { viewModel.interactionMode = $0 },
                     onDismiss: { viewModel.dismissPanel() },
                     onToggleBookmark: { viewModel.toggleBookmark() },
-                    isBookmarked: viewModel.isCurrentWordBookmarked
+                    isBookmarked: viewModel.isCurrentWordBookmarked,
+                    onWordTapped: { word in viewModel.lookupWordFromPanel(word) }
                 )
             }
         }

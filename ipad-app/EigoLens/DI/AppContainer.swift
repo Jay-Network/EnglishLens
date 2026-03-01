@@ -13,10 +13,11 @@ final class AppContainer: ObservableObject {
     // -- Phase 2: OCR --
     private(set) var ocrService: OCRService!
 
-    // -- Phase 4: Definition --
+    // -- Phase 4: Definition + Enrichment --
     private(set) var wordNetDatabase: WordNetDatabase?
     private(set) var lemmatizer: EnglishLemmatizer?
     private(set) var definitionRepository: DefinitionRepository?
+    private(set) var wordEnrichmentRepository: WordEnrichmentRepository?
 
     // -- Phase 5: AI --
     private(set) var aiProviderManager: AiProviderManager!
@@ -56,6 +57,7 @@ final class AppContainer: ObservableObject {
             let lem = EnglishLemmatizer(db: db)
             lemmatizer = lem
             definitionRepository = DefinitionRepository(db: db, lemmatizer: lem)
+            wordEnrichmentRepository = WordEnrichmentRepository(db: db, lemmatizer: lem)
         } catch {
             print("WordNet init failed (definitions unavailable): \(error.localizedDescription)")
         }

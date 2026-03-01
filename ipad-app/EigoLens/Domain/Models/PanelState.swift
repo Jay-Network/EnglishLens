@@ -6,6 +6,7 @@ enum PanelState: Equatable {
     case wordDefinition(definition: Definition, contextualInsight: ContextualInsight? = nil)
     case aiLoading(scopeLevel: ScopeLevel, selectedText: String, readability: ReadabilityMetrics? = nil)
     case aiAnalysis(scopeLevel: ScopeLevel, selectedText: String, response: AiResponse, readability: ReadabilityMetrics? = nil)
+    case difficultWords(words: [EnrichedWord], threshold: CefrLevel)
     case notFound(word: String)
     case error(message: String)
 

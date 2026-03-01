@@ -11,6 +11,8 @@ final class AnnotationViewModel: ObservableObject {
     @Published var tappedWord: TapResult?
     @Published var isCorrectingOcr = false
     @Published var isCurrentWordBookmarked = false
+    @Published var enrichedWords: [EnrichedWord] = []
+    @Published var cefrThreshold: CefrLevel = .b2
 
     // Panel size hints for FAB positioning
     var panelWidthForFab: CGFloat = 0
@@ -23,6 +25,7 @@ final class AnnotationViewModel: ObservableObject {
     private var geminiOcrCorrector: GeminiOcrCorrector?
     private var historyRepository: HistoryRepository?
     private var readabilityCalculator: ReadabilityCalculator?
+    private var wordEnrichmentRepository: WordEnrichmentRepository?
     private let tokenUsageStore = TokenUsageStore()
 
     private var currentWord: String?
@@ -36,10 +39,50 @@ final class AnnotationViewModel: ObservableObject {
         self.geminiOcrCorrector = container.geminiOcrCorrector
         self.historyRepository = container.historyRepository
         self.readabilityCalculator = container.readabilityCalculator
+        self.wordEnrichmentRepository = container.wordEnrichmentRepository
+
+        // Enrich words with IPA/CEFR
+        enrichOcrWords()
 
         // Run Gemini OCR correction in background
         if let corrector = geminiOcrCorrector, corrector.isAvailable, !capturedImage.ocrResult.lines.isEmpty {
             correctOcrWithGemini(image: capturedImage.image, mlKitResult: capturedImage.ocrResult)
+        }
+    }
+
+    func setCefrThreshold(_ level: CefrLevel) {
+        cefrThreshold = level
+    }
+
+    var difficultWords: [EnrichedWord] {
+        enrichedWords.filter { word in
+            guard let cefr = word.cefr else { return false }
+            return cefr.ordinalIndex >= cefrThreshold.ordinalIndex
+        }
+        .reduce(into: [String: EnrichedWord]()) { dict, word in
+            if dict[word.text] == nil { dict[word.text] = word }
+        }
+        .values
+        .sorted { $0.text < $1.text }
+    }
+
+    func showDifficultWordsPanel() {
+        let words = difficultWords
+        panelState = .difficultWords(words: words, threshold: cefrThreshold)
+    }
+
+    func lookupWordFromPanel(_ word: String) {
+        lookupWord(word)
+    }
+
+    private func enrichOcrWords() {
+        guard let repo = wordEnrichmentRepository, !currentImage.ocrResult.lines.isEmpty else { return }
+        enrichedWords = repo.enrichWords(from: currentImage.ocrResult)
+
+        // Auto-show difficult words panel if any found
+        let difficult = difficultWords
+        if !difficult.isEmpty {
+            panelState = .difficultWords(words: difficult, threshold: cefrThreshold)
         }
     }
 
@@ -235,6 +278,7 @@ final class AnnotationViewModel: ObservableObject {
                     ocrResult: corrected,
                     timestamp: currentImage.timestamp
                 )
+                enrichOcrWords()
             }
         }
     }

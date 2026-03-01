@@ -4,6 +4,9 @@ struct InteractiveImageView: View {
     let capturedImage: CapturedImage
     let interactionMode: InteractionMode
     let tappedWord: TapResult?
+    var enrichedWords: [EnrichedWord] = []
+    var cefrThreshold: CefrLevel = .b2
+    var showCefrOverlay: Bool = false
     var onWordTapped: (TapResult) -> Void
     var onWordLongPressed: (TapResult) -> Void
     var onWordsSelected: ([String]) -> Void
@@ -105,6 +108,23 @@ struct InteractiveImageView: View {
         let ocrResult = capturedImage.ocrResult
         let originX = (containerSize.width - displaySize.width) / 2
         let originY = (containerSize.height - displaySize.height) / 2
+
+        // CEFR overlay: draw colored underlines for difficult words
+        if showCefrOverlay {
+            for enriched in enrichedWords {
+                guard let cefr = enriched.cefr,
+                      cefr.ordinalIndex >= cefrThreshold.ordinalIndex,
+                      cefr.color != .clear else { continue }
+
+                let rect = wordScreenRect(enriched.boundingBox, displaySize: displaySize, origin: CGPoint(x: originX, y: originY))
+                let underlineY = rect.maxY + 1
+                let underlinePath = Path { path in
+                    path.move(to: CGPoint(x: rect.minX, y: underlineY))
+                    path.addLine(to: CGPoint(x: rect.maxX, y: underlineY))
+                }
+                context.stroke(underlinePath, with: .color(cefr.color.opacity(0.8)), lineWidth: 2.5)
+            }
+        }
 
         for (lineIndex, line) in ocrResult.lines.enumerated() {
             for (wordIndex, word) in line.words.enumerated() {

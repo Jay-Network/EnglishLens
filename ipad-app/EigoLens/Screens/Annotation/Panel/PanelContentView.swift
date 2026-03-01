@@ -8,6 +8,8 @@ struct PanelContentView: View {
     var onToggleBookmark: () -> Void
     var isBookmarked: Bool
 
+    var onWordTapped: ((String) -> Void)?
+
     var body: some View {
         switch state {
         case .idle:
@@ -34,6 +36,13 @@ struct PanelContentView: View {
                 viewState: .loaded(text, scope, response, readability),
                 interactionMode: interactionMode,
                 onInteractionModeChange: onInteractionModeChange,
+                onDismiss: onDismiss
+            )
+        case .difficultWords(let words, let threshold):
+            DifficultWordsPanelView(
+                words: words,
+                threshold: threshold,
+                onWordTapped: { word in onWordTapped?(word) },
                 onDismiss: onDismiss
             )
         case .notFound(let word):

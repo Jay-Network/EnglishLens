@@ -6,6 +6,8 @@ struct WordRow {
     let word: String
     let lemma: String
     let frequency: Int?
+    let phonetic: String?
+    let cefrLevel: String?
 }
 
 struct DefinitionRow {
@@ -74,7 +76,7 @@ final class WordNetDatabase {
     // MARK: - Queries
 
     func getWord(_ word: String) -> WordRow? {
-        let sql = "SELECT word_id, word, lemma, frequency FROM words WHERE word = ? LIMIT 1"
+        let sql = "SELECT word_id, word, lemma, frequency, phonetic, cefr_level FROM words WHERE word = ? LIMIT 1"
         var stmt: OpaquePointer?
         defer { sqlite3_finalize(stmt) }
 
@@ -89,8 +91,43 @@ final class WordNetDatabase {
             wordId: Int(sqlite3_column_int(stmt, 0)),
             word: String(cString: wordPtr),
             lemma: String(cString: lemmaPtr),
-            frequency: sqlite3_column_type(stmt, 3) == SQLITE_NULL ? nil : Int(sqlite3_column_int(stmt, 3))
+            frequency: sqlite3_column_type(stmt, 3) == SQLITE_NULL ? nil : Int(sqlite3_column_int(stmt, 3)),
+            phonetic: sqlite3_column_type(stmt, 4) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 4)),
+            cefrLevel: sqlite3_column_type(stmt, 5) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 5))
         )
+    }
+
+    func batchGetMetadata(words: [String]) -> [String: (phonetic: String?, cefr: String?, briefDef: String?)] {
+        guard !words.isEmpty else { return [:] }
+
+        let placeholders = words.map { _ in "?" }.joined(separator: ",")
+        let sql = """
+            SELECT w.word, w.phonetic, w.cefr_level,
+                   (SELECT d.meaning FROM definitions d WHERE d.word_id = w.word_id ORDER BY d.def_id LIMIT 1)
+            FROM words w WHERE w.word IN (\(placeholders))
+            """
+        var stmt: OpaquePointer?
+        defer { sqlite3_finalize(stmt) }
+
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return [:] }
+
+        for (i, word) in words.enumerated() {
+            sqlite3_bind_text(stmt, Int32(i + 1), (word as NSString).utf8String, -1, nil)
+        }
+
+        var result: [String: (phonetic: String?, cefr: String?, briefDef: String?)] = [:]
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            guard let wordPtr = sqlite3_column_text(stmt, 0) else { continue }
+            let word = String(cString: wordPtr)
+            let phonetic = sqlite3_column_type(stmt, 1) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 1))
+            let cefr = sqlite3_column_type(stmt, 2) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 2))
+            let briefDef: String? = sqlite3_column_type(stmt, 3) == SQLITE_NULL ? nil : {
+                let full = String(cString: sqlite3_column_text(stmt, 3))
+                return full.count > 80 ? String(full.prefix(80)) + "..." : full
+            }()
+            result[word] = (phonetic, cefr, briefDef)
+        }
+        return result
     }
 
     func lookupWithDefinitions(_ word: String) -> (WordRow, [DefinitionRow])? {
@@ -120,7 +157,7 @@ final class WordNetDatabase {
     }
 
     func getTopFrequent(limit: Int) -> [WordRow] {
-        let sql = "SELECT word_id, word, lemma, frequency FROM words WHERE frequency IS NOT NULL ORDER BY frequency DESC LIMIT ?"
+        let sql = "SELECT word_id, word, lemma, frequency, phonetic, cefr_level FROM words WHERE frequency IS NOT NULL ORDER BY frequency DESC LIMIT ?"
         var stmt: OpaquePointer?
         defer { sqlite3_finalize(stmt) }
 
@@ -135,7 +172,9 @@ final class WordNetDatabase {
                 wordId: Int(sqlite3_column_int(stmt, 0)),
                 word: String(cString: wordPtr),
                 lemma: String(cString: lemmaPtr),
-                frequency: sqlite3_column_type(stmt, 3) == SQLITE_NULL ? nil : Int(sqlite3_column_int(stmt, 3))
+                frequency: sqlite3_column_type(stmt, 3) == SQLITE_NULL ? nil : Int(sqlite3_column_int(stmt, 3)),
+                phonetic: sqlite3_column_type(stmt, 4) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 4)),
+                cefrLevel: sqlite3_column_type(stmt, 5) == SQLITE_NULL ? nil : String(cString: sqlite3_column_text(stmt, 5))
             ))
         }
         return rows
