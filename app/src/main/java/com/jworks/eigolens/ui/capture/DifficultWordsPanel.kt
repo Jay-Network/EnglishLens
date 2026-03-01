@@ -43,6 +43,9 @@ import com.jworks.eigolens.R
 import com.jworks.eigolens.domain.models.CefrLevel
 import com.jworks.eigolens.domain.models.EnrichedWord
 import com.jworks.eigolens.domain.models.color
+import com.jworks.eigolens.ui.theme.GlassBorder
+import com.jworks.eigolens.ui.theme.GlassGradient
+import com.jworks.eigolens.ui.theme.glassCardColors
 
 @Composable
 fun DifficultWordsPanel(
@@ -281,13 +284,13 @@ private fun DifficultWordRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-        ),
+        colors = glassCardColors(),
+        border = GlassBorder,
         shape = RoundedCornerShape(10.dp)
     ) {
         Row(
             modifier = Modifier
+                .background(GlassGradient)
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.Top

@@ -227,7 +227,7 @@ private fun PortraitPanel(
                 .fillMaxWidth()
                 .height(with(density) { panelHeightPx.toDp() })
                 .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f))
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // Drag handle — always visible
@@ -319,7 +319,7 @@ private fun LandscapePanel(
                         .fillMaxHeight()
                         .weight(1f)
                         .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f))
                 ) {
                     PanelContent(
                         panelState = panelState,
@@ -373,7 +373,7 @@ private fun VerticalDragHandle(onDrag: (Float) -> Unit) {
         modifier = Modifier
             .fillMaxHeight()
             .width(20.dp)
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f))
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()

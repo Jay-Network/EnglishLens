@@ -55,7 +55,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.compose.foundation.border
 import com.jworks.eigolens.R
+import com.jworks.eigolens.ui.theme.GlassBorder
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -201,7 +203,8 @@ fun CameraPreviewMode(
                 Row(
                     modifier = Modifier
                         .clickable { onRewardsClick() }
-                        .background(Color(0xFFFFD700).copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.10f), RoundedCornerShape(16.dp))
+                        .border(1.dp, Color(0xFF4F46E5).copy(alpha = 0.4f), RoundedCornerShape(16.dp))
                         .padding(horizontal = 10.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -213,7 +216,7 @@ fun CameraPreviewMode(
                     Text(
                         text = "$coinBalance",
                         style = MaterialTheme.typography.labelMedium,
-                        color = Color.Black
+                        color = Color(0xFFFFD700)
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -299,7 +302,7 @@ fun CameraPreviewMode(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(2.dp)
-                        .background(Color(0xFF2196F3), CircleShape)
+                        .background(Color(0xFF4F46E5), CircleShape)
                 )
             }
         }
@@ -318,7 +321,8 @@ private fun CefrThresholdBar(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+            .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+            .border(1.dp, Color(0xFF4F46E5).copy(alpha = 0.20f), RoundedCornerShape(16.dp))
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

@@ -1,7 +1,10 @@
 package com.jworks.eigolens.ui.theme
 
 import android.os.Build
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -10,10 +13,12 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private val EigoLightScheme = lightColorScheme(
@@ -57,11 +62,11 @@ private val EigoDarkScheme = darkColorScheme(
     tertiaryContainer = Color(0xFF5A3E00),
     onTertiaryContainer = Color(0xFFFFE8BD),
 
-    background = Color(0xFF0E1118),
+    background = Color(0xFF050508),
     onBackground = Color(0xFFE6EAF3),
-    surface = Color(0xFF151A24),
+    surface = Color(0xFF0A0A10),
     onSurface = Color(0xFFE6EAF3),
-    surfaceVariant = Color(0xFF2A3140),
+    surfaceVariant = Color(0xFF12121A),
     onSurfaceVariant = Color(0xFFC4CAD8),
     outline = Color(0xFF8E96A8)
 )
@@ -98,3 +103,22 @@ fun EigoLensTheme(
         content = content
     )
 }
+
+/** Glass gradient for card backgrounds: white 12% → white 5% */
+val GlassGradient: Brush
+    get() = Brush.linearGradient(
+        colors = listOf(
+            Color.White.copy(alpha = 0.12f),
+            Color.White.copy(alpha = 0.05f)
+        )
+    )
+
+/** Indigo-tinted border for glass cards at 28% opacity */
+val GlassBorder: BorderStroke
+    get() = BorderStroke(1.dp, Color(0xFF4F46E5).copy(alpha = 0.28f))
+
+/** Card colors for glass cards — transparent container with glass gradient applied via Box background */
+@Composable
+fun glassCardColors(): CardColors = CardDefaults.cardColors(
+    containerColor = Color.Transparent
+)

@@ -56,6 +56,9 @@ import com.jworks.eigolens.domain.models.CefrLevel
 import com.jworks.eigolens.domain.models.DifficultyLevel
 import com.jworks.eigolens.domain.models.EnrichedWord
 import com.jworks.eigolens.domain.models.ReadabilityMetrics
+import com.jworks.eigolens.ui.theme.GlassBorder
+import com.jworks.eigolens.ui.theme.GlassGradient
+import com.jworks.eigolens.ui.theme.glassCardColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -480,12 +483,11 @@ private fun parseAiSections(raw: String): List<AiSection> {
 private fun AiSectionCard(section: AiSection) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        ),
+        colors = glassCardColors(),
+        border = GlassBorder,
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.background(GlassGradient).padding(14.dp)) {
             Text(
                 text = section.title,
                 style = MaterialTheme.typography.titleSmall,

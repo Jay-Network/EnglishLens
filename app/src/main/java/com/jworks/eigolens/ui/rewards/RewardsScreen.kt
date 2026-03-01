@@ -2,6 +2,7 @@ package com.jworks.eigolens.ui.rewards
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jworks.eigolens.R
+import com.jworks.eigolens.ui.theme.GlassBorder
+import com.jworks.eigolens.ui.theme.GlassGradient
+import com.jworks.eigolens.ui.theme.glassCardColors
 
 @Composable
 fun RewardsScreen(
@@ -71,6 +75,7 @@ fun RewardsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -165,16 +170,19 @@ private fun BalanceCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        shape = RoundedCornerShape(16.dp)
+        colors = glassCardColors(),
+        shape = RoundedCornerShape(16.dp),
+        border = GlassBorder
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
                 .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(Color(0xFFFFD700), Color(0xFFFFA000))
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF4F46E5).copy(alpha = 0.18f),
+                            Color.White.copy(alpha = 0.05f)
+                        )
                     )
                 )
                 .padding(20.dp)
@@ -188,12 +196,12 @@ private fun BalanceCard(
                             text = "$balance",
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            color = Color(0xFFFFD700)
                         )
                         Text(
                             text = "J Coins \u2022 ${tier.replaceFirstChar { it.uppercase() }} Tier",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black.copy(alpha = 0.7f)
+                            color = Color.White.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -218,12 +226,12 @@ private fun StatChip(label: String, value: String) {
             text = value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = Color.White
         )
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = Color.Black.copy(alpha = 0.6f)
+            color = Color.White.copy(alpha = 0.6f)
         )
     }
 }
@@ -241,12 +249,12 @@ private fun ShopItemCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-        )
+        colors = glassCardColors(),
+        border = GlassBorder
     ) {
         Row(
             modifier = Modifier
+                .background(GlassGradient)
                 .fillMaxWidth()
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -301,10 +309,10 @@ private fun ShopItemCard(
                     onClick = onPurchase,
                     enabled = canAfford && !isPurchasing,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFD700),
-                        contentColor = Color.Black,
-                        disabledContainerColor = Color.Gray.copy(alpha = 0.3f),
-                        disabledContentColor = Color.Gray
+                        containerColor = Color(0xFF4F46E5).copy(alpha = 0.8f),
+                        contentColor = Color.White,
+                        disabledContainerColor = Color.White.copy(alpha = 0.08f),
+                        disabledContentColor = Color.White.copy(alpha = 0.3f)
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -312,7 +320,7 @@ private fun ShopItemCard(
                         CircularProgressIndicator(
                             modifier = Modifier.size(16.dp),
                             strokeWidth = 2.dp,
-                            color = Color.Black
+                            color = Color.White
                         )
                     } else {
                         Text(

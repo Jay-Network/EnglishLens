@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -47,6 +50,9 @@ import java.text.NumberFormat
 import java.util.Locale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jworks.eigolens.R
+import com.jworks.eigolens.ui.theme.GlassBorder
+import com.jworks.eigolens.ui.theme.GlassGradient
+import com.jworks.eigolens.ui.theme.glassCardColors
 
 @Composable
 fun SettingsScreen(
@@ -71,6 +77,7 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -114,12 +121,12 @@ fun SettingsScreen(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-            )
+            colors = glassCardColors(),
+            border = GlassBorder
         ) {
             Column(
                 modifier = Modifier
+                    .background(GlassGradient)
                     .fillMaxWidth()
                     .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -230,12 +237,12 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onRewardsClick() },
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-            )
+            colors = glassCardColors(),
+            border = GlassBorder
         ) {
             Row(
                 modifier = Modifier
+                    .background(GlassGradient)
                     .fillMaxWidth()
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -279,12 +286,12 @@ fun SettingsScreen(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-            )
+            colors = glassCardColors(),
+            border = GlassBorder
         ) {
             Column(
                 modifier = Modifier
+                    .background(GlassGradient)
                     .fillMaxWidth()
                     .padding(12.dp)
             ) {
@@ -388,12 +395,12 @@ private fun KeyEditorCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-        )
+        colors = glassCardColors(),
+        border = GlassBorder
     ) {
         Column(
             modifier = Modifier
+                .background(GlassGradient)
                 .fillMaxWidth()
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -463,12 +470,12 @@ private fun TokenUsageCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-        )
+        colors = glassCardColors(),
+        border = GlassBorder
     ) {
         Column(
             modifier = Modifier
+                .background(GlassGradient)
                 .fillMaxWidth()
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)

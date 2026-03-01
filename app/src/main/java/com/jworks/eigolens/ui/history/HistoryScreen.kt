@@ -47,6 +47,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jworks.eigolens.R
 import com.jworks.eigolens.data.local.entities.BookmarkedWordEntity
 import com.jworks.eigolens.data.local.entities.LookupHistoryEntity
+import com.jworks.eigolens.ui.theme.GlassBorder
+import com.jworks.eigolens.ui.theme.GlassGradient
+import com.jworks.eigolens.ui.theme.glassCardColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -66,6 +69,7 @@ fun HistoryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = 16.dp)
     ) {
         // Top bar
@@ -170,13 +174,13 @@ private fun HistoryItem(entry: LookupHistoryEntity) {
         modifier = Modifier
             .fillMaxWidth()
             .animateContentSize(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        ),
+        colors = glassCardColors(),
+        border = GlassBorder,
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier
+                .background(GlassGradient)
                 .fillMaxWidth()
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -249,13 +253,13 @@ private fun BookmarkItem(
         modifier = Modifier
             .fillMaxWidth()
             .animateContentSize(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        ),
+        colors = glassCardColors(),
+        border = GlassBorder,
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier
+                .background(GlassGradient)
                 .fillMaxWidth()
                 .padding(12.dp),
             verticalAlignment = Alignment.Top

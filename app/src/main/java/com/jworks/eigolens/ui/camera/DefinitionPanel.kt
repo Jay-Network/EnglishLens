@@ -78,6 +78,9 @@ import com.jworks.eigolens.domain.models.Definition
 import com.jworks.eigolens.domain.models.Meaning
 import com.jworks.eigolens.domain.models.PartOfSpeech
 import com.jworks.eigolens.domain.models.color
+import com.jworks.eigolens.ui.theme.GlassBorder
+import com.jworks.eigolens.ui.theme.GlassGradient
+import com.jworks.eigolens.ui.theme.glassCardColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -384,12 +387,11 @@ private fun DefinitionCard(
             .fillMaxWidth()
             .animateContentSize(spring(stiffness = Spring.StiffnessMediumLow))
             .clickable { onToggle() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        ),
+        colors = glassCardColors(),
+        border = GlassBorder,
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.background(GlassGradient).padding(14.dp)) {
             // Header row: index + POS + definition + expand icon
             Row(
                 modifier = Modifier.fillMaxWidth(),
