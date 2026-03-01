@@ -83,16 +83,16 @@ struct LoginScreen: View {
                         }
                     }
                     .padding(EigoLensTheme.spacingL)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .glassCard(cornerRadius: 16)
 
                     // Divider
                     HStack {
-                        Rectangle().frame(height: 1).foregroundStyle(EigoLensTheme.outline)
+                        Rectangle().frame(height: 1).foregroundStyle(Color.white.opacity(0.15))
                         Text("or")
                             .font(EigoLensTheme.bodySmall)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(EigoLensTheme.onSurfaceVariant)
                             .padding(.horizontal, EigoLensTheme.spacingS)
-                        Rectangle().frame(height: 1).foregroundStyle(EigoLensTheme.outline)
+                        Rectangle().frame(height: 1).foregroundStyle(Color.white.opacity(0.15))
                     }
 
                     // Guest button
@@ -107,7 +107,7 @@ struct LoginScreen: View {
 
                     Text("Continue without an account.\nSign in anytime for cloud features.")
                         .font(EigoLensTheme.bodySmall)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(EigoLensTheme.onSurfaceVariant)
                         .multilineTextAlignment(.center)
 
                     Spacer()

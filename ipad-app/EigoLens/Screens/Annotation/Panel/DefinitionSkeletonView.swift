@@ -25,7 +25,7 @@ struct DefinitionSkeletonView: View {
                     shimmer(width: 200, height: 14)
                 }
                 .padding(12)
-                .background(EigoLensTheme.surfaceVariant, in: RoundedRectangle(cornerRadius: EigoLensTheme.radiusM))
+                .glassCard()
             }
 
             Spacer()
@@ -36,13 +36,13 @@ struct DefinitionSkeletonView: View {
 
     private func shimmer(width: CGFloat, height: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: 4)
-            .fill(Color.gray.opacity(0.2))
+            .fill(Color.white.opacity(0.08))
             .frame(maxWidth: width == .infinity ? .infinity : width, minHeight: height, maxHeight: height)
             .overlay(
                 RoundedRectangle(cornerRadius: 4)
                     .fill(
                         LinearGradient(
-                            colors: [.clear, .white.opacity(0.3), .clear],
+                            colors: [.clear, .white.opacity(0.15), .clear],
                             startPoint: .leading,
                             endPoint: .trailing
                         )

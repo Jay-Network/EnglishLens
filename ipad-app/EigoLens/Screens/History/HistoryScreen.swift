@@ -41,6 +41,7 @@ struct HistoryScreen: View {
         .task {
             viewModel.configure(container: container)
         }
+        .preferredColorScheme(.dark)
     }
 
     // MARK: - Recent Tab

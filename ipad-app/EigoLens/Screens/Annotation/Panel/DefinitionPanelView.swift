@@ -114,7 +114,7 @@ struct DefinitionPanelView: View {
             }
         }
         .padding(12)
-        .background(EigoLensTheme.surfaceVariant, in: RoundedRectangle(cornerRadius: EigoLensTheme.radiusM))
+        .glassCard()
     }
 
     // MARK: - Insight Card
@@ -147,7 +147,11 @@ struct DefinitionPanelView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(EigoLensTheme.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: EigoLensTheme.radiusM))
+        .background(EigoLensTheme.primary.opacity(0.15), in: RoundedRectangle(cornerRadius: EigoLensTheme.radiusM))
+        .overlay(
+            RoundedRectangle(cornerRadius: EigoLensTheme.radiusM)
+                .stroke(EigoLensTheme.primary.opacity(0.3), lineWidth: 1)
+        )
     }
 
     // MARK: - Helpers

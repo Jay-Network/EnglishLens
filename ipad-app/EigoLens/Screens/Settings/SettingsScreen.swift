@@ -101,6 +101,7 @@ struct SettingsScreen: View {
         .task {
             viewModel.configure(container: container)
         }
+        .preferredColorScheme(.dark)
     }
 
     // MARK: - API Key Editor

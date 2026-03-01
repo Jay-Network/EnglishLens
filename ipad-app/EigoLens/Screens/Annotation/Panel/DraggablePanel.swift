@@ -38,7 +38,7 @@ struct DraggablePanel<Content: View>: View {
                         .contentShape(Rectangle())
                         .overlay(
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(Color.secondary.opacity(0.4))
+                                .fill(Color.white.opacity(0.3))
                                 .frame(width: 4, height: 44)
                         )
                         .gesture(
@@ -54,9 +54,25 @@ struct DraggablePanel<Content: View>: View {
                     // Panel content
                     content()
                         .frame(width: panelWidth - 20)
-                        .background(.regularMaterial)
                 }
                 .frame(width: panelWidth, height: geo.size.height)
+                .background(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.12), Color.white.opacity(0.05)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .background(EigoLensTheme.background.opacity(0.85))
+                .overlay(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 20,
+                        bottomLeadingRadius: 20,
+                        bottomTrailingRadius: 0,
+                        topTrailingRadius: 0
+                    )
+                    .stroke(EigoLensTheme.outline, lineWidth: 1)
+                )
                 .clipShape(
                     UnevenRoundedRectangle(
                         topLeadingRadius: 20,
@@ -65,7 +81,7 @@ struct DraggablePanel<Content: View>: View {
                         topTrailingRadius: 0
                     )
                 )
-                .shadow(color: .black.opacity(0.2), radius: 10, x: -5)
+                .shadow(color: .black.opacity(0.4), radius: 16, x: -8)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
@@ -89,7 +105,7 @@ struct DraggablePanel<Content: View>: View {
                     HStack {
                         Spacer()
                         RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.secondary.opacity(0.4))
+                            .fill(Color.white.opacity(0.3))
                             .frame(width: 44, height: 4)
                         Spacer()
                     }
@@ -110,7 +126,23 @@ struct DraggablePanel<Content: View>: View {
                         .frame(height: panelHeight - 20)
                 }
                 .frame(width: geo.size.width, height: panelHeight)
-                .background(.regularMaterial)
+                .background(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.12), Color.white.opacity(0.05)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .background(EigoLensTheme.background.opacity(0.85))
+                .overlay(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 20,
+                        bottomLeadingRadius: 0,
+                        bottomTrailingRadius: 0,
+                        topTrailingRadius: 20
+                    )
+                    .stroke(EigoLensTheme.outline, lineWidth: 1)
+                )
                 .clipShape(
                     UnevenRoundedRectangle(
                         topLeadingRadius: 20,
@@ -119,7 +151,7 @@ struct DraggablePanel<Content: View>: View {
                         topTrailingRadius: 20
                     )
                 )
-                .shadow(color: .black.opacity(0.2), radius: 10, y: -5)
+                .shadow(color: .black.opacity(0.4), radius: 16, y: -8)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }

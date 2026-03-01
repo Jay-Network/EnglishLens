@@ -11,27 +11,27 @@
 
 | Feature | Android (jworks:46) | iPad (jworks:61) |
 |---------|:-------------------:|:-----------------:|
-| **Camera capture** | DONE | SCAFFOLDED |
-| **Gallery import** | DONE | SCAFFOLDED |
-| **ML Kit / Vision OCR** | DONE | SCAFFOLDED |
-| **Gemini OCR correction** | DONE | SCAFFOLDED |
-| **Interactive image viewer (zoom/pan)** | DONE | SCAFFOLDED |
-| **TAP mode (word lookup)** | DONE | SCAFFOLDED |
-| **Long-press (sentence AI)** | DONE | SCAFFOLDED |
-| **CIRCLE/SELECT mode (rectangle)** | DONE | SCAFFOLDED |
-| **WordNet dictionary (offline)** | DONE | SCAFFOLDED |
-| **AI integration (Claude)** | DONE | SCAFFOLDED |
-| **AI integration (Gemini)** | DONE | SCAFFOLDED |
-| **Definition panel** | DONE | SCAFFOLDED |
-| **AI Analysis panel (4 tabs)** | DONE | SCAFFOLDED |
-| **Portrait bottom panel** | DONE | SCAFFOLDED |
-| **Landscape right panel** | DONE | SCAFFOLDED |
-| **Panel drag-to-resize** | DONE | SCAFFOLDED |
-| **Readability scoring (local)** | DONE | SCAFFOLDED |
-| **Bookmark toggle** | DONE | SCAFFOLDED |
-| **Lookup history** | DONE | SCAFFOLDED |
-| **History screen (Recent + Saved)** | DONE | SCAFFOLDED |
-| **Settings (API key config)** | DONE | SCAFFOLDED |
+| **Camera capture** | DONE | DONE |
+| **Gallery import** | DONE | DONE |
+| **ML Kit / Vision OCR** | DONE | DONE |
+| **Gemini OCR correction** | DONE | DONE |
+| **Interactive image viewer (zoom/pan)** | DONE | DONE |
+| **TAP mode (word lookup)** | DONE | DONE |
+| **Long-press (sentence AI)** | DONE | DONE |
+| **CIRCLE/SELECT mode (rectangle)** | DONE | DONE |
+| **WordNet dictionary (offline)** | DONE | DONE |
+| **AI integration (Claude)** | DONE | DONE |
+| **AI integration (Gemini)** | DONE | DONE |
+| **Definition panel** | DONE | DONE |
+| **AI Analysis panel (4 tabs)** | DONE | DONE |
+| **Portrait bottom panel** | DONE | DONE |
+| **Landscape right panel** | DONE | DONE |
+| **Panel drag-to-resize** | DONE | DONE |
+| **Readability scoring (local)** | DONE | DONE |
+| **Bookmark toggle** | DONE | DONE |
+| **Lookup history** | DONE | DONE |
+| **History screen (Recent + Saved)** | DONE | DONE |
+| **Settings (API key config)** | DONE | DONE |
 | **Sign-in (Email/Password)** | DONE | DONE |
 | **Sign-in (Google)** | DONE | - |
 | **Guest mode** | DONE | DONE |
@@ -41,7 +41,7 @@
 | **Lasso selection persistence** | DONE | DONE |
 | **Lasso toggle in AI panel** | DONE | DONE |
 | **Feedback system** | DONE | - |
-| **Dark mode** | DONE | SCAFFOLDED |
+| **Dark mode** | DONE | IN PROGRESS |
 | **J Coin integration** | DONE | - |
 | **J Coin Spend Store (rewards)** | DONE | - |
 | **Send to EigoQuest (cross-app)** | DONE | - |

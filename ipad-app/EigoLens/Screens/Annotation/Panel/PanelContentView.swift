@@ -63,14 +63,15 @@ struct NotFoundPanelView: View {
 
             Image(systemName: "book.closed")
                 .font(.system(size: 48))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(EigoLensTheme.onSurfaceVariant)
 
             Text("Not Found")
                 .font(EigoLensTheme.titleLarge)
+                .foregroundStyle(EigoLensTheme.onSurface)
 
             Text("No definition found for \"\(word)\"")
                 .font(EigoLensTheme.bodyMedium)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(EigoLensTheme.onSurfaceVariant)
                 .multilineTextAlignment(.center)
 
             Spacer()
@@ -102,10 +103,11 @@ struct ErrorPanelView: View {
 
             Text("Error")
                 .font(EigoLensTheme.titleLarge)
+                .foregroundStyle(EigoLensTheme.onSurface)
 
             Text(message)
                 .font(EigoLensTheme.bodyMedium)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(EigoLensTheme.onSurfaceVariant)
                 .multilineTextAlignment(.center)
 
             Spacer()

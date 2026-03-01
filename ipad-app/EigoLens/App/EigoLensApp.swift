@@ -7,21 +7,26 @@ struct EigoLensApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if let error = container.initError {
-                ErrorInitView(message: error)
-            } else if container.authManager.isRestoringSession {
-                ProgressView("Restoring session...")
+            Group {
+                if let error = container.initError {
+                    ErrorInitView(message: error)
+                } else if container.authManager.isRestoringSession {
+                    ProgressView("Restoring session...")
+                        .tint(.white)
+                        .foregroundStyle(.white)
+                        .environmentObject(container)
+                } else if container.authManager.authState.isLoggedIn || container.authManager.isGuest {
+                    AppNavigation()
+                        .environmentObject(container)
+                } else {
+                    LoginScreen(
+                        onLoginSuccess: { },
+                        onContinueAsGuest: { container.authManager.continueAsGuest() }
+                    )
                     .environmentObject(container)
-            } else if container.authManager.authState.isLoggedIn || container.authManager.isGuest {
-                AppNavigation()
-                    .environmentObject(container)
-            } else {
-                LoginScreen(
-                    onLoginSuccess: { },
-                    onContinueAsGuest: { container.authManager.continueAsGuest() }
-                )
-                .environmentObject(container)
+                }
             }
+            .preferredColorScheme(.dark)
         }
         .modelContainer(for: [LookupHistoryEntry.self, BookmarkedWord.self])
     }

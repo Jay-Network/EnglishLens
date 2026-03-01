@@ -212,7 +212,7 @@ struct AiAnalysisPanelView: View {
                 .monospacedDigit()
         }
         .padding(12)
-        .background(EigoLensTheme.surfaceVariant, in: RoundedRectangle(cornerRadius: EigoLensTheme.radiusS))
+        .glassCard(cornerRadius: EigoLensTheme.radiusS)
     }
 
     private func statRow(label: String, value: String) -> some View {
@@ -297,7 +297,7 @@ struct AiSectionCard: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(EigoLensTheme.surfaceVariant, in: RoundedRectangle(cornerRadius: EigoLensTheme.radiusM))
+        .glassCard()
     }
 }
 

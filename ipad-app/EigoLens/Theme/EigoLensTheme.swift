@@ -13,16 +13,17 @@ enum EigoLensTheme {
     static let tertiary = Color(hex: 0xEF6262)         // Warm coral
     static let onTertiary = Color.white
 
-    static let background = Color(hex: 0xF5F5F5)
-    static let surface = Color.white
-    static let surfaceVariant = Color(hex: 0xF0F0F0)
-    static let onSurface = Color(hex: 0x1A1A1A)
-    static let onSurfaceVariant = Color(hex: 0x666666)
-    static let outline = Color(hex: 0xCCCCCC)
+    // Glass UI — near-black base, translucent surfaces
+    static let background = Color(hex: 0x050508)
+    static let surface = Color.white.opacity(0.06)
+    static let surfaceVariant = Color.white.opacity(0.08)
+    static let onSurface = Color(hex: 0xE8E8E8)
+    static let onSurfaceVariant = Color(hex: 0xA0A0A0)
+    static let outline = Color(hex: 0x4338CA).opacity(0.28) // Indigo-tinted border
 
-    static let error = Color(hex: 0xB00020)
-    static let success = Color(hex: 0x2E7D32)
-    static let warning = Color(hex: 0xF9A825)
+    static let error = Color(hex: 0xEF4444)
+    static let success = Color(hex: 0x22C55E)
+    static let warning = Color(hex: 0xF59E0B)
 
     // Scope level colors (matching Android)
     static let scopeWord = Color(hex: 0x1B6B93)
@@ -32,10 +33,10 @@ enum EigoLensTheme {
     static let scopeFullText = Color(hex: 0x37474F)
 
     // POS tag colors
-    static let posNoun = Color(hex: 0x1565C0)
-    static let posVerb = Color(hex: 0xC62828)
-    static let posAdj = Color(hex: 0x2E7D32)
-    static let posAdv = Color(hex: 0x6A1B9A)
+    static let posNoun = Color(hex: 0x3B82F6)
+    static let posVerb = Color(hex: 0xEF4444)
+    static let posAdj = Color(hex: 0x22C55E)
+    static let posAdv = Color(hex: 0xA855F7)
 
     // Typography
     static let headlineLarge = Font.system(.title, design: .default, weight: .bold)
@@ -60,4 +61,32 @@ enum EigoLensTheme {
     static let radiusM: CGFloat = 12
     static let radiusL: CGFloat = 20
     static let radiusXL: CGFloat = 28
+}
+
+// MARK: - Glass Card Modifier
+
+struct GlassCardModifier: ViewModifier {
+    var cornerRadius: CGFloat = EigoLensTheme.radiusM
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                LinearGradient(
+                    colors: [Color.white.opacity(0.12), Color.white.opacity(0.05)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(Color(hex: 0x4338CA).opacity(0.28), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+    }
+}
+
+extension View {
+    func glassCard(cornerRadius: CGFloat = EigoLensTheme.radiusM) -> some View {
+        modifier(GlassCardModifier(cornerRadius: cornerRadius))
+    }
 }
