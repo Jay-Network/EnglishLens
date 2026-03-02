@@ -2,6 +2,10 @@
 
 All notable changes to EigoSage will be documented in this file.
 
+Format based on [Keep a Changelog](https://keepachangelog.com/).
+
+## [Unreleased]
+
 ## v0.5.1 (2026-03-01) - Rename EigoLens → EigoSage
 
 ### Changed
