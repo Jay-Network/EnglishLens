@@ -14,5 +14,8 @@
 /keystore/
 *.jks
 
-# Claude Code worktree isolation
-.claude/worktrees/
+# Claude Code
+.claude/
+
+# Entire
+.entire/
