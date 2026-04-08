@@ -147,17 +147,17 @@ fun FeedbackDialog(
                 isError = uiState.error != null
             )
 
-            if (uiState.error != null) {
+            uiState.error?.let { errorMsg ->
                 Text(
-                    text = uiState.error!!,
+                    text = errorMsg,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
-            if (uiState.successMessage != null) {
+            uiState.successMessage?.let { successMsg ->
                 Text(
-                    text = uiState.successMessage!!,
+                    text = successMsg,
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 4.dp)

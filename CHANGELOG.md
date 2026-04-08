@@ -6,6 +6,38 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.6.0 (2026-04-07) - SRS Study System + Crash Safety
+
+### Added
+- **SRS flashcard system** (Phase D): SM-2 spaced repetition algorithm for vocabulary mastery
+  - SrsCardEntity + StudySessionEntity: Room entities with SM-2 fields (ease factor, interval, repetitions)
+  - SrsDao: Full CRUD with due-card queries, session tracking, per-card history
+  - SrsRepository: Business logic layer for card reviews and session management
+  - Sm2Algorithm: Standard SM-2 implementation with quality-based scheduling
+  - StudyDashboardScreen: Overview with due-card count, streak, session history
+  - FlashcardSessionScreen: Interactive flashcard UI with flip animation and quality rating
+  - SessionCompleteScreen: Post-session summary with stats
+- **Bookmark → Study deck integration**: Add individual or all saved words to SRS deck from History Saved tab
+  - "Add to Study Deck" button per bookmark, "Add All" bulk action
+  - HistoryViewModel: SRS integration with duplicate detection
+- **Study screen navigation**: MenuBook sidebar entry + Compose Navigation route
+- **Auto-populate SRS**: Difficult words from capture automatically seed study deck
+- **AnnotationMode**: Extracted annotation rendering logic into dedicated composable
+- **CameraPreviewMode**: Extracted camera preview logic into dedicated composable
+
+### Changed
+- **Crash safety hardening**: Eliminated all `!!` operators across codebase
+  - Added global CoroutineExceptionHandler in EigoSageApplication
+  - PdfExporter: Safe bitmap/canvas rendering with null checks
+  - FeedbackDialog: Safe text field handling
+  - InteractiveImageViewer: Safe gesture callbacks
+- UserDatabase: Schema version bump with SRS tables, added migration support
+- DatabaseModule: Provides SrsDao + SrsRepository via Hilt
+- DifficultWordsPanel: Refactored layout, added "Add to Study" per-word action
+- HistoryScreen: Added study deck controls in Saved tab
+- CaptureFlowViewModel: Injects SrsRepository, auto-adds difficult words to deck
+- BookmarkDao: Added query for fetching all bookmarked words for bulk SRS import
+
 ## v0.5.1 (2026-03-01) - Rename EigoLens → EigoSage
 
 ### Changed

@@ -24,6 +24,7 @@ import com.jworks.eigosage.ui.gallery.GalleryImportScreen
 import com.jworks.eigosage.ui.history.HistoryScreen
 import com.jworks.eigosage.ui.rewards.RewardsScreen
 import com.jworks.eigosage.ui.settings.SettingsScreen
+import com.jworks.eigosage.ui.study.StudyScreen
 import com.jworks.eigosage.ui.theme.EigoSageTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -73,7 +74,8 @@ class MainActivity : ComponentActivity() {
                                     onGalleryClick = { navController.navigate("gallery") },
                                     onHistoryClick = { navController.navigate("history") },
                                     onFeedbackClick = { feedbackViewModel.openDialog() },
-                                    onRewardsClick = { navController.navigate("rewards") }
+                                    onRewardsClick = { navController.navigate("rewards") },
+                                    onStudyClick = { navController.navigate("study") }
                                 )
                             }
 
@@ -98,6 +100,12 @@ class MainActivity : ComponentActivity() {
 
                             composable("history") {
                                 HistoryScreen(
+                                    onBackClick = { navController.popBackStack() }
+                                )
+                            }
+
+                            composable("study") {
+                                StudyScreen(
                                     onBackClick = { navController.popBackStack() }
                                 )
                             }

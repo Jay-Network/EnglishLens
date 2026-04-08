@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import com.jworks.eigosage.data.auth.SupabaseClientFactory
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,11 +17,24 @@ class EigoSageApplication : Application() {
         private const val TAG = "EigoSage"
     }
 
-    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e(TAG, "Uncaught coroutine exception", throwable)
+    }
+
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + exceptionHandler)
 
     override fun onCreate() {
         super.onCreate()
+        setupUncaughtExceptionHandler()
         initializeSupabase()
+    }
+
+    private fun setupUncaughtExceptionHandler() {
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            Log.e(TAG, "Uncaught exception on ${thread.name}", throwable)
+            defaultHandler?.uncaughtException(thread, throwable)
+        }
     }
 
     private fun initializeSupabase() {

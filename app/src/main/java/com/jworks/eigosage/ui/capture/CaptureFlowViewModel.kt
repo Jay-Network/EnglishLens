@@ -20,6 +20,7 @@ import com.jworks.eigosage.data.jcoin.JCoinSpendRules
 import com.jworks.eigosage.data.repository.DefinitionRepository
 import com.jworks.eigosage.data.repository.EigoQuestTransferRepository
 import com.jworks.eigosage.data.repository.HistoryRepository
+import com.jworks.eigosage.data.repository.SrsRepository
 import com.jworks.eigosage.data.repository.WordEnrichmentRepository
 import com.jworks.eigosage.domain.models.CefrLevel
 import com.jworks.eigosage.domain.models.EnrichedWord
@@ -82,7 +83,10 @@ sealed class PanelState {
     ) : PanelState()
     data class Chat(
         val messages: List<ChatMessage>,
-        val isLoading: Boolean = false
+        val isLoading: Boolean = false,
+        val systemPrompt: String? = null,
+        val suggestions: List<String> = emptyList(),
+        val extractedWords: List<String> = emptyList()
     ) : PanelState()
     data class NotFound(val word: String) : PanelState()
     data class Error(val message: String) : PanelState()
@@ -104,12 +108,22 @@ class CaptureFlowViewModel @Inject constructor(
     private val jCoinEarnRules: JCoinEarnRules,
     private val jCoinSpendRules: JCoinSpendRules,
     private val deviceAuthRepository: DeviceAuthRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val srsRepository: SrsRepository
 ) : ViewModel() {
 
     companion object {
         private const val TAG = "CaptureFlowVM"
         private const val MAX_BITMAP_DIMENSION = 2048
+        private val BOLD_WORD_REGEX = Regex("""\*\*([A-Za-z][A-Za-z'-]{1,30})\*\*""")
+
+        fun extractBoldWords(text: String): List<String> {
+            return BOLD_WORD_REGEX.findAll(text)
+                .map { it.groupValues[1].lowercase() }
+                .distinct()
+                .filter { it.length >= 2 }
+                .toList()
+        }
     }
 
     private val _captureState = MutableStateFlow<CaptureState>(CaptureState.Camera)
@@ -163,6 +177,12 @@ class CaptureFlowViewModel @Inject constructor(
 
     private val _eiGoQuestSendResult = MutableStateFlow<String?>(null)
     val eiGoQuestSendResult: StateFlow<String?> = _eiGoQuestSendResult.asStateFlow()
+
+    private val _isAddingToStudy = MutableStateFlow(false)
+    val isAddingToStudy: StateFlow<Boolean> = _isAddingToStudy.asStateFlow()
+
+    private val _addToStudyResult = MutableStateFlow<String?>(null)
+    val addToStudyResult: StateFlow<String?> = _addToStudyResult.asStateFlow()
 
     private var _isLiveProcessing = false
     private var _liveFrameCount = 0
@@ -688,6 +708,52 @@ class CaptureFlowViewModel @Inject constructor(
         }
     }
 
+    fun addDifficultWordsToStudy() {
+        if (_isAddingToStudy.value) return
+        val threshold = _cefrThreshold.value
+        val words = _enrichedWords.value.filter { word ->
+            word.cefr != null && word.cefr.ordinalIndex >= threshold.ordinalIndex
+        }.distinctBy { it.text }
+        if (words.isEmpty()) return
+
+        _isAddingToStudy.value = true
+        _addToStudyResult.value = null
+        viewModelScope.launch {
+            var added = 0
+            for (word in words) {
+                val existing = srsRepository.getCardByWord(word.text)
+                if (existing == null) {
+                    srsRepository.addCard(
+                        word = word.text,
+                        definition = word.briefDefinition ?: "",
+                        phonetic = word.ipa,
+                        cefrLevel = word.cefr?.name,
+                        source = "difficult_words"
+                    )
+                    added++
+                }
+            }
+            _addToStudyResult.value = if (added > 0) "Added $added to study deck" else "All already in deck"
+            Log.d(TAG, "Study deck: added $added of ${words.size} difficult words")
+            _isAddingToStudy.value = false
+        }
+    }
+
+    fun addWordToStudy(word: String, definition: String, phonetic: String? = null, cefrLevel: String? = null) {
+        viewModelScope.launch {
+            val existing = srsRepository.getCardByWord(word)
+            if (existing == null) {
+                srsRepository.addCard(
+                    word = word,
+                    definition = definition,
+                    phonetic = phonetic,
+                    cefrLevel = cefrLevel,
+                    source = "manual"
+                )
+            }
+        }
+    }
+
     private fun enrichWords(ocrResult: com.jworks.eigosage.domain.models.OCRResult) {
         viewModelScope.launch {
             val enriched = wordEnrichmentRepository.enrichOcrWords(ocrResult)
@@ -877,10 +943,23 @@ class CaptureFlowViewModel @Inject constructor(
             _previousPanelState = currentPanel
         }
 
+        // Compute readability and CEFR-adapted system prompt
+        val readability = readabilityCalculator.calculate(fullText)
+        val cefrLevel = _cefrThreshold.value
+        val chatSystemPrompt = GeminiChatClient.buildCefrSystemPrompt(cefrLevel.name)
+
         // Build seed message with context
         val sb = StringBuilder()
         sb.appendLine("I captured this English text with EigoSage and want to discuss it:")
         sb.appendLine()
+        if (readability != null) {
+            sb.appendLine("--- Text Readability ---")
+            sb.appendLine("Flesch-Kincaid Grade: %.1f".format(readability.fleschKincaidGrade))
+            sb.appendLine("Flesch Reading Ease: %.1f".format(readability.fleschReadingEase))
+            sb.appendLine("Difficulty: ${readability.difficulty.label}")
+            sb.appendLine("My CEFR level: ${cefrLevel.name} (${cefrLevel.label})")
+            sb.appendLine()
+        }
         sb.appendLine("--- Captured Text ---")
         sb.appendLine(fullText.take(2000))
         sb.appendLine("---")
@@ -917,7 +996,7 @@ class CaptureFlowViewModel @Inject constructor(
 
         val seedMessage = ChatMessage(role = ChatRole.USER, content = sb.toString())
         val messages = listOf(seedMessage)
-        _panelState.value = PanelState.Chat(messages = messages, isLoading = true)
+        _panelState.value = PanelState.Chat(messages = messages, isLoading = true, systemPrompt = chatSystemPrompt)
 
         viewModelScope.launch {
             val apiMessages = messages.map { msg ->
@@ -928,12 +1007,17 @@ class CaptureFlowViewModel @Inject constructor(
                 }
             }
 
-            geminiChatClient.send(apiMessages)
+            geminiChatClient.send(apiMessages, chatSystemPrompt)
                 .onSuccess { response ->
-                    val modelReply = ChatMessage(role = ChatRole.MODEL, content = response.content)
+                    val (cleanContent, suggestions) = GeminiChatClient.parseSuggestions(response.content)
+                    val extractedWords = extractBoldWords(cleanContent)
+                    val modelReply = ChatMessage(role = ChatRole.MODEL, content = cleanContent)
                     _panelState.value = PanelState.Chat(
                         messages = messages + modelReply,
-                        isLoading = false
+                        isLoading = false,
+                        systemPrompt = chatSystemPrompt,
+                        suggestions = suggestions,
+                        extractedWords = extractedWords
                     )
                     trackTokenUsage(response)
                 }
@@ -945,7 +1029,8 @@ class CaptureFlowViewModel @Inject constructor(
                     )
                     _panelState.value = PanelState.Chat(
                         messages = messages + errorReply,
-                        isLoading = false
+                        isLoading = false,
+                        systemPrompt = chatSystemPrompt
                     )
                 }
         }
@@ -956,9 +1041,10 @@ class CaptureFlowViewModel @Inject constructor(
         if (current !is PanelState.Chat) return
         if (text.isBlank()) return
 
+        val storedSystemPrompt = current.systemPrompt
         val userMessage = ChatMessage(role = ChatRole.USER, content = text)
         val updatedMessages = current.messages + userMessage
-        _panelState.value = PanelState.Chat(messages = updatedMessages, isLoading = true)
+        _panelState.value = PanelState.Chat(messages = updatedMessages, isLoading = true, systemPrompt = storedSystemPrompt)
 
         viewModelScope.launch {
             val apiMessages = updatedMessages.map { msg ->
@@ -969,12 +1055,23 @@ class CaptureFlowViewModel @Inject constructor(
                 }
             }
 
-            geminiChatClient.send(apiMessages)
+            val sendArgs = if (storedSystemPrompt != null) {
+                geminiChatClient.send(apiMessages, storedSystemPrompt)
+            } else {
+                geminiChatClient.send(apiMessages)
+            }
+
+            sendArgs
                 .onSuccess { response ->
-                    val modelReply = ChatMessage(role = ChatRole.MODEL, content = response.content)
+                    val (cleanContent, suggestions) = GeminiChatClient.parseSuggestions(response.content)
+                    val extractedWords = extractBoldWords(cleanContent)
+                    val modelReply = ChatMessage(role = ChatRole.MODEL, content = cleanContent)
                     _panelState.value = PanelState.Chat(
                         messages = updatedMessages + modelReply,
-                        isLoading = false
+                        isLoading = false,
+                        systemPrompt = storedSystemPrompt,
+                        suggestions = suggestions,
+                        extractedWords = extractedWords
                     )
                     trackTokenUsage(response)
                 }
@@ -986,7 +1083,8 @@ class CaptureFlowViewModel @Inject constructor(
                     )
                     _panelState.value = PanelState.Chat(
                         messages = updatedMessages + errorReply,
-                        isLoading = false
+                        isLoading = false,
+                        systemPrompt = storedSystemPrompt
                     )
                 }
         }
@@ -996,6 +1094,26 @@ class CaptureFlowViewModel @Inject constructor(
         _panelState.value = _previousPanelState
         _previousPanelState = PanelState.Idle
     }
+
+    fun bookmarkChatWords() {
+        val current = _panelState.value
+        if (current !is PanelState.Chat) return
+        val words = current.extractedWords
+        if (words.isEmpty()) return
+
+        viewModelScope.launch {
+            for (word in words) {
+                historyRepository.addBookmark(
+                    word = word.lowercase(),
+                    definition = "(from chat discussion)",
+                    contextSnippet = "Discussed in EigoSage chat"
+                )
+            }
+            // Clear extracted words after saving
+            _panelState.value = current.copy(extractedWords = emptyList())
+        }
+    }
+
 
     private fun trackTokenUsage(response: AiResponse) {
         val input = response.inputTokens ?: 0

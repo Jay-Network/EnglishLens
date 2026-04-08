@@ -35,6 +35,7 @@ import kotlin.math.roundToInt
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -71,6 +72,7 @@ fun CameraPreviewMode(
     onHistoryClick: () -> Unit = {},
     onFeedbackClick: () -> Unit = {},
     onRewardsClick: () -> Unit = {},
+    onStudyClick: () -> Unit = {},
     cefrThreshold: CefrLevel = CefrLevel.B2,
     onCefrThresholdChange: (CefrLevel) -> Unit = {},
     coinBalance: Int? = null,
@@ -172,6 +174,20 @@ fun CameraPreviewMode(
                 Icon(
                     Icons.AutoMirrored.Filled.MenuBook,
                     contentDescription = "History",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            SmallFloatingActionButton(
+                onClick = onStudyClick,
+                containerColor = Color.Black.copy(alpha = 0.5f),
+                contentColor = Color.White
+            ) {
+                Icon(
+                    Icons.Default.School,
+                    contentDescription = "Study",
                     modifier = Modifier.size(20.dp)
                 )
             }

@@ -1,19 +1,23 @@
 # EigoSage Roadmap
 
-**Current version**: v0.5.1 (Alpha)
-**Last updated**: 2026-03-01
+**Current version**: v0.6.0 (Alpha)
+**Last updated**: 2026-04-08
 
 ---
 
 ## Alpha (v0.x.x) — Feature Completeness
 
-### v0.6.0 — Spaced Repetition & Study Mode
-- **SRS engine**: Leitner box or SM-2 algorithm for difficult words
-- **Study screen**: Flashcard UI with IPA, CEFR badge, definition, example sentence
-- **Session stats**: Words reviewed, accuracy, streak
-- **Auto-populate**: Difficult words from captures auto-feed into SRS deck
+### ~~v0.6.0 — Spaced Repetition & Study Mode~~ ✓ DONE (2026-04-07)
+- ~~**SRS engine**: SM-2 algorithm for difficult words~~ ✓
+- ~~**Study screen**: Flashcard UI with flip animation, quality rating~~ ✓
+- ~~**Session stats**: Words reviewed, streak, session history~~ ✓
+- ~~**Auto-populate**: Difficult words from captures auto-feed into SRS deck~~ ✓
+- ~~**Bookmark → Study deck**: Add saved words to SRS from History~~ ✓
+- ~~**CEFR-adapted chat**: System prompt adapts to user's CEFR level~~ ✓
+- ~~**Readability in chat context**: Flesch-Kincaid + difficulty in seed~~ ✓
+- ~~**Crash safety hardening**: Eliminated all !!, global error handler~~ ✓
 - **EigoJourney export**: Send word decks to EigoJourney for gamified mastery
-  - **DEPENDS ON**: EigoJourney (jworks:45) import API
+  - **DEPENDS ON**: EigoJourney (jworks:45) import API — deferred
 
 ### v0.7.0 — Chat Intelligence & Context Memory
 - **Cross-session chat context**: Persist chat history per captured text (Room)

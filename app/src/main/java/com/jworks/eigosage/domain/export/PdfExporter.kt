@@ -156,16 +156,18 @@ class PdfExporter @Inject constructor(
         fun ensureSpace(needed: Float): Canvas {
             if (canvas == null || y + needed > PAGE_HEIGHT - MARGIN - 20f) {
                 canvas?.let { drawFooter(it, pageNum - 1) }
-                canvas = startNewPage()
+                val newCanvas = startNewPage()
+                canvas = newCanvas
+                return newCanvas
             }
-            return canvas!!
+            return canvas ?: startNewPage().also { canvas = it }
         }
 
         // Readability metrics section
         val readability = result.readability
         if (readability != null) {
-            canvas = ensureSpace(200f)
-            canvas!!.drawText("Readability Scores", MARGIN, y + headingPaint.textSize, headingPaint)
+            var c = ensureSpace(200f)
+            c.drawText("Readability Scores", MARGIN, y + headingPaint.textSize, headingPaint)
             y += headingPaint.textSize + 20f
 
             val metrics = listOf(
@@ -177,17 +179,17 @@ class PdfExporter @Inject constructor(
             )
 
             for ((label, value) in metrics) {
-                canvas = ensureSpace(30f)
-                canvas!!.drawText(label, MARGIN + 10f, y + metricLabelPaint.textSize, metricLabelPaint)
-                canvas!!.drawText(value, PAGE_WIDTH - MARGIN - 60f, y + metricValuePaint.textSize, metricValuePaint)
+                c = ensureSpace(30f)
+                c.drawText(label, MARGIN + 10f, y + metricLabelPaint.textSize, metricLabelPaint)
+                c.drawText(value, PAGE_WIDTH - MARGIN - 60f, y + metricValuePaint.textSize, metricValuePaint)
                 y += 24f
             }
 
             y += 10f
 
             // Text statistics
-            canvas = ensureSpace(150f)
-            canvas!!.drawText("Text Statistics", MARGIN, y + headingPaint.textSize, headingPaint)
+            c = ensureSpace(150f)
+            c.drawText("Text Statistics", MARGIN, y + headingPaint.textSize, headingPaint)
             y += headingPaint.textSize + 20f
 
             val stats = listOf(
@@ -200,9 +202,9 @@ class PdfExporter @Inject constructor(
             )
 
             for ((label, value) in stats) {
-                canvas = ensureSpace(30f)
-                canvas!!.drawText(label, MARGIN + 10f, y + metricLabelPaint.textSize, metricLabelPaint)
-                canvas!!.drawText(value, PAGE_WIDTH - MARGIN - 60f, y + metricValuePaint.textSize, metricValuePaint)
+                c = ensureSpace(30f)
+                c.drawText(label, MARGIN + 10f, y + metricLabelPaint.textSize, metricLabelPaint)
+                c.drawText(value, PAGE_WIDTH - MARGIN - 60f, y + metricValuePaint.textSize, metricValuePaint)
                 y += 24f
             }
 
@@ -210,8 +212,8 @@ class PdfExporter @Inject constructor(
         }
 
         // Extracted text section
-        canvas = ensureSpace(40f)
-        canvas!!.drawText("Extracted Text", MARGIN, y + headingPaint.textSize, headingPaint)
+        var c = ensureSpace(40f)
+        c.drawText("Extracted Text", MARGIN, y + headingPaint.textSize, headingPaint)
         y += headingPaint.textSize + 16f
 
         // Wrap and draw body text
@@ -220,8 +222,8 @@ class PdfExporter @Inject constructor(
         val lineHeight = bodyPaint.textSize * LINE_SPACING
 
         for (line in lines) {
-            canvas = ensureSpace(lineHeight + 4f)
-            canvas!!.drawText(line, MARGIN, y + bodyPaint.textSize, bodyPaint)
+            c = ensureSpace(lineHeight + 4f)
+            c.drawText(line, MARGIN, y + bodyPaint.textSize, bodyPaint)
             y += lineHeight
         }
 

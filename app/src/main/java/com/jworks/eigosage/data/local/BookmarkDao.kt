@@ -24,4 +24,7 @@ interface BookmarkDao {
 
     @Query("SELECT COUNT(*) FROM bookmarked_words")
     fun getBookmarkCount(): Flow<Int>
+
+    @Query("SELECT * FROM bookmarked_words ORDER BY bookmarked_at DESC")
+    suspend fun getAllBookmarksOnce(): List<BookmarkedWordEntity>
 }

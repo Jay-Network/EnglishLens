@@ -58,6 +58,8 @@ fun AnnotationMode(
     val cefrThreshold by viewModel.cefrThreshold.collectAsState()
     val isSendingToEigoQuest by viewModel.isSendingToEigoQuest.collectAsState()
     val eiGoQuestSendResult by viewModel.eiGoQuestSendResult.collectAsState()
+    val isAddingToStudy by viewModel.isAddingToStudy.collectAsState()
+    val addToStudyResult by viewModel.addToStudyResult.collectAsState()
     val showIpa by viewModel.showIpaOverlay.collectAsState()
     val ipaFontScale by viewModel.ipaFontScale.collectAsState()
     val configuration = LocalConfiguration.current
@@ -72,6 +74,7 @@ fun AnnotationMode(
     val handleChatClick = { viewModel.startChat() }
     val handleSendChatMessage: (String) -> Unit = { viewModel.sendChatMessage(it) }
     val handleDismissChat = { viewModel.dismissChat() }
+    val onBookmarkChatWords = { viewModel.bookmarkChatWords() }
 
     Box(modifier = modifier.fillMaxSize()) {
         // Full-screen image viewer (always full size)
@@ -164,6 +167,9 @@ fun AnnotationMode(
                 onSendToEigoQuest = { viewModel.sendToEigoQuest() },
                 isSendingToEigoQuest = isSendingToEigoQuest,
                 eiGoQuestSendResult = eiGoQuestSendResult,
+                onAddToStudy = { viewModel.addDifficultWordsToStudy() },
+                isAddingToStudy = isAddingToStudy,
+                addToStudyResult = addToStudyResult,
                 onChatClick = handleChatClick,
                 onSendChatMessage = handleSendChatMessage,
                 onDismissChat = handleDismissChat
@@ -183,6 +189,9 @@ fun AnnotationMode(
                 onSendToEigoQuest = { viewModel.sendToEigoQuest() },
                 isSendingToEigoQuest = isSendingToEigoQuest,
                 eiGoQuestSendResult = eiGoQuestSendResult,
+                onAddToStudy = { viewModel.addDifficultWordsToStudy() },
+                isAddingToStudy = isAddingToStudy,
+                addToStudyResult = addToStudyResult,
                 onChatClick = handleChatClick,
                 onSendChatMessage = handleSendChatMessage,
                 onDismissChat = handleDismissChat
@@ -206,6 +215,9 @@ private fun PortraitPanel(
     onSendToEigoQuest: () -> Unit = {},
     isSendingToEigoQuest: Boolean = false,
     eiGoQuestSendResult: String? = null,
+    onAddToStudy: () -> Unit = {},
+    isAddingToStudy: Boolean = false,
+    addToStudyResult: String? = null,
     onChatClick: () -> Unit = {},
     onSendChatMessage: (String) -> Unit = {},
     onDismissChat: () -> Unit = {}
@@ -272,6 +284,9 @@ private fun PortraitPanel(
                         onSendToEigoQuest = onSendToEigoQuest,
                         isSendingToEigoQuest = isSendingToEigoQuest,
                         eiGoQuestSendResult = eiGoQuestSendResult,
+                        onAddToStudy = onAddToStudy,
+                        isAddingToStudy = isAddingToStudy,
+                        addToStudyResult = addToStudyResult,
                         onChatClick = onChatClick,
                         onSendChatMessage = onSendChatMessage,
                         onDismissChat = onDismissChat
@@ -297,6 +312,9 @@ private fun LandscapePanel(
     onSendToEigoQuest: () -> Unit = {},
     isSendingToEigoQuest: Boolean = false,
     eiGoQuestSendResult: String? = null,
+    onAddToStudy: () -> Unit = {},
+    isAddingToStudy: Boolean = false,
+    addToStudyResult: String? = null,
     onChatClick: () -> Unit = {},
     onSendChatMessage: (String) -> Unit = {},
     onDismissChat: () -> Unit = {}
@@ -357,6 +375,9 @@ private fun LandscapePanel(
                         onSendToEigoQuest = onSendToEigoQuest,
                         isSendingToEigoQuest = isSendingToEigoQuest,
                         eiGoQuestSendResult = eiGoQuestSendResult,
+                        onAddToStudy = onAddToStudy,
+                        isAddingToStudy = isAddingToStudy,
+                        addToStudyResult = addToStudyResult,
                         onChatClick = onChatClick,
                         onSendChatMessage = onSendChatMessage,
                         onDismissChat = onDismissChat
@@ -432,6 +453,9 @@ private fun PanelContent(
     onSendToEigoQuest: () -> Unit = {},
     isSendingToEigoQuest: Boolean = false,
     eiGoQuestSendResult: String? = null,
+    onAddToStudy: () -> Unit = {},
+    isAddingToStudy: Boolean = false,
+    addToStudyResult: String? = null,
     onChatClick: () -> Unit = {},
     onSendChatMessage: (String) -> Unit = {},
     onDismissChat: () -> Unit = {}
@@ -469,6 +493,9 @@ private fun PanelContent(
                     onSendToEigoQuest = onSendToEigoQuest,
                     isSendingToEigoQuest = isSendingToEigoQuest,
                     eiGoQuestSendResult = eiGoQuestSendResult,
+                    onAddToStudy = onAddToStudy,
+                    isAddingToStudy = isAddingToStudy,
+                    addToStudyResult = addToStudyResult,
                     onChatClick = onChatClick
                 )
             }
@@ -506,7 +533,10 @@ private fun PanelContent(
                     isLoading = state.isLoading,
                     onSendMessage = onSendChatMessage,
                     onDismiss = onDismissChat,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    suggestions = state.suggestions,
+                    extractedWords = state.extractedWords,
+                    onBookmarkWords = onBookmarkChatWords
                 )
             }
             is PanelState.NotFound -> {

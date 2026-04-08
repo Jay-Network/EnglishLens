@@ -62,6 +62,9 @@ fun DifficultWordsPanel(
     onSendToEigoQuest: () -> Unit = {},
     isSendingToEigoQuest: Boolean = false,
     eiGoQuestSendResult: String? = null,
+    onAddToStudy: () -> Unit = {},
+    isAddingToStudy: Boolean = false,
+    addToStudyResult: String? = null,
     onChatClick: () -> Unit = {}
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -236,7 +239,7 @@ fun DifficultWordsPanel(
             }
         }
 
-        // Send to EigoQuest footer
+        // Footer with Study + EigoQuest actions
         if (words.isNotEmpty()) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(
@@ -246,43 +249,65 @@ fun DifficultWordsPanel(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if (eiGoQuestSendResult != null) {
-                    Text(
-                        text = eiGoQuestSendResult,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                } else {
-                    Text(
-                        text = "${words.size} words",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Button(
-                    onClick = onSendToEigoQuest,
-                    enabled = !isSendingToEigoQuest && words.isNotEmpty(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    if (isSendingToEigoQuest) {
-                        androidx.compose.material3.CircularProgressIndicator(
-                            modifier = Modifier.size(14.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    } else {
-                        Icon(
-                            Icons.Default.Send,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp)
-                        )
+                val statusText = addToStudyResult ?: eiGoQuestSendResult ?: "${words.size} words"
+                Text(
+                    text = statusText,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (addToStudyResult != null || eiGoQuestSendResult != null)
+                        MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = onAddToStudy,
+                        enabled = !isAddingToStudy && words.isNotEmpty(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        if (isAddingToStudy) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Star,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Study", style = MaterialTheme.typography.labelMedium)
                     }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Send to EigoQuest", style = MaterialTheme.typography.labelMedium)
+                    Button(
+                        onClick = onSendToEigoQuest,
+                        enabled = !isSendingToEigoQuest && words.isNotEmpty(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        if (isSendingToEigoQuest) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Send,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("EigoQuest", style = MaterialTheme.typography.labelMedium)
+                    }
                 }
             }
         }

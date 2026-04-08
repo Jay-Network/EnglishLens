@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
@@ -62,7 +63,10 @@ fun ChatPanel(
     isLoading: Boolean,
     onSendMessage: (String) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    suggestions: List<String> = emptyList(),
+    extractedWords: List<String> = emptyList(),
+    onBookmarkWords: () -> Unit = {}
 ) {
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -122,11 +126,48 @@ fun ChatPanel(
             }
         }
 
-        // Suggestion chips — show when few visible messages
-        if (visibleMessages.size <= 2 && !isLoading) {
-            SuggestionChipsRow(onChipClick = { text ->
-                onSendMessage(text)
-            })
+        // Suggestion chips — show dynamic (AI-generated) or static fallback
+        if (!isLoading) {
+            if (suggestions.isNotEmpty()) {
+                SuggestionChipsRow(
+                    suggestions = suggestions,
+                    onChipClick = { text -> onSendMessage(text) }
+                )
+            } else if (visibleMessages.size <= 2) {
+                SuggestionChipsRow(onChipClick = { text -> onSendMessage(text) })
+            }
+        }
+
+        // Save words chip — show when AI response contains bold key terms
+        if (extractedWords.isNotEmpty() && !isLoading) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                AssistChip(
+                    onClick = onBookmarkWords,
+                    label = {
+                        Text(
+                            text = "Save ${extractedWords.size} word${if (extractedWords.size > 1) "s" else ""}",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Filled.BookmarkAdd,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f),
+                        labelColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        leadingIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                )
+            }
         }
 
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -270,16 +311,20 @@ private fun StyledChatText(
     )
 }
 
+private val STATIC_SUGGESTIONS = listOf(
+    "Explain simpler",
+    "Give examples",
+    "Translate to Japanese",
+    "Key vocabulary",
+    "Grammar check"
+)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun SuggestionChipsRow(onChipClick: (String) -> Unit) {
-    val suggestions = listOf(
-        "Explain simpler",
-        "Give examples",
-        "Translate to Japanese",
-        "Key vocabulary",
-        "Grammar check"
-    )
+private fun SuggestionChipsRow(
+    onChipClick: (String) -> Unit,
+    suggestions: List<String> = STATIC_SUGGESTIONS
+) {
 
     FlowRow(
         modifier = Modifier

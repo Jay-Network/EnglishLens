@@ -218,8 +218,8 @@ fun InteractiveImageViewer(
 
             // Build enrichment lookup for fast matching
             val enrichmentMap = remember(enrichedWords) {
-                enrichedWords.filter { it.bounds != null }
-                    .groupBy { "${it.bounds!!.left},${it.bounds.top}" }
+                enrichedWords.mapNotNull { w -> w.bounds?.let { b -> "${b.left},${b.top}" to w } }
+                    .groupBy({ it.first }, { it.second })
             }
 
             // IPA text paint (reused across draw calls)

@@ -57,5 +57,7 @@ class HistoryRepository @Inject constructor(
 
     fun getBookmarkCount(): Flow<Int> = bookmarkDao.getBookmarkCount()
 
+    suspend fun getAllBookmarksOnce(): List<BookmarkedWordEntity> = bookmarkDao.getAllBookmarksOnce()
+
     suspend fun clearHistory() = historyDao.clearHistory()
 }

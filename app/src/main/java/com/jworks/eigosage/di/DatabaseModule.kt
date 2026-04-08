@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.jworks.eigosage.data.local.BookmarkDao
 import com.jworks.eigosage.data.local.HistoryDao
+import com.jworks.eigosage.data.local.SrsDao
 import com.jworks.eigosage.data.local.UserDatabase
 import com.jworks.eigosage.data.local.WordNetDatabase
 import com.jworks.eigosage.data.local.WordNetDao
@@ -42,7 +43,8 @@ object DatabaseModule {
             context,
             UserDatabase::class.java,
             "eigosage_user.db"
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
@@ -53,5 +55,10 @@ object DatabaseModule {
     @Provides
     fun provideBookmarkDao(database: UserDatabase): BookmarkDao {
         return database.bookmarkDao()
+    }
+
+    @Provides
+    fun provideSrsDao(database: UserDatabase): SrsDao {
+        return database.srsDao()
     }
 }

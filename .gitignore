@@ -13,3 +13,6 @@
 *.aab
 /keystore/
 *.jks
+
+# Claude Code worktree isolation
+.claude/worktrees/

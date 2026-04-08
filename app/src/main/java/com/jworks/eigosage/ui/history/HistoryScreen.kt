@@ -17,9 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -63,6 +66,7 @@ fun HistoryScreen(
     val bookmarks by viewModel.bookmarks.collectAsState()
     val historyCount by viewModel.historyCount.collectAsState()
     val bookmarkCount by viewModel.bookmarkCount.collectAsState()
+    val wordsInDeck by viewModel.wordsInDeck.collectAsState()
 
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -107,6 +111,21 @@ fun HistoryScreen(
                     Text("Clear")
                 }
             }
+            if (selectedTab == 1 && bookmarks.isNotEmpty()) {
+                val allInDeck = bookmarks.all { it.word in wordsInDeck }
+                TextButton(
+                    onClick = { viewModel.addAllToStudyDeck() },
+                    enabled = !allInDeck
+                ) {
+                    Icon(
+                        Icons.Default.LibraryAdd,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(if (allInDeck) "All in Deck" else "Add All")
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -144,7 +163,9 @@ fun HistoryScreen(
             0 -> RecentTab(history = recentHistory)
             1 -> SavedTab(
                 bookmarks = bookmarks,
-                onRemoveBookmark = { viewModel.removeBookmark(it) }
+                wordsInDeck = wordsInDeck,
+                onRemoveBookmark = { viewModel.removeBookmark(it) },
+                onAddToDeck = { viewModel.addToStudyDeck(it) }
             )
         }
     }
@@ -223,7 +244,9 @@ private fun HistoryItem(entry: LookupHistoryEntity) {
 @Composable
 private fun SavedTab(
     bookmarks: List<BookmarkedWordEntity>,
-    onRemoveBookmark: (String) -> Unit
+    wordsInDeck: Set<String>,
+    onRemoveBookmark: (String) -> Unit,
+    onAddToDeck: (BookmarkedWordEntity) -> Unit
 ) {
     if (bookmarks.isEmpty()) {
         EmptyState(message = "No saved words yet. Tap the bookmark icon when viewing a definition to save it.")
@@ -238,7 +261,9 @@ private fun SavedTab(
         items(bookmarks, key = { it.id }) { bookmark ->
             BookmarkItem(
                 bookmark = bookmark,
-                onRemove = { onRemoveBookmark(bookmark.word) }
+                isInDeck = bookmark.word in wordsInDeck,
+                onRemove = { onRemoveBookmark(bookmark.word) },
+                onAddToDeck = { onAddToDeck(bookmark) }
             )
         }
     }
@@ -247,7 +272,9 @@ private fun SavedTab(
 @Composable
 private fun BookmarkItem(
     bookmark: BookmarkedWordEntity,
-    onRemove: () -> Unit
+    isInDeck: Boolean,
+    onRemove: () -> Unit,
+    onAddToDeck: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -299,16 +326,31 @@ private fun BookmarkItem(
                 )
             }
 
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Remove bookmark",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp)
-                )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                IconButton(
+                    onClick = onAddToDeck,
+                    enabled = !isInDeck,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        if (isInDeck) Icons.Default.Check else Icons.Default.Add,
+                        contentDescription = if (isInDeck) "In study deck" else "Add to study deck",
+                        tint = if (isInDeck) MaterialTheme.colorScheme.primary
+                               else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                IconButton(
+                    onClick = onRemove,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Remove bookmark",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
     }

@@ -27,13 +27,47 @@ class GeminiChatClient(
         private const val BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
         private const val DEFAULT_MODEL = "gemini-2.5-flash"
 
-        private const val SYSTEM_PROMPT = """You are an English language tutor helping a user understand text they captured with EigoSage (an English reading assistant app). Be concise, helpful, and friendly. Use simple English when possible. If asked to translate, provide the translation along with brief notes on nuance. Format responses with markdown bold for key terms and bullet points for lists."""
+        private const val SUGGESTION_INSTRUCTION = " After your response, add exactly 3 short follow-up suggestions the user might want to ask next. Format them on a single line at the very end: [SUGGESTIONS: \"suggestion 1\" | \"suggestion 2\" | \"suggestion 3\"]. Keep each suggestion under 6 words. Match suggestions to the user's level."
+
+        private val DEFAULT_SYSTEM_PROMPT = "You are an English language tutor helping a user understand text they captured with EigoSage (an English reading assistant app). Be concise, helpful, and friendly. Use simple English when possible. If asked to translate, provide the translation along with brief notes on nuance. Format responses with markdown bold for key terms and bullet points for lists." + SUGGESTION_INSTRUCTION
+
+        fun buildCefrSystemPrompt(cefrLevel: String): String {
+            val levelGuidance = when (cefrLevel) {
+                "A1" -> "Use only basic, everyday words (under 500 most common). Keep sentences very short (5-8 words). Avoid idioms, phrasal verbs, and complex grammar. Define any word above elementary level."
+                "A2" -> "Use simple vocabulary and short sentences. Explain idioms and phrasal verbs when they appear. Avoid complex clause structures. Keep explanations under 3 sentences each."
+                "B1" -> "Use clear, straightforward language. You may use common idioms but explain less common ones. Keep grammar explanations practical with examples. Moderate detail in responses."
+                "B2" -> "Use natural English at an upper-intermediate level. Explain nuanced vocabulary and advanced grammar points. Include collocations and register notes where relevant."
+                "C1" -> "Use sophisticated, natural English. Discuss subtle distinctions in meaning, register, and style. Include advanced vocabulary notes, etymology when interesting, and academic/professional usage."
+                "C2" -> "Use full native-level English. Discuss fine nuances, literary devices, rhetorical effects, and stylistic choices. Assume near-native comprehension."
+                else -> "Adapt your language to an intermediate English learner."
+            }
+            return """You are an English language tutor helping a user understand text they captured with EigoSage (an English reading assistant app). The user's English level is CEFR $cefrLevel. $levelGuidance Be concise, helpful, and friendly. If asked to translate, provide the translation along with brief notes on nuance. Format responses with markdown bold for key terms and bullet points for lists.$SUGGESTION_INSTRUCTION"""
+        }
+
+        private val SUGGESTION_REGEX = Regex("""\[SUGGESTIONS:\s*"([^"]+)"\s*\|\s*"([^"]+)"\s*\|\s*"([^"]+)"\s*]""")
+
+        /**
+         * Parses [SUGGESTIONS: "a" | "b" | "c"] from the end of a response.
+         * Returns (cleaned content, suggestions list).
+         */
+        fun parseSuggestions(content: String): Pair<String, List<String>> {
+            val match = SUGGESTION_REGEX.find(content)
+                ?: return content.trimEnd() to emptyList()
+            val suggestions = listOf(
+                match.groupValues[1].trim(),
+                match.groupValues[2].trim(),
+                match.groupValues[3].trim()
+            ).filter { it.isNotBlank() }
+            val cleanedContent = content.substring(0, match.range.first).trimEnd()
+            return cleanedContent to suggestions
+        }
     }
 
     val isAvailable: Boolean get() = apiKey.isNotBlank()
 
     suspend fun send(
-        messages: List<Pair<String, String>> // (role, content) — "user" or "model"
+        messages: List<Pair<String, String>>, // (role, content) — "user" or "model"
+        systemPrompt: String = DEFAULT_SYSTEM_PROMPT
     ): Result<AiResponse> {
         if (!isAvailable) return Result.failure(IllegalStateException("Gemini API key not configured"))
 
@@ -43,7 +77,7 @@ class GeminiChatClient(
         val requestBody = buildJsonObject {
             putJsonObject("systemInstruction") {
                 putJsonArray("parts") {
-                    add(buildJsonObject { put("text", SYSTEM_PROMPT) })
+                    add(buildJsonObject { put("text", systemPrompt) })
                 }
             }
             putJsonArray("contents") {
