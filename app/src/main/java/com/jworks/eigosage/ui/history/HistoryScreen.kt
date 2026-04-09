@@ -48,7 +48,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jworks.eigosage.R
+import androidx.compose.material.icons.filled.Chat
 import com.jworks.eigosage.data.local.entities.BookmarkedWordEntity
+import com.jworks.eigosage.data.local.entities.ChatSessionEntity
 import com.jworks.eigosage.data.local.entities.LookupHistoryEntity
 import com.jworks.eigosage.ui.theme.GlassBorder
 import com.jworks.eigosage.ui.theme.GlassGradient
@@ -60,6 +62,7 @@ import java.util.Locale
 @Composable
 fun HistoryScreen(
     onBackClick: () -> Unit,
+    onResumeChatSession: (String) -> Unit = {},
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val recentHistory by viewModel.recentHistory.collectAsState()
@@ -67,6 +70,8 @@ fun HistoryScreen(
     val historyCount by viewModel.historyCount.collectAsState()
     val bookmarkCount by viewModel.bookmarkCount.collectAsState()
     val wordsInDeck by viewModel.wordsInDeck.collectAsState()
+    val chatSessions by viewModel.chatSessions.collectAsState()
+    val chatSessionCount by viewModel.chatSessionCount.collectAsState()
 
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -156,6 +161,21 @@ fun HistoryScreen(
                     }
                 }
             )
+            Tab(
+                selected = selectedTab == 2,
+                onClick = { selectedTab = 2 },
+                text = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Chat,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Chats ($chatSessionCount)")
+                    }
+                }
+            )
         }
 
         // Content
@@ -166,6 +186,11 @@ fun HistoryScreen(
                 wordsInDeck = wordsInDeck,
                 onRemoveBookmark = { viewModel.removeBookmark(it) },
                 onAddToDeck = { viewModel.addToStudyDeck(it) }
+            )
+            2 -> ChatsTab(
+                sessions = chatSessions,
+                onResumeSession = onResumeChatSession,
+                onDeleteSession = { viewModel.deleteChatSession(it) }
             )
         }
     }
@@ -395,6 +420,112 @@ private fun EmptyState(message: String) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
+    }
+}
+
+@Composable
+private fun ChatsTab(
+    sessions: List<ChatSessionEntity>,
+    onResumeSession: (String) -> Unit,
+    onDeleteSession: (String) -> Unit
+) {
+    if (sessions.isEmpty()) {
+        EmptyState(message = "No chat sessions yet. Start a chat from captured text to see them here.")
+        return
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(sessions, key = { it.id }) { session ->
+            ChatSessionItem(
+                session = session,
+                onResume = { onResumeSession(session.id) },
+                onDelete = { onDeleteSession(session.id) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChatSessionItem(
+    session: ChatSessionEntity,
+    onResume: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        onClick = onResume,
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(),
+        colors = glassCardColors(),
+        border = GlassBorder,
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Box(modifier = Modifier.background(GlassGradient)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                Icon(
+                    Icons.Default.Chat,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .padding(top = 2.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = session.ocrTextPreview.ifBlank { "Chat session" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${session.messageCount} messages",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        session.cefrLevel?.let { level ->
+                            Text(
+                                text = level,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                        Text(
+                            text = formatTimestamp(session.updatedAt),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+        }
     }
 }
 

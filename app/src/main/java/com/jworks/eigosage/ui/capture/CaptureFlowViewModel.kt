@@ -19,6 +19,8 @@ import com.jworks.eigosage.data.jcoin.JCoinEarnRules
 import com.jworks.eigosage.data.jcoin.JCoinSpendRules
 import com.jworks.eigosage.data.repository.DefinitionRepository
 import com.jworks.eigosage.data.repository.EigoQuestTransferRepository
+import com.jworks.eigosage.data.repository.ChatMessageData
+import com.jworks.eigosage.data.repository.ChatRepository
 import com.jworks.eigosage.data.repository.HistoryRepository
 import com.jworks.eigosage.data.repository.SrsRepository
 import com.jworks.eigosage.data.repository.WordEnrichmentRepository
@@ -86,7 +88,8 @@ sealed class PanelState {
         val isLoading: Boolean = false,
         val systemPrompt: String? = null,
         val suggestions: List<String> = emptyList(),
-        val extractedWords: List<String> = emptyList()
+        val extractedWords: List<String> = emptyList(),
+        val sessionId: String? = null
     ) : PanelState()
     data class NotFound(val word: String) : PanelState()
     data class Error(val message: String) : PanelState()
@@ -109,7 +112,8 @@ class CaptureFlowViewModel @Inject constructor(
     private val jCoinSpendRules: JCoinSpendRules,
     private val deviceAuthRepository: DeviceAuthRepository,
     private val settingsRepository: SettingsRepository,
-    private val srsRepository: SrsRepository
+    private val srsRepository: SrsRepository,
+    private val chatRepository: ChatRepository
 ) : ViewModel() {
 
     companion object {
@@ -994,9 +998,13 @@ class CaptureFlowViewModel @Inject constructor(
         sb.appendLine()
         sb.appendLine("Please greet me briefly and ask how you can help with this text.")
 
+        val sessionId = chatRepository.newSessionId()
         val seedMessage = ChatMessage(role = ChatRole.USER, content = sb.toString())
         val messages = listOf(seedMessage)
-        _panelState.value = PanelState.Chat(messages = messages, isLoading = true, systemPrompt = chatSystemPrompt)
+        _panelState.value = PanelState.Chat(
+            messages = messages, isLoading = true,
+            systemPrompt = chatSystemPrompt, sessionId = sessionId
+        )
 
         viewModelScope.launch {
             val apiMessages = messages.map { msg ->
@@ -1017,7 +1025,8 @@ class CaptureFlowViewModel @Inject constructor(
                         isLoading = false,
                         systemPrompt = chatSystemPrompt,
                         suggestions = suggestions,
-                        extractedWords = extractedWords
+                        extractedWords = extractedWords,
+                        sessionId = sessionId
                     )
                     trackTokenUsage(response)
                 }
@@ -1030,7 +1039,8 @@ class CaptureFlowViewModel @Inject constructor(
                     _panelState.value = PanelState.Chat(
                         messages = messages + errorReply,
                         isLoading = false,
-                        systemPrompt = chatSystemPrompt
+                        systemPrompt = chatSystemPrompt,
+                        sessionId = sessionId
                     )
                 }
         }
@@ -1042,9 +1052,13 @@ class CaptureFlowViewModel @Inject constructor(
         if (text.isBlank()) return
 
         val storedSystemPrompt = current.systemPrompt
+        val storedSessionId = current.sessionId
         val userMessage = ChatMessage(role = ChatRole.USER, content = text)
         val updatedMessages = current.messages + userMessage
-        _panelState.value = PanelState.Chat(messages = updatedMessages, isLoading = true, systemPrompt = storedSystemPrompt)
+        _panelState.value = PanelState.Chat(
+            messages = updatedMessages, isLoading = true,
+            systemPrompt = storedSystemPrompt, sessionId = storedSessionId
+        )
 
         viewModelScope.launch {
             val apiMessages = updatedMessages.map { msg ->
@@ -1071,7 +1085,8 @@ class CaptureFlowViewModel @Inject constructor(
                         isLoading = false,
                         systemPrompt = storedSystemPrompt,
                         suggestions = suggestions,
-                        extractedWords = extractedWords
+                        extractedWords = extractedWords,
+                        sessionId = storedSessionId
                     )
                     trackTokenUsage(response)
                 }
@@ -1084,15 +1099,81 @@ class CaptureFlowViewModel @Inject constructor(
                     _panelState.value = PanelState.Chat(
                         messages = updatedMessages + errorReply,
                         isLoading = false,
-                        systemPrompt = storedSystemPrompt
+                        systemPrompt = storedSystemPrompt,
+                        sessionId = storedSessionId
                     )
                 }
         }
     }
 
     fun dismissChat() {
+        val current = _panelState.value
+        if (current is PanelState.Chat && current.sessionId != null && current.messages.size > 1) {
+            saveChatSession(current)
+        }
         _panelState.value = _previousPanelState
         _previousPanelState = PanelState.Idle
+    }
+
+    private fun saveChatSession(chatState: PanelState.Chat) {
+        val sessionId = chatState.sessionId ?: return
+        val captureState = _captureState.value
+        val ocrPreview = if (captureState is CaptureState.Annotate) {
+            captureState.capturedImage.ocrResult.texts.joinToString(" ") { it.text }.take(200)
+        } else ""
+
+        viewModelScope.launch {
+            chatRepository.saveSession(
+                sessionId = sessionId,
+                ocrTextPreview = ocrPreview,
+                cefrLevel = _cefrThreshold.value.name,
+                systemPrompt = chatState.systemPrompt,
+                messages = chatState.messages.map { msg ->
+                    ChatMessageData(
+                        id = msg.id,
+                        role = msg.role.name.lowercase(),
+                        content = msg.content,
+                        timestamp = msg.timestamp
+                    )
+                }
+            )
+        }
+    }
+
+    /**
+     * Resume a previously saved chat session from history.
+     */
+    fun resumeChatSession(sessionId: String) {
+        viewModelScope.launch {
+            val session = chatRepository.getSession(sessionId) ?: return@launch
+            val messageEntities = chatRepository.getMessages(sessionId)
+            if (messageEntities.isEmpty()) return@launch
+
+            val messages = messageEntities.map { entity ->
+                ChatMessage(
+                    id = entity.id,
+                    role = when (entity.role) {
+                        "model" -> ChatRole.MODEL
+                        "system" -> ChatRole.SYSTEM
+                        else -> ChatRole.USER
+                    },
+                    content = entity.content,
+                    timestamp = entity.timestamp
+                )
+            }
+
+            val currentPanel = _panelState.value
+            if (currentPanel !is PanelState.Chat) {
+                _previousPanelState = currentPanel
+            }
+
+            _panelState.value = PanelState.Chat(
+                messages = messages,
+                isLoading = false,
+                systemPrompt = session.systemPrompt,
+                sessionId = sessionId
+            )
+        }
     }
 
     fun bookmarkChatWords() {

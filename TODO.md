@@ -1,9 +1,10 @@
 # EigoSage TODO
 
 ## Active Tasks
-(none)
+- [ ] S1-ES-2: OCR pipeline performance profiling
 
 ## Completed
+- [x] S1-ES-1: Chat persistence — Room entities, DAO, repository, DI, auto-save, history tab (2026-04-09)
 - [x] Update ROADMAP.md and gemini-development-log.md for v0.6.0 completion (2026-04-08)
 - [x] Smart suggestion chips in chat — CEFR-adapted follow-up questions (2026-04-08)
 - [x] Auto-bookmark words discussed in chat (2026-04-08)

@@ -3,7 +3,9 @@ package com.jworks.eigosage.ui.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jworks.eigosage.data.local.entities.BookmarkedWordEntity
+import com.jworks.eigosage.data.local.entities.ChatSessionEntity
 import com.jworks.eigosage.data.local.entities.LookupHistoryEntity
+import com.jworks.eigosage.data.repository.ChatRepository
 import com.jworks.eigosage.data.repository.HistoryRepository
 import com.jworks.eigosage.data.repository.SrsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository,
-    private val srsRepository: SrsRepository
+    private val srsRepository: SrsRepository,
+    private val chatRepository: ChatRepository
 ) : ViewModel() {
 
     val recentHistory: StateFlow<List<LookupHistoryEntity>> = historyRepository.getRecentHistory()
@@ -31,6 +34,12 @@ class HistoryViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     val bookmarkCount: StateFlow<Int> = historyRepository.getBookmarkCount()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val chatSessions: StateFlow<List<ChatSessionEntity>> = chatRepository.getAllSessions()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val chatSessionCount: StateFlow<Int> = chatRepository.getSessionCount()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     private val _wordsInDeck = MutableStateFlow<Set<String>>(emptySet())
@@ -88,5 +97,9 @@ class HistoryViewModel @Inject constructor(
 
     fun removeBookmark(word: String) {
         viewModelScope.launch { historyRepository.removeBookmark(word) }
+    }
+
+    fun deleteChatSession(sessionId: String) {
+        viewModelScope.launch { chatRepository.deleteSession(sessionId) }
     }
 }

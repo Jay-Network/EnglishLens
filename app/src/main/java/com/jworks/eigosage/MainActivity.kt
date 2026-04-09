@@ -13,9 +13,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.jworks.eigosage.ui.auth.LoginScreen
 import com.jworks.eigosage.ui.capture.CaptureFlowScreen
 import com.jworks.eigosage.ui.feedback.FeedbackDialog
@@ -68,14 +70,25 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            composable("capture") {
+                            composable(
+                                "capture?chatSessionId={chatSessionId}",
+                                arguments = listOf(
+                                    navArgument("chatSessionId") {
+                                        type = NavType.StringType
+                                        nullable = true
+                                        defaultValue = null
+                                    }
+                                )
+                            ) { backStackEntry ->
+                                val chatSessionId = backStackEntry.arguments?.getString("chatSessionId")
                                 CaptureFlowScreen(
                                     onSettingsClick = { navController.navigate("settings") },
                                     onGalleryClick = { navController.navigate("gallery") },
                                     onHistoryClick = { navController.navigate("history") },
                                     onFeedbackClick = { feedbackViewModel.openDialog() },
                                     onRewardsClick = { navController.navigate("rewards") },
-                                    onStudyClick = { navController.navigate("study") }
+                                    onStudyClick = { navController.navigate("study") },
+                                    resumeChatSessionId = chatSessionId
                                 )
                             }
 
@@ -100,7 +113,12 @@ class MainActivity : ComponentActivity() {
 
                             composable("history") {
                                 HistoryScreen(
-                                    onBackClick = { navController.popBackStack() }
+                                    onBackClick = { navController.popBackStack() },
+                                    onResumeChatSession = { sessionId ->
+                                        navController.navigate("capture?chatSessionId=$sessionId") {
+                                            popUpTo("capture") { inclusive = true }
+                                        }
+                                    }
                                 )
                             }
 

@@ -3,6 +3,7 @@ package com.jworks.eigosage.di
 import android.content.Context
 import androidx.room.Room
 import com.jworks.eigosage.data.local.BookmarkDao
+import com.jworks.eigosage.data.local.ChatDao
 import com.jworks.eigosage.data.local.HistoryDao
 import com.jworks.eigosage.data.local.SrsDao
 import com.jworks.eigosage.data.local.UserDatabase
@@ -60,5 +61,10 @@ object DatabaseModule {
     @Provides
     fun provideSrsDao(database: UserDatabase): SrsDao {
         return database.srsDao()
+    }
+
+    @Provides
+    fun provideChatDao(database: UserDatabase): ChatDao {
+        return database.chatDao()
     }
 }
