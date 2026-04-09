@@ -1,7 +1,7 @@
 # EigoSage TODO
 
 ## Active Tasks
-- [ ] S1-ES-2: OCR pipeline performance profiling
+(none)
 
 ## Completed
 - [x] S1-ES-1: Chat persistence — Room entities, DAO, repository, DI, auto-save, history tab (2026-04-09)
@@ -24,6 +24,7 @@
 - [x] BookSage Live coordination with jworks:61 (2026-03-19)
 
 ## Deferred
+- S1-ES-2: OCR pipeline performance profiling (blocked: requires device testing, sprint P1)
 - Persona mode in GeminiChatClient — Lexicon/Sage/Tutor (after suggestion chips)
 - Gemini Live agent prototype (after Phase D)
 - Evaluate Gemini TTS for pronunciation features (report to jworks:9)
