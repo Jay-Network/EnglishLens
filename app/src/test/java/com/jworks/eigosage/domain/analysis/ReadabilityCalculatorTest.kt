@@ -39,7 +39,7 @@ class ReadabilityCalculatorTest {
     fun `syllable count for multi-syllable words`() {
         assertEquals(3, calculator.countSyllables("beautiful"))
         assertEquals(3, calculator.countSyllables("library"))
-        assertEquals(4, calculator.countSyllables("university"))
+        assertEquals(5, calculator.countSyllables("university"))
         assertEquals(3, calculator.countSyllables("computer"))
     }
 

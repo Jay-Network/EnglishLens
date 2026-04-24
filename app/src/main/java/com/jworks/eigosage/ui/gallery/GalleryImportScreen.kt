@@ -38,6 +38,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.jworks.eigosage.R
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -106,7 +108,7 @@ fun GalleryImportScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Import from Gallery") },
+                title = { Text(stringResource(R.string.gallery_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -178,7 +180,7 @@ fun GalleryImportScreen(
                                         strokeWidth = 2.dp
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Analyzing image...")
+                                    Text(stringResource(R.string.gallery_analyzing))
                                 }
                             }
                         }
@@ -282,12 +284,12 @@ private fun AnalysisResultCard(
                     } else {
                         Icon(
                             Icons.Default.Share,
-                            contentDescription = null,
+                            contentDescription = "Export PDF",
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                     }
-                    Text("Export PDF")
+                    Text(stringResource(R.string.gallery_export_pdf))
                 }
             }
         }

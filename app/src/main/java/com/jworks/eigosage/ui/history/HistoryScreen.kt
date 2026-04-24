@@ -1,5 +1,6 @@
 package com.jworks.eigosage.ui.history
 
+import android.content.Intent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,8 +24,11 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,22 +37,26 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jworks.eigosage.R
-import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.Chat
 import com.jworks.eigosage.data.local.entities.BookmarkedWordEntity
 import com.jworks.eigosage.data.local.entities.ChatSessionEntity
 import com.jworks.eigosage.data.local.entities.LookupHistoryEntity
@@ -72,6 +80,37 @@ fun HistoryScreen(
     val wordsInDeck by viewModel.wordsInDeck.collectAsState()
     val chatSessions by viewModel.chatSessions.collectAsState()
     val chatSessionCount by viewModel.chatSessionCount.collectAsState()
+    val chatExportEvent by viewModel.chatExportEvent.collectAsState()
+
+    val context = LocalContext.current
+    LaunchedEffect(chatExportEvent) {
+        when (val event = chatExportEvent) {
+            is ChatExportEvent.TextReady -> {
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, event.text)
+                    putExtra(Intent.EXTRA_SUBJECT, "EigoSage Chat Export")
+                }
+                context.startActivity(Intent.createChooser(shareIntent, "Share chat"))
+                viewModel.clearExportEvent()
+            }
+            is ChatExportEvent.PdfReady -> {
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    event.file
+                )
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/pdf"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(Intent.createChooser(shareIntent, "Share chat PDF"))
+                viewModel.clearExportEvent()
+            }
+            null -> { /* no-op */ }
+        }
+    }
 
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -109,7 +148,7 @@ fun HistoryScreen(
                 TextButton(onClick = { viewModel.clearHistory() }) {
                     Icon(
                         Icons.Default.DeleteSweep,
-                        contentDescription = null,
+                        contentDescription = "Clear history",
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -124,7 +163,7 @@ fun HistoryScreen(
                 ) {
                     Icon(
                         Icons.Default.LibraryAdd,
-                        contentDescription = null,
+                        contentDescription = "Add all to study deck",
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -153,7 +192,7 @@ fun HistoryScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             Icons.Default.Bookmark,
-                            contentDescription = null,
+                            contentDescription = "Saved",
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -167,8 +206,8 @@ fun HistoryScreen(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            Icons.Default.Chat,
-                            contentDescription = null,
+                            Icons.AutoMirrored.Filled.Chat,
+                            contentDescription = "Chats",
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -190,7 +229,9 @@ fun HistoryScreen(
             2 -> ChatsTab(
                 sessions = chatSessions,
                 onResumeSession = onResumeChatSession,
-                onDeleteSession = { viewModel.deleteChatSession(it) }
+                onDeleteSession = { viewModel.deleteChatSession(it) },
+                onExportText = { viewModel.exportChatSession(it, asPdf = false) },
+                onExportPdf = { viewModel.exportChatSession(it, asPdf = true) }
             )
         }
     }
@@ -427,7 +468,9 @@ private fun EmptyState(message: String) {
 private fun ChatsTab(
     sessions: List<ChatSessionEntity>,
     onResumeSession: (String) -> Unit,
-    onDeleteSession: (String) -> Unit
+    onDeleteSession: (String) -> Unit,
+    onExportText: (String) -> Unit = {},
+    onExportPdf: (String) -> Unit = {}
 ) {
     if (sessions.isEmpty()) {
         EmptyState(message = "No chat sessions yet. Start a chat from captured text to see them here.")
@@ -443,7 +486,9 @@ private fun ChatsTab(
             ChatSessionItem(
                 session = session,
                 onResume = { onResumeSession(session.id) },
-                onDelete = { onDeleteSession(session.id) }
+                onDelete = { onDeleteSession(session.id) },
+                onExportText = { onExportText(session.id) },
+                onExportPdf = { onExportPdf(session.id) }
             )
         }
     }
@@ -453,8 +498,12 @@ private fun ChatsTab(
 private fun ChatSessionItem(
     session: ChatSessionEntity,
     onResume: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onExportText: () -> Unit = {},
+    onExportPdf: () -> Unit = {}
 ) {
+    var showShareMenu by remember { mutableStateOf(false) }
+
     Card(
         onClick = onResume,
         modifier = Modifier
@@ -472,8 +521,8 @@ private fun ChatSessionItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
-                    Icons.Default.Chat,
-                    contentDescription = null,
+                    Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = "Chat session",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(20.dp)
@@ -510,6 +559,38 @@ private fun ChatSessionItem(
                             text = formatTimestamp(session.updatedAt),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Box {
+                    IconButton(
+                        onClick = { showShareMenu = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = "Share",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showShareMenu,
+                        onDismissRequest = { showShareMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Share as Text") },
+                            onClick = {
+                                showShareMenu = false
+                                onExportText()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Export as PDF") },
+                            onClick = {
+                                showShareMenu = false
+                                onExportPdf()
+                            }
                         )
                     }
                 }

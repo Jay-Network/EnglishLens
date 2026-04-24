@@ -8,6 +8,9 @@ import com.jworks.eigosage.data.local.entities.LookupHistoryEntity
 import com.jworks.eigosage.data.repository.ChatRepository
 import com.jworks.eigosage.data.repository.HistoryRepository
 import com.jworks.eigosage.data.repository.SrsRepository
+import com.jworks.eigosage.domain.export.ChatExportData
+import com.jworks.eigosage.domain.export.ChatExportMessage
+import com.jworks.eigosage.domain.export.ChatExporter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,13 +18,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
+
+sealed class ChatExportEvent {
+    data class TextReady(val text: String) : ChatExportEvent()
+    data class PdfReady(val file: File) : ChatExportEvent()
+}
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository,
     private val srsRepository: SrsRepository,
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val chatExporter: ChatExporter
 ) : ViewModel() {
 
     val recentHistory: StateFlow<List<LookupHistoryEntity>> = historyRepository.getRecentHistory()
@@ -101,5 +111,42 @@ class HistoryViewModel @Inject constructor(
 
     fun deleteChatSession(sessionId: String) {
         viewModelScope.launch { chatRepository.deleteSession(sessionId) }
+    }
+
+    private val _chatExportEvent = MutableStateFlow<ChatExportEvent?>(null)
+    val chatExportEvent: StateFlow<ChatExportEvent?> = _chatExportEvent.asStateFlow()
+
+    fun exportChatSession(sessionId: String, asPdf: Boolean) {
+        viewModelScope.launch {
+            val session = chatRepository.getSession(sessionId) ?: return@launch
+            val messages = chatRepository.getMessages(sessionId)
+            if (messages.isEmpty()) return@launch
+
+            val exportData = ChatExportData(
+                sessionTitle = session.ocrTextPreview.ifBlank { "Chat session" },
+                cefrLevel = session.cefrLevel,
+                messages = messages.map { msg ->
+                    ChatExportMessage(
+                        role = msg.role,
+                        content = msg.content,
+                        timestamp = msg.timestamp
+                    )
+                },
+                createdAt = session.createdAt
+            )
+
+            if (asPdf) {
+                chatExporter.exportAsPdf(exportData).onSuccess { file ->
+                    _chatExportEvent.value = ChatExportEvent.PdfReady(file)
+                }
+            } else {
+                val text = chatExporter.formatAsText(exportData)
+                _chatExportEvent.value = ChatExportEvent.TextReady(text)
+            }
+        }
+    }
+
+    fun clearExportEvent() {
+        _chatExportEvent.value = null
     }
 }

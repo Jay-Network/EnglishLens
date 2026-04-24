@@ -46,6 +46,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -143,7 +144,7 @@ private fun StudyDashboard(
                 )
             }
             Text(
-                text = "Study",
+                text = stringResource(R.string.study_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White,
                 modifier = Modifier
@@ -179,7 +180,7 @@ private fun StudyDashboard(
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                Icon(Icons.Default.PlayArrow, contentDescription = "Start study session")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     "Study $dueCount Words",
@@ -205,7 +206,7 @@ private fun StudyDashboard(
                 ) {
                     Icon(
                         Icons.Default.CheckCircle,
-                        contentDescription = null,
+                        contentDescription = "All caught up",
                         tint = Color(0xFF4CAF50),
                         modifier = Modifier.size(48.dp)
                     )
@@ -233,7 +234,7 @@ private fun StudyDashboard(
             Tab(
                 selected = selectedTab == 0,
                 onClick = { selectedTab = 0 },
-                text = { Text("Deck ($totalCount)") }
+                text = { Text(stringResource(R.string.study_deck_tab, totalCount)) }
             )
         }
 
@@ -248,7 +249,7 @@ private fun StudyDashboard(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         Icons.Default.School,
-                        contentDescription = null,
+                        contentDescription = "Empty study deck",
                         tint = Color.White.copy(alpha = 0.3f),
                         modifier = Modifier.size(64.dp)
                     )
@@ -435,7 +436,7 @@ private fun FlashcardSession(
                 color = Color.White.copy(alpha = 0.7f)
             )
             OutlinedButton(onClick = onQuit, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
-                Text("Quit", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.study_quit), style = MaterialTheme.typography.labelMedium)
             }
         }
 
@@ -621,7 +622,7 @@ private fun SessionCompleteScreen(
     ) {
         Icon(
             Icons.Default.CheckCircle,
-            contentDescription = null,
+            contentDescription = "Session complete",
             tint = Color(0xFF4CAF50),
             modifier = Modifier.size(80.dp)
         )
@@ -655,7 +656,7 @@ private fun SessionCompleteScreen(
                 .height(48.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Done", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.study_done), style = MaterialTheme.typography.titleMedium)
         }
     }
 }

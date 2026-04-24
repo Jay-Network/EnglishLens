@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -79,13 +80,13 @@ fun LoginScreen(
 
             // App branding
             Text(
-                text = "EigoSage",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Scan. Understand. Learn.",
+                text = stringResource(R.string.login_tagline),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -121,7 +122,7 @@ fun LoginScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "Continue with Google",
+                                text = stringResource(R.string.login_continue_with_google),
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp
                             )
@@ -162,7 +163,7 @@ fun LoginScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = if (uiState.isSignUpMode) "Create Account" else "Sign In with Email",
+                        text = stringResource(if (uiState.isSignUpMode) R.string.login_create_account else R.string.login_sign_in_with_email),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -170,7 +171,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Email") },
+                        label = { Text(stringResource(R.string.login_email_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
@@ -183,7 +184,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password") },
+                        label = { Text(stringResource(R.string.login_password_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
@@ -224,7 +225,7 @@ fun LoginScreen(
                             )
                         } else {
                             Text(
-                                text = if (uiState.isSignUpMode) "Create Account" else "Sign In",
+                                text = stringResource(if (uiState.isSignUpMode) R.string.login_create_account else R.string.login_sign_in),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -233,10 +234,10 @@ fun LoginScreen(
 
                     TextButton(onClick = { viewModel.toggleSignUpMode() }) {
                         Text(
-                            text = if (uiState.isSignUpMode)
-                                "Already have an account? Sign In"
-                            else
-                                "New here? Create an account",
+                            text = stringResource(
+                                if (uiState.isSignUpMode) R.string.login_toggle_to_sign_in
+                                else R.string.login_toggle_to_sign_up
+                            ),
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 13.sp
                         )
@@ -258,14 +259,14 @@ fun LoginScreen(
                 )
             ) {
                 Text(
-                    text = "Try as Guest",
+                    text = stringResource(R.string.login_try_as_guest),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
 
             Text(
-                text = "Continue without an account. Sign in anytime for cloud features.",
+                text = stringResource(R.string.login_guest_hint),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

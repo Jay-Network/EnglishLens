@@ -1,6 +1,7 @@
 package com.jworks.eigosage.ui.capture
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
@@ -41,6 +43,8 @@ import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
+import com.jworks.eigosage.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +56,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.jworks.eigosage.data.ai.ChatPersona
 import com.jworks.eigosage.ui.theme.GlassBorder
 import com.jworks.eigosage.ui.theme.GlassGradient
 import com.jworks.eigosage.ui.theme.glassCardColors
@@ -66,7 +71,11 @@ fun ChatPanel(
     modifier: Modifier = Modifier,
     suggestions: List<String> = emptyList(),
     extractedWords: List<String> = emptyList(),
-    onBookmarkWords: () -> Unit = {}
+    onBookmarkWords: () -> Unit = {},
+    onExportText: () -> Unit = {},
+    onExportPdf: () -> Unit = {},
+    persona: ChatPersona = ChatPersona.DEFAULT,
+    onPersonaChange: (ChatPersona) -> Unit = {}
 ) {
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -85,7 +94,15 @@ fun ChatPanel(
 
     Column(modifier = modifier.fillMaxSize().imePadding()) {
         // Header
-        ChatHeader(onDismiss = onDismiss)
+        ChatHeader(
+            onDismiss = onDismiss,
+            onShareText = onExportText,
+            onSharePdf = onExportPdf,
+            hasMessages = visibleMessages.isNotEmpty(),
+            persona = persona,
+            onPersonaChange = onPersonaChange,
+            canChangePersona = visibleMessages.isEmpty()
+        )
 
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
@@ -117,7 +134,7 @@ fun ChatPanel(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Thinking...",
+                            text = stringResource(R.string.chat_thinking),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -157,7 +174,7 @@ fun ChatPanel(
                     leadingIcon = {
                         Icon(
                             Icons.Filled.BookmarkAdd,
-                            contentDescription = null,
+                            contentDescription = "Save words",
                             modifier = Modifier.size(16.dp)
                         )
                     },
@@ -188,7 +205,18 @@ fun ChatPanel(
 }
 
 @Composable
-private fun ChatHeader(onDismiss: () -> Unit) {
+private fun ChatHeader(
+    onDismiss: () -> Unit,
+    onShareText: () -> Unit = {},
+    onSharePdf: () -> Unit = {},
+    hasMessages: Boolean = false,
+    persona: ChatPersona = ChatPersona.DEFAULT,
+    onPersonaChange: (ChatPersona) -> Unit = {},
+    canChangePersona: Boolean = true
+) {
+    var showShareMenu by remember { mutableStateOf(false) }
+    var showPersonaMenu by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -208,25 +236,96 @@ private fun ChatHeader(onDismiss: () -> Unit) {
         }
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = "Chat",
+            text = stringResource(R.string.chat_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.width(8.dp))
-        AssistChip(
-            onClick = {},
-            label = {
-                Text(
-                    text = "Gemini",
-                    style = MaterialTheme.typography.labelSmall
+        // Persona selector chip
+        Box {
+            AssistChip(
+                onClick = { if (canChangePersona) showPersonaMenu = true },
+                label = {
+                    Text(
+                        text = persona.displayName,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = if (canChangePersona)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+                    else
+                        MaterialTheme.colorScheme.surfaceVariant,
+                    labelColor = if (canChangePersona)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            },
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                labelColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        )
+            androidx.compose.material3.DropdownMenu(
+                expanded = showPersonaMenu,
+                onDismissRequest = { showPersonaMenu = false }
+            ) {
+                ChatPersona.entries.forEach { p ->
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = {
+                            Column {
+                                Text(
+                                    text = p.displayName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = if (p == persona) FontWeight.Bold else FontWeight.Normal
+                                )
+                                Text(
+                                    text = p.shortDescription,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        onClick = {
+                            showPersonaMenu = false
+                            onPersonaChange(p)
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        if (hasMessages) {
+            Box {
+                IconButton(
+                    onClick = { showShareMenu = true },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.Share,
+                        contentDescription = "Share chat",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = showShareMenu,
+                    onDismissRequest = { showShareMenu = false }
+                ) {
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(stringResource(R.string.chat_share_as_text)) },
+                        onClick = {
+                            showShareMenu = false
+                            onShareText()
+                        }
+                    )
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(stringResource(R.string.chat_export_as_pdf)) },
+                        onClick = {
+                            showShareMenu = false
+                            onSharePdf()
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -374,7 +473,7 @@ private fun ChatInputBar(
             modifier = Modifier.weight(1f),
             placeholder = {
                 Text(
-                    text = "Ask about this text...",
+                    text = stringResource(R.string.chat_input_placeholder),
                     style = MaterialTheme.typography.bodyMedium
                 )
             },

@@ -19,7 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -30,6 +30,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.jworks.eigosage.R
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -79,7 +81,7 @@ fun FeedbackDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Send Feedback",
+                    text = stringResource(R.string.feedback_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -101,8 +103,8 @@ fun FeedbackDialog(
             OutlinedTextField(
                 value = uiState.userEmail,
                 onValueChange = { viewModel.updateUserEmail(it) },
-                label = { Text("Your email") },
-                placeholder = { Text("email@example.com") },
+                label = { Text(stringResource(R.string.feedback_email_label)) },
+                placeholder = { Text(stringResource(R.string.feedback_email_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -110,7 +112,7 @@ fun FeedbackDialog(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Category",
+                text = stringResource(R.string.feedback_category_label),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -135,8 +137,8 @@ fun FeedbackDialog(
             OutlinedTextField(
                 value = uiState.feedbackText,
                 onValueChange = { viewModel.updateFeedbackText(it) },
-                label = { Text("Your feedback") },
-                placeholder = { Text("Tell us what you think...") },
+                label = { Text(stringResource(R.string.feedback_text_label)) },
+                placeholder = { Text(stringResource(R.string.feedback_text_placeholder)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(130.dp),
@@ -180,9 +182,9 @@ fun FeedbackDialog(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Icon(Icons.Default.Send, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send feedback")
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Send Feedback", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.feedback_send_button), style = MaterialTheme.typography.labelLarge)
                 }
             }
 
@@ -193,7 +195,7 @@ fun FeedbackDialog(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Your Previous Feedback",
+                text = stringResource(R.string.feedback_previous_title),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -214,7 +216,7 @@ fun FeedbackDialog(
                 } else if (uiState.feedbackList.isEmpty()) {
                     item {
                         Text(
-                            text = "No feedback submitted yet",
+                            text = stringResource(R.string.feedback_no_history),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(16.dp)

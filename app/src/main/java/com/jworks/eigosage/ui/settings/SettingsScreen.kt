@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
@@ -429,14 +430,14 @@ private fun KeyEditorCard(
                     onClick = onSave,
                     enabled = dirty && input.isNotBlank()
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.settings_save))
                 }
 
                 OutlinedButton(
                     onClick = onClear,
                     enabled = input.isNotEmpty()
                 ) {
-                    Text("Clear")
+                    Text(stringResource(R.string.settings_clear))
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
