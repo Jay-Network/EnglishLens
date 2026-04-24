@@ -48,8 +48,31 @@
     <string name="study_done">Done</string>
 
     <!-- Settings -->
+    <string name="settings_title">Settings</string>
     <string name="settings_save">Save</string>
     <string name="settings_clear">Clear</string>
+    <string name="settings_ai_analysis">AI Analysis</string>
+    <string name="settings_ai_description">Add API keys to enable phrase/paragraph analysis for circled text.</string>
+    <string name="settings_provider">Provider</string>
+    <string name="settings_api_usage">API Usage</string>
+    <string name="settings_api_usage_description">Cumulative token usage and estimated cost per provider.</string>
+    <string name="settings_jcoin">J Coin</string>
+    <string name="settings_coin_shop">Coin Shop</string>
+    <string name="settings_coin_shop_description">Spend coins on AI analysis, exports, themes &amp; more</string>
+    <string name="settings_display">Display</string>
+    <string name="settings_ipa_font_size">IPA Font Size</string>
+    <string name="settings_ipa_small">Small</string>
+    <string name="settings_ipa_large">Large</string>
+    <string name="settings_about">About</string>
+    <string name="settings_features">Features</string>
+    <string name="settings_credits">EigoSage by JWorks</string>
+    <string name="settings_input_tokens">Input tokens</string>
+    <string name="settings_output_tokens">Output tokens</string>
+    <string name="settings_estimated_cost">Estimated cost</string>
+
+    <!-- History -->
+    <string name="history_title">History</string>
+    <string name="history_messages_count">%1$d messages</string>
 
     <!-- Gallery -->
     <string name="gallery_title">Import from Gallery</string>

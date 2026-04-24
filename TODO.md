@@ -1,12 +1,13 @@
 # EigoSage TODO
 
 ## Active Tasks
-- [ ] Commit all uncommitted v0.8.0 work (30+ modified files)
-- [ ] Unit tests for AiPrompts scan mode logic + GeminiChatClient prompt builders
-- [ ] Extract remaining hardcoded UI strings (~20 across 3 screens)
-- [ ] Fix Coin Shop navigation icon (wrong arrow direction in SettingsScreen:266)
+(none)
 
 ## Completed
+- [x] Extract remaining hardcoded UI strings — SettingsScreen (15) + HistoryScreen (2) (2026-04-24)
+- [x] Fix Coin Shop navigation icon (wrong arrow in SettingsScreen) (2026-04-24)
+- [x] Unit tests for AiPrompts scan mode + GeminiChatClient prompt builders — 25 tests (2026-04-24)
+- [x] Commit all uncommitted v0.8.0 work (2026-04-24)
 - [x] S2-ES-1: Professional scanning modes (interpreter, medical, legal) — v0.8.0 (2026-04-24)
 - [x] Add unit tests for EnglishLemmatizer — 30 tests with fake DAO (2026-04-17)
 - [x] Extract remaining hardcoded strings — 10 strings across 4 files (2026-04-17)

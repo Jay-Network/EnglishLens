@@ -97,7 +97,7 @@ fun SettingsScreen(
                 )
             }
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White,
                 modifier = Modifier.padding(start = 8.dp)
@@ -107,7 +107,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "AI Analysis",
+            text = stringResource(R.string.settings_ai_analysis),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -115,7 +115,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Add API keys to enable phrase/paragraph analysis for circled text.",
+            text = stringResource(R.string.settings_ai_description),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -135,7 +135,7 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Provider",
+                    text = stringResource(R.string.settings_provider),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -189,7 +189,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "API Usage",
+            text = stringResource(R.string.settings_api_usage),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -197,7 +197,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Cumulative token usage and estimated cost per provider.",
+            text = stringResource(R.string.settings_api_usage_description),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -229,7 +229,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "J Coin",
+            text = stringResource(R.string.settings_jcoin),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -254,12 +254,12 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Coin Shop",
+                        text = stringResource(R.string.settings_coin_shop),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Spend coins on AI analysis, exports, themes & more",
+                        text = stringResource(R.string.settings_coin_shop_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -278,7 +278,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Display",
+            text = stringResource(R.string.settings_display),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -297,7 +297,7 @@ fun SettingsScreen(
                     .padding(12.dp)
             ) {
                 Text(
-                    text = "IPA Font Size",
+                    text = stringResource(R.string.settings_ipa_font_size),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -307,7 +307,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Small",
+                        text = stringResource(R.string.settings_ipa_small),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -324,7 +324,7 @@ fun SettingsScreen(
                             .padding(horizontal = 8.dp)
                     )
                     Text(
-                        text = "Large",
+                        text = stringResource(R.string.settings_ipa_large),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -344,7 +344,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "About",
+            text = stringResource(R.string.settings_about),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -360,7 +360,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Features",
+            text = stringResource(R.string.settings_features),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -374,7 +374,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "EigoSage by JWorks",
+            text = stringResource(R.string.settings_credits),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -503,7 +503,7 @@ private fun TokenUsageCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Input tokens",
+                    text = stringResource(R.string.settings_input_tokens),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -519,7 +519,7 @@ private fun TokenUsageCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Output tokens",
+                    text = stringResource(R.string.settings_output_tokens),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -540,7 +540,7 @@ private fun TokenUsageCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Estimated cost",
+                    text = stringResource(R.string.settings_estimated_cost),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

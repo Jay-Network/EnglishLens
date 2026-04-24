@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -136,7 +137,7 @@ fun HistoryScreen(
                 )
             }
             Text(
-                text = "History",
+                text = stringResource(R.string.history_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White,
                 modifier = Modifier
@@ -543,7 +544,7 @@ private fun ChatSessionItem(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${session.messageCount} messages",
+                            text = stringResource(R.string.history_messages_count, session.messageCount),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
