@@ -1,6 +1,7 @@
 package com.jworks.eigosage.domain.ai
 
 import android.graphics.Bitmap
+import com.jworks.eigosage.data.ai.ScanMode
 import com.jworks.eigosage.ui.capture.ScopeLevel
 
 interface AiProvider {
@@ -14,7 +15,8 @@ data class AnalysisContext(
     val fullSnapshotText: String,
     val scopeLevel: ScopeLevel,
     val surroundingLines: List<String> = emptyList(),
-    val croppedImage: Bitmap? = null
+    val croppedImage: Bitmap? = null,
+    val scanMode: ScanMode = ScanMode.DEFAULT
 )
 
 data class AiResponse(

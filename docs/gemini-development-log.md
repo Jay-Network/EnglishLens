@@ -45,7 +45,7 @@ Reference: jworks:104 (SheetMusicReader) for dual output pattern.
 
 ---
 
-## Current Gemini Features (v0.6.0)
+## Current Gemini Features (v0.8.0)
 
 ### 1. OCR Correction (`GeminiOcrCorrector`)
 - **What**: Sends camera frame bitmap to Gemini Vision for text extraction
@@ -56,14 +56,16 @@ Reference: jworks:104 (SheetMusicReader) for dual output pattern.
 ### 2. Text Analysis (`GeminiProvider`)
 - **What**: Analyzes scanned text for definitions, grammar, reading level
 - **Why**: Core value prop — point camera at text, get instant analysis
-- **Prompt**: Uses `AiPrompts.SYSTEM_PROMPT` + `AiPrompts.buildPrompt(context)`
-- **Context**: Includes scope (word/phrase/page), surrounding text, user CEFR level
+- **Prompt**: Uses `AiPrompts.systemPromptForMode(scanMode)` + `AiPrompts.buildPrompt(context)`
+- **Context**: Includes scope (word/phrase/page), surrounding text, user CEFR level, scan mode
+- **Scan modes** (v0.8.0): STANDARD, INTERPRETER, MEDICAL, LEGAL — each has a specialized system prompt
 
 ### 3. Chat Tutor (`GeminiChatClient`)
 - **What**: Multi-turn English tutor dialog seeded with scanned text context
 - **Why**: Allows follow-up questions ("What does this idiom mean?", "Translate to Japanese")
-- **System prompt**: English language tutor persona, concise, markdown formatting
+- **System prompt**: CEFR-adapted persona + scan mode overlay via `buildCefrSystemPrompt(level, persona, scanMode)`
 - **Context**: Full conversation history passed as message pairs
+- **Scan mode integration** (v0.8.0): Chat adapts to active mode (e.g., Medical mode prioritizes clinical terms)
 
 ---
 
@@ -115,10 +117,16 @@ Features suitable for a standalone Gemini Live agent (voice + camera):
 - No persona differentiation yet
 - No proactive vocabulary flagging yet
 
-**Planned v3 improvements:**
-- Add persona mode selection (Lexicon/Sage/Tutor)
-- Smart follow-up suggestion chips (CEFR-adapted)
-- Auto-bookmark words discussed in chat
+### v3 (v0.7.0) — Current Production
+
+**Changes implemented:**
+- ✅ Smart follow-up suggestion chips — AI generates 3 CEFR-adapted suggestions via `[SUGGESTIONS]` block, parsed by `GeminiChatClient.parseSuggestions()`
+- ✅ Auto-bookmark words discussed in chat — bold terms (`**word**`) extracted via regex, save chip in ChatPanel
+- ✅ Chat persistence — sessions saved to Room DB, resume from History Chats tab
+- ✅ Chat export — share as text or PDF via `ChatExporter`
+- ✅ Persona mode — Sage (comprehension), Lexicon (vocabulary), Tutor (practice) with distinct system prompts per persona, CEFR-adapted. Persona selector chip in ChatPanel header, locked once chat starts.
+
+**Planned v4 improvements:**
 - Proactive flagging of difficult words based on user's level
 
 ---
@@ -155,9 +163,9 @@ Features suitable for a standalone Gemini Live agent (voice + camera):
 - [x] Add CEFR level to system prompt for difficulty-appropriate responses (v0.6.0)
 - [x] Add readability score to chat context seed (v0.6.0)
 - [ ] Test CEFR-adapted system prompts (v2) — compare response quality across levels
-- [ ] Smart follow-up suggestion chips (CEFR-adapted)
-- [ ] Auto-bookmark words discussed in chat
-- [ ] Implement persona mode in GeminiChatClient (Lexicon/Sage/Tutor)
+- [x] Smart follow-up suggestion chips (CEFR-adapted) (v0.7.0)
+- [x] Auto-bookmark words discussed in chat (v0.7.0)
+- [x] Implement persona mode in GeminiChatClient (Lexicon/Sage/Tutor) (v0.7.0)
 - [ ] Add proactive vocabulary flagging based on user's CEFR level
 - [ ] Create Gemini Live agent prototype (voice + camera reading tutor)
 - [ ] Explore `@google/genai` SDK for Live API WebSocket integration

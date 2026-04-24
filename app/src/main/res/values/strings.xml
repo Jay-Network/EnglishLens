@@ -3,4 +3,65 @@
     <string name="app_name">EigoSage</string>
     <string name="camera_permission_rationale">EigoSage needs camera access to detect and read English text.</string>
     <string name="camera_permission_denied">Camera permission is required. Please enable it in Settings.</string>
+
+    <!-- Chat -->
+    <string name="chat_title">Chat</string>
+    <string name="chat_thinking">Thinking…</string>
+    <string name="chat_input_placeholder">Ask about this text…</string>
+    <string name="chat_suggestion_explain_simpler">Explain simpler</string>
+    <string name="chat_suggestion_give_examples">Give examples</string>
+    <string name="chat_suggestion_translate_japanese">Translate to Japanese</string>
+    <string name="chat_suggestion_key_vocabulary">Key vocabulary</string>
+    <string name="chat_suggestion_grammar_check">Grammar check</string>
+    <string name="chat_share_as_text">Share as Text</string>
+    <string name="chat_export_as_pdf">Export as PDF</string>
+
+    <!-- Login -->
+    <string name="login_tagline">Scan. Understand. Learn.</string>
+    <string name="login_continue_with_google">Continue with Google</string>
+    <string name="login_or">or</string>
+    <string name="login_create_account">Create Account</string>
+    <string name="login_sign_in_with_email">Sign In with Email</string>
+    <string name="login_sign_in">Sign In</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_toggle_to_sign_in">Already have an account? Sign In</string>
+    <string name="login_toggle_to_sign_up">New here? Create an account</string>
+    <string name="login_try_as_guest">Try as Guest</string>
+    <string name="login_guest_hint">Continue without an account. Sign in anytime for cloud features.</string>
+
+    <!-- Feedback -->
+    <string name="feedback_title">Send Feedback</string>
+    <string name="feedback_email_label">Your email</string>
+    <string name="feedback_email_placeholder">email@example.com</string>
+    <string name="feedback_category_label">Category</string>
+    <string name="feedback_text_label">Your feedback</string>
+    <string name="feedback_text_placeholder">Tell us what you think…</string>
+    <string name="feedback_send_button">Send Feedback</string>
+    <string name="feedback_previous_title">Your Previous Feedback</string>
+    <string name="feedback_no_history">No feedback submitted yet</string>
+
+    <!-- Study -->
+    <string name="study_title">Study</string>
+    <string name="study_deck_tab">Deck (%1$d)</string>
+    <string name="study_quit">Quit</string>
+    <string name="study_done">Done</string>
+
+    <!-- Settings -->
+    <string name="settings_save">Save</string>
+    <string name="settings_clear">Clear</string>
+
+    <!-- Gallery -->
+    <string name="gallery_title">Import from Gallery</string>
+    <string name="gallery_analyzing">Analyzing image…</string>
+    <string name="gallery_export_pdf">Export PDF</string>
+
+    <!-- Definition -->
+    <string name="definition_base_label">base: %1$s</string>
+
+    <!-- Scan Modes -->
+    <string name="scan_mode_standard">Standard</string>
+    <string name="scan_mode_interpreter">Interpreter</string>
+    <string name="scan_mode_medical">Medical</string>
+    <string name="scan_mode_legal">Legal</string>
 </resources>

@@ -50,7 +50,7 @@ class ClaudeProvider(
         val requestBody = buildJsonObject {
             put("model", model)
             put("max_tokens", 4096)
-            put("system", AiPrompts.SYSTEM_PROMPT)
+            put("system", AiPrompts.systemPromptForMode(context.scanMode))
             putJsonArray("messages") {
                 addJsonObject {
                     put("role", "user")

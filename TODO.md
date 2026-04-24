@@ -1,9 +1,27 @@
 # EigoSage TODO
 
 ## Active Tasks
-(none)
+- [ ] Commit all uncommitted v0.8.0 work (30+ modified files)
+- [ ] Unit tests for AiPrompts scan mode logic + GeminiChatClient prompt builders
+- [ ] Extract remaining hardcoded UI strings (~20 across 3 screens)
+- [ ] Fix Coin Shop navigation icon (wrong arrow direction in SettingsScreen:266)
 
 ## Completed
+- [x] S2-ES-1: Professional scanning modes (interpreter, medical, legal) — v0.8.0 (2026-04-24)
+- [x] Add unit tests for EnglishLemmatizer — 30 tests with fake DAO (2026-04-17)
+- [x] Extract remaining hardcoded strings — 10 strings across 4 files (2026-04-17)
+- [x] Fix failing ReadabilityCalculatorTest — "university" = 5 syllables (2026-04-17)
+- [x] Extract hardcoded UI strings to string resources — 20 strings across 3 files (2026-04-16)
+- [x] Fix not-null assertion (!!) in ChatExporter.kt (2026-04-16)
+- [x] Fix deprecated Icons.Default.Send/Chat → AutoMirrored — 4 instances across 3 files (2026-04-16)
+- [x] Add unit tests for ChatExporter text format — 8 tests (2026-04-16)
+- [x] Add unit tests for SM-2 algorithm — 15 tests (2026-04-16)
+- [x] Add accessibility content descriptions to all Icons — 18 fixes across 8 files (2026-04-16)
+- [x] Persona mode in GeminiChatClient — Sage/Lexicon/Tutor (2026-04-15)
+- [x] Update stale docs — STATUS.md, gemini-development-log.md (2026-04-15)
+- [x] Implement chat export (text + PDF share) — v0.7.0 final feature (2026-04-15)
+- [x] Update ROADMAP.md — mark v0.7.0 items complete (2026-04-15)
+- [x] Version bump to v0.7.0 + CHANGELOG update (2026-04-15)
 - [x] S1-ES-1: Chat persistence — Room entities, DAO, repository, DI, auto-save, history tab (2026-04-09)
 - [x] Update ROADMAP.md and gemini-development-log.md for v0.6.0 completion (2026-04-08)
 - [x] Smart suggestion chips in chat — CEFR-adapted follow-up questions (2026-04-08)
@@ -23,9 +41,8 @@
 - [x] Strategic assessment for jworks:61 (2026-03-19)
 - [x] BookSage Live coordination with jworks:61 (2026-03-19)
 
-## Deferred
-- S1-ES-2: OCR pipeline performance profiling (blocked: requires device testing, sprint P1)
-- Persona mode in GeminiChatClient — Lexicon/Sage/Tutor (after suggestion chips)
-- Gemini Live agent prototype (after Phase D)
-- Evaluate Gemini TTS for pronunciation features (report to jworks:9)
-- EigoJourney word export integration (coordinate with EigoJourney agent)
+## Backlog
+- [backlog] S1-ES-2: OCR pipeline performance profiling (blocked: requires device testing, sprint P1)
+- [backlog] Gemini Live agent prototype (after Phase D)
+- [backlog] Evaluate Gemini TTS for pronunciation features (report to jworks:9)
+- [backlog] EigoJourney word export integration (coordinate with EigoJourney agent)

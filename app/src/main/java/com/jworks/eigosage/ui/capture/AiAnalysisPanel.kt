@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import com.jworks.eigosage.R
+import com.jworks.eigosage.data.ai.ScanMode
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -74,7 +75,8 @@ fun AiAnalysisPanel(
     onWordClick: (String) -> Unit = {},
     interactionMode: InteractionMode = InteractionMode.TAP,
     onInteractionModeChange: (InteractionMode) -> Unit = {},
-    onChatClick: () -> Unit = {}
+    onChatClick: () -> Unit = {},
+    scanMode: ScanMode = ScanMode.DEFAULT
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -92,6 +94,7 @@ fun AiAnalysisPanel(
             scopeLevel = scopeLevel,
             provider = response.provider,
             onDismiss = onDismiss,
+            scanMode = scanMode,
             interactionMode = interactionMode,
             onInteractionModeChange = onInteractionModeChange
         )
@@ -366,6 +369,7 @@ private fun AiPanelHeader(
     scopeLevel: ScopeLevel,
     provider: String,
     onDismiss: () -> Unit,
+    scanMode: ScanMode = ScanMode.DEFAULT,
     interactionMode: InteractionMode = InteractionMode.TAP,
     onInteractionModeChange: (InteractionMode) -> Unit = {}
 ) {
@@ -392,6 +396,28 @@ private fun AiPanelHeader(
                     labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
+            if (scanMode != ScanMode.STANDARD) {
+                Spacer(Modifier.width(6.dp))
+                val modeColor = when (scanMode) {
+                    ScanMode.INTERPRETER -> Color(0xFF0EA5E9)
+                    ScanMode.MEDICAL -> Color(0xFF10B981)
+                    ScanMode.LEGAL -> Color(0xFFF59E0B)
+                    else -> MaterialTheme.colorScheme.primary
+                }
+                AssistChip(
+                    onClick = {},
+                    label = {
+                        Text(
+                            text = scanMode.displayName,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = modeColor.copy(alpha = 0.15f),
+                        labelColor = modeColor
+                    )
+                )
+            }
         }
         // Lasso selection toggle
         IconButton(
@@ -558,7 +584,7 @@ private fun AiPanelFooter(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Chat,
-                    contentDescription = null,
+                    contentDescription = "Chat",
                     modifier = Modifier.size(16.dp)
                 )
             },

@@ -43,7 +43,8 @@ class GeminiProvider(
         if (!isAvailable) return Result.failure(IllegalStateException("Gemini API key not configured"))
 
         val startTime = System.currentTimeMillis()
-        val prompt = "${AiPrompts.SYSTEM_PROMPT}\n\n${AiPrompts.buildPrompt(context)}"
+        val systemPrompt = AiPrompts.systemPromptForMode(context.scanMode)
+        val prompt = "$systemPrompt\n\n${AiPrompts.buildPrompt(context)}"
         val url = "$BASE_URL/$model:generateContent?key=$apiKey"
 
         val requestBody = buildJsonObject {

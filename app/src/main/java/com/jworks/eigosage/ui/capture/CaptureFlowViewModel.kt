@@ -9,8 +9,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.mlkit.vision.common.InputImage
 import com.jworks.eigosage.data.ai.AiProviderManager
+import com.jworks.eigosage.data.ai.ChatPersona
 import com.jworks.eigosage.data.ai.ContextualInsight
 import com.jworks.eigosage.data.ai.GeminiChatClient
+import com.jworks.eigosage.data.ai.ScanMode
 import com.jworks.eigosage.data.ai.GeminiOcrCorrector
 import com.jworks.eigosage.data.ai.OcrTextMerger
 import com.jworks.eigosage.data.jcoin.DeviceAuthRepository
@@ -24,6 +26,9 @@ import com.jworks.eigosage.data.repository.ChatRepository
 import com.jworks.eigosage.data.repository.HistoryRepository
 import com.jworks.eigosage.data.repository.SrsRepository
 import com.jworks.eigosage.data.repository.WordEnrichmentRepository
+import com.jworks.eigosage.domain.export.ChatExportData
+import com.jworks.eigosage.domain.export.ChatExportMessage
+import com.jworks.eigosage.domain.export.ChatExporter
 import com.jworks.eigosage.domain.models.CefrLevel
 import com.jworks.eigosage.domain.models.EnrichedWord
 import com.jworks.eigosage.domain.models.OCRResult
@@ -69,6 +74,12 @@ data class CapturedImage(
 
 enum class InteractionMode { TAP, CIRCLE }
 
+sealed class ChatExportResult {
+    data class TextReady(val text: String) : ChatExportResult()
+    data class PdfReady(val file: java.io.File) : ChatExportResult()
+    data class Error(val message: String) : ChatExportResult()
+}
+
 sealed class PanelState {
     data object Idle : PanelState()
     data object Loading : PanelState()
@@ -89,7 +100,8 @@ sealed class PanelState {
         val systemPrompt: String? = null,
         val suggestions: List<String> = emptyList(),
         val extractedWords: List<String> = emptyList(),
-        val sessionId: String? = null
+        val sessionId: String? = null,
+        val persona: ChatPersona = ChatPersona.DEFAULT
     ) : PanelState()
     data class NotFound(val word: String) : PanelState()
     data class Error(val message: String) : PanelState()
@@ -113,7 +125,8 @@ class CaptureFlowViewModel @Inject constructor(
     private val deviceAuthRepository: DeviceAuthRepository,
     private val settingsRepository: SettingsRepository,
     private val srsRepository: SrsRepository,
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val chatExporter: ChatExporter
 ) : ViewModel() {
 
     companion object {
@@ -147,6 +160,15 @@ class CaptureFlowViewModel @Inject constructor(
 
     private val _isCorrectingOcr = MutableStateFlow(false)
     val isCorrectingOcr: StateFlow<Boolean> = _isCorrectingOcr.asStateFlow()
+
+    private val _chatExportResult = MutableStateFlow<ChatExportResult?>(null)
+    val chatExportResult: StateFlow<ChatExportResult?> = _chatExportResult.asStateFlow()
+
+    private val _chatPersona = MutableStateFlow(ChatPersona.DEFAULT)
+    val chatPersona: StateFlow<ChatPersona> = _chatPersona.asStateFlow()
+
+    private val _scanMode = MutableStateFlow(ScanMode.DEFAULT)
+    val scanMode: StateFlow<ScanMode> = _scanMode.asStateFlow()
 
     private val _enrichedWords = MutableStateFlow<List<EnrichedWord>>(emptyList())
     val enrichedWords: StateFlow<List<EnrichedWord>> = _enrichedWords.asStateFlow()
@@ -613,7 +635,8 @@ class CaptureFlowViewModel @Inject constructor(
                 selectedText = selectedText,
                 fullSnapshotText = fullText,
                 scopeLevel = scopeLevel,
-                croppedImage = croppedImage
+                croppedImage = croppedImage,
+                scanMode = _scanMode.value
             )
 
             aiProviderManager.analyze(context)
@@ -947,10 +970,11 @@ class CaptureFlowViewModel @Inject constructor(
             _previousPanelState = currentPanel
         }
 
-        // Compute readability and CEFR-adapted system prompt
+        // Compute readability and CEFR-adapted system prompt with persona
         val readability = readabilityCalculator.calculate(fullText)
         val cefrLevel = _cefrThreshold.value
-        val chatSystemPrompt = GeminiChatClient.buildCefrSystemPrompt(cefrLevel.name)
+        val persona = _chatPersona.value
+        val chatSystemPrompt = GeminiChatClient.buildCefrSystemPrompt(cefrLevel.name, persona, _scanMode.value)
 
         // Build seed message with context
         val sb = StringBuilder()
@@ -1003,7 +1027,8 @@ class CaptureFlowViewModel @Inject constructor(
         val messages = listOf(seedMessage)
         _panelState.value = PanelState.Chat(
             messages = messages, isLoading = true,
-            systemPrompt = chatSystemPrompt, sessionId = sessionId
+            systemPrompt = chatSystemPrompt, sessionId = sessionId,
+            persona = persona
         )
 
         viewModelScope.launch {
@@ -1026,7 +1051,8 @@ class CaptureFlowViewModel @Inject constructor(
                         systemPrompt = chatSystemPrompt,
                         suggestions = suggestions,
                         extractedWords = extractedWords,
-                        sessionId = sessionId
+                        sessionId = sessionId,
+                        persona = persona
                     )
                     trackTokenUsage(response)
                 }
@@ -1040,7 +1066,8 @@ class CaptureFlowViewModel @Inject constructor(
                         messages = messages + errorReply,
                         isLoading = false,
                         systemPrompt = chatSystemPrompt,
-                        sessionId = sessionId
+                        sessionId = sessionId,
+                        persona = persona
                     )
                 }
         }
@@ -1053,11 +1080,13 @@ class CaptureFlowViewModel @Inject constructor(
 
         val storedSystemPrompt = current.systemPrompt
         val storedSessionId = current.sessionId
+        val storedPersona = current.persona
         val userMessage = ChatMessage(role = ChatRole.USER, content = text)
         val updatedMessages = current.messages + userMessage
         _panelState.value = PanelState.Chat(
             messages = updatedMessages, isLoading = true,
-            systemPrompt = storedSystemPrompt, sessionId = storedSessionId
+            systemPrompt = storedSystemPrompt, sessionId = storedSessionId,
+            persona = storedPersona
         )
 
         viewModelScope.launch {
@@ -1086,7 +1115,8 @@ class CaptureFlowViewModel @Inject constructor(
                         systemPrompt = storedSystemPrompt,
                         suggestions = suggestions,
                         extractedWords = extractedWords,
-                        sessionId = storedSessionId
+                        sessionId = storedSessionId,
+                        persona = storedPersona
                     )
                     trackTokenUsage(response)
                 }
@@ -1100,7 +1130,8 @@ class CaptureFlowViewModel @Inject constructor(
                         messages = updatedMessages + errorReply,
                         isLoading = false,
                         systemPrompt = storedSystemPrompt,
-                        sessionId = storedSessionId
+                        sessionId = storedSessionId,
+                        persona = storedPersona
                     )
                 }
         }
@@ -1195,6 +1226,53 @@ class CaptureFlowViewModel @Inject constructor(
         }
     }
 
+    fun exportCurrentChat(asPdf: Boolean) {
+        val current = _panelState.value
+        if (current !is PanelState.Chat) return
+
+        val ocrPreview = (_captureState.value as? CaptureState.Annotate)
+            ?.capturedImage?.ocrResult?.texts?.joinToString(" ") { it.text }?.take(200)
+            ?: "Chat session"
+
+        val exportData = ChatExportData(
+            sessionTitle = ocrPreview,
+            cefrLevel = _cefrThreshold.value.name,
+            messages = current.messages.map { msg ->
+                ChatExportMessage(
+                    role = msg.role.name.lowercase(),
+                    content = msg.content,
+                    timestamp = msg.timestamp
+                )
+            },
+            createdAt = current.messages.firstOrNull()?.timestamp ?: System.currentTimeMillis()
+        )
+
+        if (asPdf) {
+            viewModelScope.launch {
+                val result = chatExporter.exportAsPdf(exportData)
+                result.onSuccess { file ->
+                    _chatExportResult.value = ChatExportResult.PdfReady(file)
+                }.onFailure {
+                    _chatExportResult.value = ChatExportResult.Error(it.message ?: "Export failed")
+                }
+            }
+        } else {
+            val text = chatExporter.formatAsText(exportData)
+            _chatExportResult.value = ChatExportResult.TextReady(text)
+        }
+    }
+
+    fun clearExportResult() {
+        _chatExportResult.value = null
+    }
+
+    fun setPersona(persona: ChatPersona) {
+        _chatPersona.value = persona
+    }
+
+    fun setScanMode(mode: ScanMode) {
+        _scanMode.value = mode
+    }
 
     private fun trackTokenUsage(response: AiResponse) {
         val input = response.inputTokens ?: 0

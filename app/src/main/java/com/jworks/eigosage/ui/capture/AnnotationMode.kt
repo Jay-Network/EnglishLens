@@ -1,5 +1,6 @@
 package com.jworks.eigosage.ui.capture
 
+import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -21,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -33,11 +35,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.core.content.FileProvider
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jworks.eigosage.R
+import com.jworks.eigosage.data.ai.ChatPersona
+import com.jworks.eigosage.data.ai.ScanMode
 import com.jworks.eigosage.domain.models.EnrichedWord
 import com.jworks.eigosage.ui.camera.DefinitionPanel
 import com.jworks.eigosage.ui.camera.DefinitionSkeleton
@@ -75,6 +81,46 @@ fun AnnotationMode(
     val handleSendChatMessage: (String) -> Unit = { viewModel.sendChatMessage(it) }
     val handleDismissChat = { viewModel.dismissChat() }
     val onBookmarkChatWords = { viewModel.bookmarkChatWords() }
+    val onExportChatText = { viewModel.exportCurrentChat(asPdf = false) }
+    val onExportChatPdf = { viewModel.exportCurrentChat(asPdf = true) }
+    val chatPersona = (panelState as? PanelState.Chat)?.persona ?: viewModel.chatPersona.collectAsState().value
+    val onPersonaChange: (ChatPersona) -> Unit = { viewModel.setPersona(it) }
+    val scanMode by viewModel.scanMode.collectAsState()
+
+    // Handle chat export results — launch share intent
+    val chatExportResult by viewModel.chatExportResult.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(chatExportResult) {
+        when (val result = chatExportResult) {
+            is ChatExportResult.TextReady -> {
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, result.text)
+                    putExtra(Intent.EXTRA_SUBJECT, "EigoSage Chat Export")
+                }
+                context.startActivity(Intent.createChooser(shareIntent, "Share chat"))
+                viewModel.clearExportResult()
+            }
+            is ChatExportResult.PdfReady -> {
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    result.file
+                )
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/pdf"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(Intent.createChooser(shareIntent, "Share chat PDF"))
+                viewModel.clearExportResult()
+            }
+            is ChatExportResult.Error -> {
+                viewModel.clearExportResult()
+            }
+            null -> { /* no-op */ }
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         // Full-screen image viewer (always full size)
@@ -172,7 +218,13 @@ fun AnnotationMode(
                 addToStudyResult = addToStudyResult,
                 onChatClick = handleChatClick,
                 onSendChatMessage = handleSendChatMessage,
-                onDismissChat = handleDismissChat
+                onDismissChat = handleDismissChat,
+                onBookmarkChatWords = onBookmarkChatWords,
+                onExportChatText = onExportChatText,
+                onExportChatPdf = onExportChatPdf,
+                chatPersona = chatPersona,
+                onPersonaChange = onPersonaChange,
+                scanMode = scanMode
             )
         } else {
             PortraitPanel(
@@ -194,7 +246,13 @@ fun AnnotationMode(
                 addToStudyResult = addToStudyResult,
                 onChatClick = handleChatClick,
                 onSendChatMessage = handleSendChatMessage,
-                onDismissChat = handleDismissChat
+                onDismissChat = handleDismissChat,
+                onBookmarkChatWords = onBookmarkChatWords,
+                onExportChatText = onExportChatText,
+                onExportChatPdf = onExportChatPdf,
+                chatPersona = chatPersona,
+                onPersonaChange = onPersonaChange,
+                scanMode = scanMode
             )
         }
     }
@@ -220,7 +278,13 @@ private fun PortraitPanel(
     addToStudyResult: String? = null,
     onChatClick: () -> Unit = {},
     onSendChatMessage: (String) -> Unit = {},
-    onDismissChat: () -> Unit = {}
+    onDismissChat: () -> Unit = {},
+    onBookmarkChatWords: () -> Unit = {},
+    onExportChatText: () -> Unit = {},
+    onExportChatPdf: () -> Unit = {},
+    chatPersona: ChatPersona = ChatPersona.DEFAULT,
+    onPersonaChange: (ChatPersona) -> Unit = {},
+    scanMode: ScanMode = ScanMode.DEFAULT
 ) {
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
@@ -289,7 +353,12 @@ private fun PortraitPanel(
                         addToStudyResult = addToStudyResult,
                         onChatClick = onChatClick,
                         onSendChatMessage = onSendChatMessage,
-                        onDismissChat = onDismissChat
+                        onDismissChat = onDismissChat,
+                        onBookmarkChatWords = onBookmarkChatWords,
+                        onExportChatText = onExportChatText,
+                        onExportChatPdf = onExportChatPdf,
+                        chatPersona = chatPersona,
+                        onPersonaChange = onPersonaChange
                     )
                 }
             }
@@ -317,7 +386,13 @@ private fun LandscapePanel(
     addToStudyResult: String? = null,
     onChatClick: () -> Unit = {},
     onSendChatMessage: (String) -> Unit = {},
-    onDismissChat: () -> Unit = {}
+    onDismissChat: () -> Unit = {},
+    onBookmarkChatWords: () -> Unit = {},
+    onExportChatText: () -> Unit = {},
+    onExportChatPdf: () -> Unit = {},
+    chatPersona: ChatPersona = ChatPersona.DEFAULT,
+    onPersonaChange: (ChatPersona) -> Unit = {},
+    scanMode: ScanMode = ScanMode.DEFAULT
 ) {
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
@@ -380,7 +455,12 @@ private fun LandscapePanel(
                         addToStudyResult = addToStudyResult,
                         onChatClick = onChatClick,
                         onSendChatMessage = onSendChatMessage,
-                        onDismissChat = onDismissChat
+                        onDismissChat = onDismissChat,
+                        onBookmarkChatWords = onBookmarkChatWords,
+                        onExportChatText = onExportChatText,
+                        onExportChatPdf = onExportChatPdf,
+                        chatPersona = chatPersona,
+                        onPersonaChange = onPersonaChange
                     )
                 }
             }
@@ -458,7 +538,13 @@ private fun PanelContent(
     addToStudyResult: String? = null,
     onChatClick: () -> Unit = {},
     onSendChatMessage: (String) -> Unit = {},
-    onDismissChat: () -> Unit = {}
+    onDismissChat: () -> Unit = {},
+    onBookmarkChatWords: () -> Unit = {},
+    onExportChatText: () -> Unit = {},
+    onExportChatPdf: () -> Unit = {},
+    chatPersona: ChatPersona = ChatPersona.DEFAULT,
+    onPersonaChange: (ChatPersona) -> Unit = {},
+    scanMode: ScanMode = ScanMode.DEFAULT
 ) {
     Box(modifier = modifier) {
         when (val state = panelState) {
@@ -524,7 +610,8 @@ private fun PanelContent(
                     onWordClick = onWordClick,
                     interactionMode = interactionMode,
                     onInteractionModeChange = onInteractionModeChange,
-                    onChatClick = onChatClick
+                    onChatClick = onChatClick,
+                    scanMode = scanMode
                 )
             }
             is PanelState.Chat -> {
@@ -536,7 +623,11 @@ private fun PanelContent(
                     modifier = Modifier.fillMaxSize(),
                     suggestions = state.suggestions,
                     extractedWords = state.extractedWords,
-                    onBookmarkWords = onBookmarkChatWords
+                    onBookmarkWords = onBookmarkChatWords,
+                    onExportText = onExportChatText,
+                    onExportPdf = onExportChatPdf,
+                    persona = chatPersona,
+                    onPersonaChange = onPersonaChange
                 )
             }
             is PanelState.NotFound -> {
@@ -575,7 +666,7 @@ private fun InstructionsPanel(
                 painter = painterResource(
                     if (isError) R.drawable.ic_search else R.drawable.ic_tap
                 ),
-                contentDescription = null,
+                contentDescription = if (isError) "Error" else "Tap to begin",
                 modifier = Modifier
                     .size(48.dp)
                     .padding(bottom = 16.dp),

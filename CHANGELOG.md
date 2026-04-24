@@ -6,6 +6,60 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.8.0 (2026-04-24) - Professional Scanning Modes
+
+### Added
+- **Professional scanning modes**: 4-mode selector (Standard, Interpreter, Medical, Legal) in camera toolbar
+  - ScanMode enum with display names, short labels, and descriptions
+  - Mode-specific Gemini system prompts for analysis and chat
+  - Interpreter mode: translation aids, cultural context, idiomatic expressions, false friends
+  - Medical mode: clinical terminology, drug names, anatomical terms, safety-critical flagging (⚠️)
+  - Legal mode: legal terms of art, clause extraction, obligations vs. permissions, ambiguity detection
+- **Scan mode selector UI**: Compact pill row above CEFR slider with color-coded mode indicators
+  - STD (indigo), INT (sky blue), MED (emerald), LAW (amber)
+- **Mode badge in AI analysis header**: Non-standard modes display a colored chip next to provider name
+- **Mode-aware chat**: Chat system prompt adapts to active scan mode with domain-specific guidance
+- String resources for all scan mode labels
+
+### Changed
+- AnalysisContext now carries scanMode field (defaults to STANDARD for backward compatibility)
+- GeminiProvider and ClaudeProvider use mode-specific system prompts
+- buildCefrSystemPrompt accepts optional scanMode parameter for chat context
+
+## v0.7.0 (2026-04-15) - Chat Intelligence & Context Memory
+
+### Added
+- **Cross-session chat persistence**: Chat history saved to Room DB per captured text, survives app restarts
+  - ChatSessionEntity + ChatMessageEntity: Room entities with session metadata and foreign key cascading
+  - ChatDao: Full CRUD with session listing, message flows, and count queries
+  - ChatRepository: Business logic for session save/load/delete with auto-timestamping
+- **Chat follow-up from history**: Resume any past chat session from the History screen Chats tab
+  - HistoryScreen: New "Chats" tab showing all sessions with OCR preview, message count, CEFR level
+  - CaptureFlowViewModel.resumeChatSession(): Reconstructs chat state from persisted messages
+- **Smart suggestion chips**: AI-generated CEFR-adapted follow-up questions after each model response
+  - GeminiChatClient: Parses `[SUGGESTIONS]` block from model output
+  - ChatPanel: Dynamic suggestion chips replace static fallbacks when available
+- **Vocabulary extraction from chat**: Auto-bookmark bold words (**term**) discussed in AI responses
+  - BOLD_WORD_REGEX extraction in CaptureFlowViewModel
+  - "Save N words" AssistChip in ChatPanel when terms detected
+- **Chat export**: Share chat conversations as plain text or PDF
+  - ChatExporter: Formats conversations as text or renders to A4 PDF with role-colored labels
+  - Share menu in ChatPanel header and History Chats tab per session
+  - Android share intent with FileProvider for PDF sharing
+- **CEFR-adapted Gemini chat system prompt**: System prompt adapts explanations to user's CEFR level
+- **Readability score in chat context**: Flesch-Kincaid + difficulty level seeded into chat context
+- **Persona mode**: Three distinct AI personas with specialized system prompts
+  - Sage (default): Reading comprehension, main ideas, context clues, text structure
+  - Lexicon: Vocabulary focus — definitions, synonyms, etymology, word families
+  - Tutor: Grammar practice, translation exercises, active drills with feedback
+  - ChatPersona enum with persona-specific system prompt generation
+  - Persona selector chip in ChatPanel header (locked after first message)
+
+### Changed
+- UserDatabase: Schema version bump with chat_sessions and chat_messages tables
+- DatabaseModule: Provides ChatDao + ChatRepository via Hilt
+- CaptureFlowViewModel: Injects ChatRepository + ChatExporter, auto-saves sessions on chat dismiss
+
 ## v0.6.0 (2026-04-07) - SRS Study System + Crash Safety
 
 ### Added

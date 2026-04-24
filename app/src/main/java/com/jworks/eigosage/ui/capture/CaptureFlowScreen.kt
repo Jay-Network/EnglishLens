@@ -135,6 +135,7 @@ private fun CaptureFlowContent(
                 val liveRotationDegrees by viewModel.liveRotationDegrees.collectAsState()
                 val showIpaOverlay by viewModel.showIpaOverlay.collectAsState()
                 val ipaFontScale by viewModel.ipaFontScale.collectAsState()
+                val scanMode by viewModel.scanMode.collectAsState()
                 CameraPreviewMode(
                     isFlashOn = viewModel.isFlashOn.collectAsState().value,
                     onCapture = { bitmap -> viewModel.onPhotoCapture(bitmap) },
@@ -159,6 +160,8 @@ private fun CaptureFlowContent(
                     showIpaOverlay = showIpaOverlay,
                     ipaFontScale = ipaFontScale,
                     onIpaToggle = { viewModel.toggleIpaOverlay() },
+                    scanMode = scanMode,
+                    onScanModeChange = { viewModel.setScanMode(it) },
                     onFrameAvailable = { imageProxy -> viewModel.processLiveFrame(imageProxy) }
                 )
             }

@@ -1,7 +1,7 @@
 # EigoSage Roadmap
 
-**Current version**: v0.6.0 (Alpha)
-**Last updated**: 2026-04-08
+**Current version**: v0.8.0 (Alpha)
+**Last updated**: 2026-04-24
 
 ---
 
@@ -19,17 +19,20 @@
 - **EigoJourney export**: Send word decks to EigoJourney for gamified mastery
   - **DEPENDS ON**: EigoJourney (jworks:45) import API — deferred
 
-### v0.7.0 — Chat Intelligence & Context Memory
-- **Cross-session chat context**: Persist chat history per captured text (Room)
-- **Chat follow-up from history**: Re-open chat for previously captured texts
-- **Smart suggestions**: AI-generated follow-up questions based on user's CEFR level
-- **Vocabulary extraction from chat**: Auto-bookmark words discussed in chat
-- **Chat export**: Share conversation as text/PDF
+### ~~v0.7.0 — Chat Intelligence & Context Memory~~ ✓ DONE (2026-04-15)
+- ~~**Cross-session chat context**: Persist chat history per captured text (Room)~~ ✓
+- ~~**Chat follow-up from history**: Re-open chat for previously captured texts~~ ✓
+- ~~**Smart suggestions**: AI-generated follow-up questions based on user's CEFR level~~ ✓
+- ~~**Vocabulary extraction from chat**: Auto-bookmark words discussed in chat~~ ✓
+- ~~**Chat export**: Share conversation as text/PDF~~ ✓
 
-### v0.8.0 — Professional Scanning Modes
+### ~~v0.8.0 — Professional Scanning Modes~~ ✓ DONE (2026-04-24)
+- ~~**Professional scanning modes**: 4 modes — Standard, Interpreter, Medical, Legal~~ ✓
+- ~~**Mode selector UI**: Compact pill row in camera toolbar with color-coded indicators~~ ✓
+- ~~**Mode-specific Gemini prompts**: Domain-specialized analysis for each mode~~ ✓
+- ~~**Mode-aware chat**: Chat adapts to active scan mode with domain guidance~~ ✓
+- ~~**Mode badge**: AI analysis header shows active mode for non-standard modes~~ ✓
 - **Document mode**: Multi-page capture with page navigation
-- **Medical English mode**: Medical terminology dictionary overlay (ICD codes, anatomical terms)
-- **Business English mode**: Conference/meeting vocabulary (formal register, idioms)
 - **Batch scan**: Queue multiple captures for background AI analysis
 - **PDF import**: Analyze PDF documents directly
 

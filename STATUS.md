@@ -3,7 +3,7 @@
 > **Shared status file** — updated by both jworks:46 (Android) and jworks:61 (iPad).
 > Each agent updates its own column. Check this file before starting work to stay in sync.
 
-**Last updated**: 2026-03-01
+**Last updated**: 2026-04-24
 
 ---
 
@@ -50,7 +50,17 @@
 | **CEFR difficulty filter** | DONE | DONE |
 | **Difficult words panel** | DONE | DONE |
 | **Glass UI (translucent cards)** | DONE | DONE |
-| **Crash safety hardening** | - | DONE |
+| **Crash safety hardening** | DONE | DONE |
+| **SRS flashcard system** | DONE | - |
+| **Chat persistence (Room)** | DONE | - |
+| **Chat resume from history** | DONE | - |
+| **Smart suggestion chips** | DONE | - |
+| **Auto-bookmark chat words** | DONE | - |
+| **Chat export (text/PDF)** | DONE | - |
+| **Persona mode (Sage/Lexicon/Tutor)** | DONE | - |
+| **Professional scan modes (4 modes)** | DONE | - |
+| **Mode-specific AI prompts** | DONE | - |
+| **Mode badge in AI panel** | DONE | - |
 
 **Legend**: DONE | SCAFFOLDED (code written, not yet compiled) | IN PROGRESS | - (not started) | N/A
 
@@ -59,10 +69,10 @@
 ## Current Sprint
 
 ### Android (jworks:46)
-- **Version**: v0.5.1
-- **Current work**: Renamed EigoLens → EigoSage, in-app Gemini chat, IPA/CEFR overlay
-- **Next**: Phase D (spaced repetition, study mode)
-- **Blockers**: None
+- **Version**: v0.8.0
+- **Current work**: Professional scanning modes complete (v0.8.0) — 4 modes with mode-specific Gemini prompts
+- **Next**: v0.9.0 Polish & Beta Prep
+- **Blockers**: S1-ES-2 OCR profiling needs device testing
 
 ### iPad (jworks:61)
 - **Version**: 0.3.0 (Glass UI + Word Enrichment)

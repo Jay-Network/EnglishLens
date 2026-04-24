@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import com.jworks.eigosage.data.ai.ScanMode
 import com.jworks.eigosage.domain.models.CefrLevel
 import com.jworks.eigosage.domain.models.EnrichedWord
 import com.jworks.eigosage.domain.models.color
@@ -58,7 +59,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.border
 import com.jworks.eigosage.R
-import com.jworks.eigosage.ui.theme.GlassBorder
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -83,6 +83,8 @@ fun CameraPreviewMode(
     showIpaOverlay: Boolean = true,
     ipaFontScale: Float = 0.6f,
     onIpaToggle: () -> Unit = {},
+    scanMode: ScanMode = ScanMode.DEFAULT,
+    onScanModeChange: (ScanMode) -> Unit = {},
     onFrameAvailable: (ImageProxy) -> Unit = { it.close() },
     modifier: Modifier = Modifier
 ) {
@@ -280,6 +282,15 @@ fun CameraPreviewMode(
             )
         }
 
+        // Scan mode selector
+        ScanModeSelector(
+            selectedMode = scanMode,
+            onModeChange = onScanModeChange,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 168.dp)
+        )
+
         // CEFR threshold slider
         CefrThresholdBar(
             threshold = cefrThreshold,
@@ -376,6 +387,44 @@ private fun CefrThresholdBar(
                     fontSize = 9.sp
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ScanModeSelector(
+    selectedMode: ScanMode,
+    onModeChange: (ScanMode) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .background(Color.Black.copy(alpha = 0.45f), RoundedCornerShape(20.dp))
+            .border(1.dp, Color(0xFF4F46E5).copy(alpha = 0.3f), RoundedCornerShape(20.dp))
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        ScanMode.entries.forEach { mode ->
+            val isSelected = mode == selectedMode
+            val modeColor = when (mode) {
+                ScanMode.STANDARD -> Color(0xFF4F46E5)
+                ScanMode.INTERPRETER -> Color(0xFF0EA5E9)
+                ScanMode.MEDICAL -> Color(0xFF10B981)
+                ScanMode.LEGAL -> Color(0xFFF59E0B)
+            }
+            Text(
+                text = mode.shortLabel,
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 11.sp,
+                color = if (isSelected) Color.White else Color.White.copy(alpha = 0.6f),
+                modifier = Modifier
+                    .clickable { onModeChange(mode) }
+                    .background(
+                        if (isSelected) modeColor.copy(alpha = 0.85f) else Color.Transparent,
+                        RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 10.dp, vertical = 5.dp)
+            )
         }
     }
 }

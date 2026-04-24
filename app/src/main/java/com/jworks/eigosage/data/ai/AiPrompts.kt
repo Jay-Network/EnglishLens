@@ -104,4 +104,10 @@ Provide:
 
     /** System prompt shared across all scope levels */
     const val SYSTEM_PROMPT = "You are an English language analysis assistant embedded in a camera-based reading app called EigoSage. Your audience is ESL/EFL learners. Be concise, educational, and practical. Use simple English in your explanations. Format responses with markdown (bold, bullet points)."
+
+    fun systemPromptForMode(scanMode: ScanMode): String {
+        val modePrompt = GeminiChatClient.buildScanModeAnalysisPrompt(scanMode)
+            ?: return SYSTEM_PROMPT
+        return "$modePrompt\n\nFormat responses with markdown (bold, bullet points)."
+    }
 }

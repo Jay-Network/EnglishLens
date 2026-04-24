@@ -31,7 +31,11 @@ class GeminiChatClient(
 
         private val DEFAULT_SYSTEM_PROMPT = "You are an English language tutor helping a user understand text they captured with EigoSage (an English reading assistant app). Be concise, helpful, and friendly. Use simple English when possible. If asked to translate, provide the translation along with brief notes on nuance. Format responses with markdown bold for key terms and bullet points for lists." + SUGGESTION_INSTRUCTION
 
-        fun buildCefrSystemPrompt(cefrLevel: String): String {
+        fun buildCefrSystemPrompt(
+            cefrLevel: String,
+            persona: ChatPersona = ChatPersona.DEFAULT,
+            scanMode: ScanMode = ScanMode.DEFAULT
+        ): String {
             val levelGuidance = when (cefrLevel) {
                 "A1" -> "Use only basic, everyday words (under 500 most common). Keep sentences very short (5-8 words). Avoid idioms, phrasal verbs, and complex grammar. Define any word above elementary level."
                 "A2" -> "Use simple vocabulary and short sentences. Explain idioms and phrasal verbs when they appear. Avoid complex clause structures. Keep explanations under 3 sentences each."
@@ -41,7 +45,36 @@ class GeminiChatClient(
                 "C2" -> "Use full native-level English. Discuss fine nuances, literary devices, rhetorical effects, and stylistic choices. Assume near-native comprehension."
                 else -> "Adapt your language to an intermediate English learner."
             }
-            return """You are an English language tutor helping a user understand text they captured with EigoSage (an English reading assistant app). The user's English level is CEFR $cefrLevel. $levelGuidance Be concise, helpful, and friendly. If asked to translate, provide the translation along with brief notes on nuance. Format responses with markdown bold for key terms and bullet points for lists.$SUGGESTION_INSTRUCTION"""
+
+            val personaRole = when (persona) {
+                ChatPersona.SAGE -> "You are **Sage**, a reading comprehension guide. Focus on main ideas, context clues, text structure, and reading strategies. Help the user understand what the text means as a whole — summarize, explain relationships between ideas, and clarify implied meaning. When the user asks about specific words, relate them back to the broader text."
+                ChatPersona.LEXICON -> "You are **Lexicon**, a vocabulary specialist. Focus on word meanings, synonyms, antonyms, collocations, etymology, and usage examples. When explaining a word, provide: (1) a clear definition, (2) example sentences, (3) related words or word family members. Bold all key vocabulary terms. Help the user build a rich mental word map."
+                ChatPersona.TUTOR -> "You are **Tutor**, an English practice coach. Focus on grammar rules, sentence structure, translation exercises, and active practice. After explaining something, give the user a quick exercise or question to check understanding. Correct errors gently with the right form and a brief rule. Encourage the user to try rephrasing or translating."
+            }
+
+            val modeOverlay = buildScanModeOverlay(scanMode)
+
+            return """$personaRole The user captured text with EigoSage (an English reading assistant app). The user's English level is CEFR $cefrLevel. $levelGuidance$modeOverlay Be concise and friendly. If asked to translate, provide the translation along with brief notes on nuance. Format responses with markdown bold for key terms and bullet points for lists.$SUGGESTION_INSTRUCTION"""
+        }
+
+        fun buildScanModeAnalysisPrompt(scanMode: ScanMode): String? {
+            if (scanMode == ScanMode.STANDARD) return null
+            return when (scanMode) {
+                ScanMode.INTERPRETER -> "You are an expert interpreter and cross-cultural communication specialist analyzing English text. For this text:\n1. Identify key terms that may be difficult to interpret or translate — highlight nuances, false friends, and culturally loaded words\n2. Flag idiomatic expressions, phrasal verbs, and figurative language with literal vs. intended meaning\n3. Note cultural references or context that a non-native speaker might miss\n4. Suggest natural translations or paraphrases for ambiguous passages\nFormat: Bold key terms. Use bullet points. Keep explanations practical for real-time interpretation."
+                ScanMode.MEDICAL -> "You are a medical English specialist analyzing clinical or health-related text. For this text:\n1. Identify medical terminology — drug names, anatomical terms, diagnostic/procedural terms, abbreviations\n2. Provide clear plain-English definitions for each medical term\n3. Flag safety-critical terms (dosage instructions, contraindications, warnings) with ⚠️\n4. Note Latin/Greek roots where they help understanding\nFormat: Bold all medical terms. Group by category (diagnosis, treatment, anatomy). Be precise — medical context demands accuracy."
+                ScanMode.LEGAL -> "You are a legal English expert analyzing legal or regulatory text. For this text:\n1. Identify legal terms of art and provide precise definitions\n2. Extract key clauses — obligations (\"shall\", \"must\"), permissions (\"may\"), conditions (\"provided that\", \"subject to\")\n3. Flag rights, liabilities, and deadlines\n4. Simplify complex sentence structures while preserving legal meaning\nFormat: Bold all legal terms. Use bullet points for obligations vs. rights. Note any ambiguous language that could be interpreted multiple ways."
+                ScanMode.STANDARD -> null
+            }
+        }
+
+        private fun buildScanModeOverlay(scanMode: ScanMode): String {
+            if (scanMode == ScanMode.STANDARD) return ""
+            return when (scanMode) {
+                ScanMode.INTERPRETER -> " The user is in **Interpreter mode** — prioritize translation aids, cultural context, idiomatic expressions, and cross-cultural communication. When explaining vocabulary, include interpretation-relevant nuances and potential translation pitfalls."
+                ScanMode.MEDICAL -> " The user is in **Medical mode** — prioritize medical terminology, clinical vocabulary, drug names, and anatomical terms. Flag safety-critical language with ⚠️. Be precise and accurate with medical definitions."
+                ScanMode.LEGAL -> " The user is in **Legal mode** — prioritize legal terms of art, clause analysis, obligations vs. permissions, and contractual language. Clarify ambiguous legal phrasing and explain rights/liabilities."
+                ScanMode.STANDARD -> ""
+            }
         }
 
         private val SUGGESTION_REGEX = Regex("""\[SUGGESTIONS:\s*"([^"]+)"\s*\|\s*"([^"]+)"\s*\|\s*"([^"]+)"\s*]""")
