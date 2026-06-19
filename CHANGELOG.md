@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## v0.8.1 (2026-06-01) - Gemini Thinking Token Hardening
+
+### Fixed
+- **S-358: Thinking token truncation risk**: Added `thinkingConfig.thinkingBudget: 0` to all 4 Gemini REST API call sites (GeminiOcrCorrector, GeminiProvider, GeminiChatClient) to explicitly disable thinking tokens — prevents silent output truncation when upgrading to Gemini 3.5 Flash (which enables thinking by default)
+- **Contextual insight token limit**: Bumped maxOutputTokens 256 → 512 on `getContextualInsight()` (was critically tight)
+- **Chat token limit**: Bumped maxOutputTokens 1024 → 2048 on `GeminiChatClient.send()` for longer conversations with suggestion markup
+
 ## v0.8.0 (2026-04-24) - Professional Scanning Modes
 
 ### Added

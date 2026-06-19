@@ -124,8 +124,11 @@ class GeminiChatClient(
                 }
             }
             putJsonObject("generationConfig") {
-                put("maxOutputTokens", 1024)
+                put("maxOutputTokens", 2048)
                 put("temperature", 0.5)
+                putJsonObject("thinkingConfig") {
+                    put("thinkingBudget", 0)
+                }
             }
         }.toString()
 

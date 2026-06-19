@@ -69,6 +69,9 @@ class GeminiProvider(
             putJsonObject("generationConfig") {
                 put("maxOutputTokens", 4096)
                 put("temperature", 0.3)
+                putJsonObject("thinkingConfig") {
+                    put("thinkingBudget", 0)
+                }
             }
         }.toString()
 

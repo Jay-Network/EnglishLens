@@ -69,6 +69,9 @@ class GeminiOcrCorrector @Inject constructor(
             putJsonObject("generationConfig") {
                 put("maxOutputTokens", 2048)
                 put("temperature", 0.1)
+                putJsonObject("thinkingConfig") {
+                    put("thinkingBudget", 0)
+                }
             }
         }.toString()
 
@@ -137,8 +140,11 @@ NOTE: <note>"""
                 })
             }
             putJsonObject("generationConfig") {
-                put("maxOutputTokens", 256)
+                put("maxOutputTokens", 512)
                 put("temperature", 0.1)
+                putJsonObject("thinkingConfig") {
+                    put("thinkingBudget", 0)
+                }
             }
         }.toString()
 

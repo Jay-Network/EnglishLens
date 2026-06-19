@@ -3,6 +3,9 @@
 ## Active Tasks
 (none)
 
+## Recently Completed
+- [x] S-358: Harden Gemini callers against thinking token truncation — thinkingBudget:0 on all 4 call sites, bumped tight token limits (2026-06-01)
+
 ## Completed
 - [x] Extract remaining hardcoded UI strings — SettingsScreen (15) + HistoryScreen (2) (2026-04-24)
 - [x] Fix Coin Shop navigation icon (wrong arrow in SettingsScreen) (2026-04-24)
