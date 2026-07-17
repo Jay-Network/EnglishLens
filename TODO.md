@@ -4,6 +4,7 @@
 (none)
 
 ## Recently Completed
+- [x] [@solo] Add 21 unit tests for OcrTextMerger — merge logic, empty inputs, word/line mismatch, isWord flag, metadata preservation (2026-06-21)
 - [x] S-358: Harden Gemini callers against thinking token truncation — thinkingBudget:0 on all 4 call sites, bumped tight token limits (2026-06-01)
 
 ## Completed

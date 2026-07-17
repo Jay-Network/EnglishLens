@@ -19,3 +19,6 @@
 
 # Entire
 .entire/
+
+# Agent runtime metadata
+.agent-version
